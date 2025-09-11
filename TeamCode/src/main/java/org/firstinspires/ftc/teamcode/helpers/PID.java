@@ -28,7 +28,12 @@ public class PID {
 		lastTime = System.currentTimeMillis();
 	}
 
-	//Barebones,mostly for autos (ts)
+	/**
+	 * Barebones,mostly for autos
+	 * @param kp Proportional gain (Gets near position faster, more prone to overshoot)
+	 * @param ki Integral gain (Decreases steady-state error, more oscillative, less responsive)
+	 * @param kd Derivative gain (Reduces overshoot and smooths response)
+	 */
 	public PID (double kp, double ki, double kd) {
 		this.kp = kp;
 		this.ki = ki;

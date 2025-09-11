@@ -1,15 +1,20 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
-
 import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.helpers.PID;
 import org.firstinspires.ftc.teamcode.helpers.odo.Odometry;
 
 public class Drivetrain {
-    public final DcMotorEx frontLeft,frontRight,backLeft,backRight;
-    public double speed = 1;
+    public boolean waitWorthy = true;
+    private final DcMotorEx frontLeft,frontRight,backLeft,backRight;
+    private final Odometry odo;
+    private double speed = 1;
 
     public Drivetrain(@NonNull HardwareMap hardwareMap) {
         //Drive Motor Initialization
@@ -18,17 +23,19 @@ public class Drivetrain {
         backLeft = hardwareMap.get(DcMotorEx.class, "Back Left");
         backRight = hardwareMap.get(DcMotorEx.class, "Back Right");
 
-        //Needed for how the motors are mounted
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        //TODO: CONFIGURE OFFSETS
+        odo = new Odometry(hardwareMap, 0, 0);
     }
+
     public void robotOrientedDrive(double forward, double sideways, double rotation) {
-
-
         //Multiplied by speed variable, only changes when in slowmode
         forward *= speed;
         sideways *= speed;
@@ -87,13 +94,31 @@ public class Drivetrain {
 
     public boolean isSlow() {return speed == .5;}
 
+    //TODO: CONFIGURE PIDS
+    private final PID xpid = new PID(0,0,0);
+    private final PID ypid = new PID(0,0,0);
+    private final PID rpid = new PID(0,0,0);
+    public void update (@NonNull double[] pos) {
+        xpid.setTarget(pos[0]);
+        ypid.setTarget(pos[1]);
+        rpid.setTarget(pos[2]);
+
+        odo.update();
+        fieldOrientedDrive(
+                ypid.autoControl(odo.getPosition().getX(DistanceUnit.INCH)),
+                xpid.autoControl(odo.getPosition().getY(DistanceUnit.INCH)),
+                rpid.autoControl(odo.getPosition().getHeading(AngleUnit.DEGREES)),
+                odo
+        );
+    }
+
     @NonNull
     @Override
     public String toString() {
         return
                 "Front Left: " + frontLeft.getPower() + "\n" +
-                        "Front Right: " + frontRight.getPower() + "\n" +
-                        "Back Left: " + backLeft.getPower() + "\n" +
-                        "Back Right: " + backRight.getPower();
+                "Front Right: " + frontRight.getPower() + "\n" +
+                "Back Left: " + backLeft.getPower() + "\n" +
+                "Back Right: " + backRight.getPower();
     }
 }
