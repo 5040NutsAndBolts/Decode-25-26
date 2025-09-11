@@ -21,7 +21,6 @@ public class Drivetrain {
         //Needed for how the motors are mounted
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -61,7 +60,7 @@ public class Drivetrain {
     }
 
     //field oriented drive
-    public void fieldOrientedDrive(double forward, double sideways, double rotation, Odometry odo) {
+    public void fieldOrientedDrive(double forward, double sideways, double rotation, @NonNull Odometry odo) {
         double P = Math.hypot(sideways, forward);
         double currentAngle = odo.getPinpoint().getHeading();
 
@@ -85,6 +84,7 @@ public class Drivetrain {
             speed = speed ==.5 ? 1 : .5;
         lastButton = input;
     }
+
     public boolean isSlow() {return speed == .5;}
 
     @NonNull
@@ -92,9 +92,8 @@ public class Drivetrain {
     public String toString() {
         return
                 "Front Left: " + frontLeft.getPower() + "\n" +
-                "Front Right: " + frontRight.getPower() + "\n" +
-                "Back Left: " + backLeft.getPower() + "\n" +
-                "Back Right: " + backRight.getPower() + "\n" +
-                "isSlow: " + isSlow();
+                        "Front Right: " + frontRight.getPower() + "\n" +
+                        "Back Left: " + backLeft.getPower() + "\n" +
+                        "Back Right: " + backRight.getPower();
     }
 }

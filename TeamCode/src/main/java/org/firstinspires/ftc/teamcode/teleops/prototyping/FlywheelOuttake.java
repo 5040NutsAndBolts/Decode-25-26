@@ -23,5 +23,4 @@ public class FlywheelOuttake extends OpMode {
 		telemetry.addLine("Motor Power: " + motor.getPower());
 		telemetry.update();
 	}
-
 }

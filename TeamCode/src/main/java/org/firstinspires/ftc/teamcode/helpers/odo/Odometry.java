@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.helpers.odo.GoBildaPinpointDriver;
 public class Odometry {
     private final GoBildaPinpointDriver pinpoint;
 
-    public Odometry (@NonNull HardwareMap hardwareMap) {
+    public Odometry (@NonNull HardwareMap hardwareMap, float xOffset, float yOffset) {
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
         //We use the swingarm GoBilda pods, change if you are using different pods (it's ticks/mm)
@@ -21,7 +21,7 @@ public class Odometry {
 
         //THIS WILL CHANGE WITH EVERY DRIVETRAIN!
         //Offsets of each pod from the center of the robot (in mm)
-        pinpoint.setOffsets(3,2);
+        pinpoint.setOffsets(xOffset,yOffset);
 
         //Recalibrate IMU
         pinpoint.resetPosAndIMU();

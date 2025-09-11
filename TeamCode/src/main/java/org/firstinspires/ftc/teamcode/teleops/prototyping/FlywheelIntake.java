@@ -4,13 +4,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-@TeleOp(name="FlywheelOuttakePrototype", group="Teleop")
+@TeleOp(name="FlywheelIntakePrototype", group="Teleop")
 public class FlywheelIntake extends OpMode {
 	private CRServo servo;
 
 	@Override
 	public void init() {
-		servo = hardwareMap.get(CRServo.class, "motor");
+		servo = hardwareMap.get(CRServo.class, "servo");
 	}
 
 	@Override
@@ -19,5 +19,4 @@ public class FlywheelIntake extends OpMode {
 		telemetry.addLine("Motor Power: " + servo.getPower());
 		telemetry.update();
 	}
-
 }
