@@ -1,34 +1,54 @@
 package org.firstinspires.ftc.teamcode.helpers.states;
 
-import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 
 public class Path {
-	public final ArrayList<Mechanism> mechanisms = new ArrayList<>();
-
+	public static final ArrayList<Mechanism> mechanisms = new ArrayList<>();
 	private ArrayList<Object[][]> states;
 
 	/**
-	 * add a state to the path
-	 * @param mechanismClass class of desired mechanism to add a state to
-	 * @param state desired state of the mechanism
+	 * add states to the path
+	 * @param states
 	 */
-	public void queueState(Class<?> mechanismClass, Object[] state) {
-		states.add(new Object[][]{{mechanismClass}, state});
+	public void queueStates(@NonNull ArrayList<Object[][]> states) {
+		for(Object[][] state : states) {
+			assert state.length == 2;
+			assert Mechanism.class.isAssignableFrom(state[0][0].getClass());
+		}
+		this.states.addAll(states);
 	}
 
+	/**
+	 * add a mechanishm to the path
+	 * @param mechanism mechanism to be added
+	 */
+	public void addMechanism(@NonNull Object mechanism) {
+		//ensure that the mechanism is a subclass of Mechanism
+		assert Mechanism.class.isAssignableFrom(mechanism.getClass());
+		mechanisms.add((Mechanism) mechanism);
+	}
 
+	/**
+	 * update the path
+	 */
+	private short stateIter = 0;
 	public void update() {
-		for(Object[][] s : states)
-			for(Mechanism m : mechanisms) {
-				if (Mechanism.class.isAssignableFrom((Class<?>) s[0][0])) {
-					if(m.isFinished() && !m.waitWorthy)
-						continue;
-					m.update(s[1]);
-				}
-			}
+		if(stateIter >= states.size()) return;
+		for(Mechanism m : mechanisms) {
+			//match state to mechanism
+			if(m.getClass().equals(states.get(stateIter)[0][0]))
+				m.update(states.get(stateIter)[1]);
+		}
+		//increment if done
+		if(isFinished()) stateIter++;
 	}
 
-	public boolean isFinished() {return false;}
+	public boolean isFinished() {
+		for(Mechanism m : mechanisms) {
+			if(!m.isFinished() && m.waitWorthy)
+				return false;
+		}return true;
+	}
 }

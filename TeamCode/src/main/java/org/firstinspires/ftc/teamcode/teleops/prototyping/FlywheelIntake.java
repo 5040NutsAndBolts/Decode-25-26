@@ -16,7 +16,7 @@ public class FlywheelIntake extends OpMode {
 	@Override
 	public void loop() {
 		servo.setPower(gamepad1.left_stick_y);
-		telemetry.addLine("Motor Power: " + servo.getPower());
+		telemetry.addLine("Servo Power: " + servo.getPower());
 		telemetry.update();
 	}
 }

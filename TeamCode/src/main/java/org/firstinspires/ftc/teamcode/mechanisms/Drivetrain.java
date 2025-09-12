@@ -9,8 +9,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.helpers.PID;
 import org.firstinspires.ftc.teamcode.helpers.odo.Odometry;
+import org.firstinspires.ftc.teamcode.helpers.states.Mechanism;
 
-public class Drivetrain {
+public class Drivetrain extends Mechanism {
     public boolean waitWorthy = true;
     private final DcMotorEx frontLeft,frontRight,backLeft,backRight;
     private final Odometry odo;
@@ -84,8 +85,13 @@ public class Drivetrain {
         backRight.setPower(v8);
     }
 
-    //Silly button logic stuff
+
     boolean lastButton = false;
+
+    /**
+     * toggles slow mode
+     * @param input gamepad input
+     */
     public void toggleSlowMode(boolean input) {
         if(lastButton != input && input)  //If button state has changed and it is pressed
             speed = speed ==.5 ? 1 : .5;
@@ -98,10 +104,17 @@ public class Drivetrain {
     private final PID xpid = new PID(0,0,0);
     private final PID ypid = new PID(0,0,0);
     private final PID rpid = new PID(0,0,0);
-    public void update (@NonNull double[] pos) {
-        xpid.setTarget(pos[0]);
-        ypid.setTarget(pos[1]);
-        rpid.setTarget(pos[2]);
+
+    /**
+     * moves the drivetrain to a desired position
+     * @param pos [x,y,r] in inches and degrees
+     */
+    public void update (@NonNull Object[] pos) {
+        for(Object o : pos)
+            assert o instanceof Double;
+        xpid.setTarget((Double) pos[0]);
+        ypid.setTarget((Double) pos[1]);
+        rpid.setTarget((Double) pos[2]);
 
         odo.update();
         fieldOrientedDrive(
@@ -112,6 +125,14 @@ public class Drivetrain {
         );
     }
 
+	public boolean isFinished() {
+		double rotMOE = 2;
+		double xyMOE = 1;
+		return Math.abs(xpid.getTarget() - odo.getPosition().getX(DistanceUnit.INCH)) < xyMOE &&
+                  Math.abs(ypid.getTarget() - odo.getPosition().getY(DistanceUnit.INCH)) < xyMOE &&
+                  Math.abs(rpid.getTarget() - odo.getPosition().getHeading(AngleUnit.DEGREES)) < rotMOE;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -119,6 +140,12 @@ public class Drivetrain {
                 "Front Left: " + frontLeft.getPower() + "\n" +
                 "Front Right: " + frontRight.getPower() + "\n" +
                 "Back Left: " + backLeft.getPower() + "\n" +
-                "Back Right: " + backRight.getPower();
+                "Back Right: " + backRight.getPower() + "\n" +
+                "X: " + odo.getPosition().getX(DistanceUnit.INCH) + "\n" +
+                "Y: " + odo.getPosition().getY(DistanceUnit.INCH) + "\n" +
+                "Rotation: " + odo.getPosition().getHeading(AngleUnit.DEGREES) + "\n" +
+                "X controller: " + xpid + "\n" +
+                "Y controller: " + ypid + "\n" +
+                "Rotation controller: " + rpid;
     }
 }
