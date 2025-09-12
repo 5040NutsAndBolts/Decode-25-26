@@ -31,12 +31,13 @@ public class AtagCamera extends LinearOpMode
 
     // Lens stuff
     // UNITS ARE PIXELS
-    //needs to be configurated to new stuff!!!!!!!!!!!!!!!!!!!
-    double fx = 578.272;
-    double fy = 578.272;
-    double cx = 402.145;
-    double cy = 221.506;
-
+    //this is a rough estimate I made for the ardu 8MP autofocus camera.
+    //calibrate properly when time allows
+    double fx = 2821;
+    double fy = 2116;
+    double cx = 1640;
+    double cy = 1232;
+    //https://en.wikipedia.org/wiki/Camera_resectioning?scrlybrkr=a28d1904 (if you're curious about these calculations and intrisic matricies)
 
     // UNITS ARE METERS
     double tagsize = 0.166;
