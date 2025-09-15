@@ -6,11 +6,11 @@ import java.util.ArrayList;
 
 public class Path {
 	public static final ArrayList<Mechanism> mechanisms = new ArrayList<>();
-	private ArrayList<Object[][]> states;
+	private final ArrayList<Object[][]> states = new ArrayList<>();
 
 	/**
 	 * add states to the path
-	 * @param states
+	 * @param states states to be added
 	 */
 	public void queueStates(@NonNull ArrayList<Object[][]> states) {
 		for(Object[][] state : states) {
