@@ -51,4 +51,12 @@ public class Path {
 				return false;
 		}return true;
 	}
+
+	@Override
+	@NonNull
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		mechanisms.forEach((m) -> s.append(m.toString()));
+		return s.toString();
+	}
 }

@@ -1,12 +1,8 @@
-package org.firstinspires.ftc.teamcode.teleops.prototyping;
+package org.firstinspires.ftc.teamcode.opmodes.teleops.prototyping;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-
-import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
-
-import java.lang.annotation.Annotation;
 
 @TeleOp(name="FlywheelOuttakePrototype", group="Teleop")
 public class FlywheelOuttake extends OpMode {

@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode.teleops.Autonomous;
+package org.firstinspires.ftc.teamcode.opmodes.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import org.firstinspires.ftc.teamcode.helpers.states.Mechanism;
 import org.firstinspires.ftc.teamcode.helpers.states.Path;
 import java.util.ArrayList;
 
@@ -13,18 +12,15 @@ public class Autonomous extends OpMode {
 		for(Path p : paths)
 			while(!p.isFinished()) {
 				p.update();
-				logTelemetry();
+				telemetry.addLine("Runtime: "+time);
+				telemetry.addLine(p.toString());
+				telemetry.update();
 			}
-	}
-
-	public void logTelemetry() {
-		for(Mechanism m : Path.mechanisms)
-			telemetry.addLine(m.toString()+"\n");
-		telemetry.update();
 	}
 
 	@Override
 	public void init() {
+
 	}
 
 	@Override
