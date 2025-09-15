@@ -43,11 +43,12 @@ public class AtagCamera extends LinearOpMode
     double tagsize = 0.166;
 
 
-    //Tag IDs on Obelisk
+    //Tag IDs on Obelisk and Goals
     int gpp = 21;
     int pgp = 22;
     int ppg = 23;
-
+    int red = 24;
+    int blue = 20;
 
     AprilTagDetection tagOfInterest = null;
 
@@ -68,6 +69,7 @@ public class AtagCamera extends LinearOpMode
             public void onOpened()
             {
                 camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+                telemetry.addLine("Camera sucessfully opened");
             }
 
 
@@ -97,7 +99,7 @@ public class AtagCamera extends LinearOpMode
                 for(AprilTagDetection tag : currentDetections) {
 
 
-                    if(tag.id == gpp || tag.id == pgp || tag.id == ppg) {
+                    if(tag.id == gpp || tag.id == pgp || tag.id == ppg || tag.id == red || tag.id == blue) {
 
 
                         tagOfInterest = tag;
@@ -179,6 +181,10 @@ public class AtagCamera extends LinearOpMode
                 telemetry.addLine("Purple Green Purple");
             if(tagOfInterest.id == ppg)
                 telemetry.addLine("Purple Purple Green");
+            if(tagOfInterest.id == red)
+                telemetry.addLine("Red Goal");
+            if(tagOfInterest.id == blue)
+                telemetry.addLine("Blue Goal");
         }
     }
 
