@@ -19,7 +19,7 @@ public class Sorter extends OpMode {
 
 	@Override
 	public void loop() {
-		front.setPower(gamepad1.left_stick_y);
-		back.setPower(gamepad1.left_stick_y);
+		front.setPower(.35*gamepad1.left_stick_y);
+		back.setPower(.35*gamepad1.left_stick_y);
 	}
 }
