@@ -107,11 +107,11 @@ public class Drivetrain extends Mechanism {
 
     /**
      * moves the drivetrain to a desired position
-     * @param pos [x,y,r] in inches and degrees
+     * @param pos Doubles, [x,y,r] in inches and degrees
      */
     public void update (@NonNull Object[] pos) {
         for(Object o : pos)
-            assert o instanceof Double;
+            assert (o instanceof Double || o instanceof Float) && pos.length == 3;
         xpid.setTarget((Double) pos[0]);
         ypid.setTarget((Double) pos[1]);
         rpid.setTarget((Double) pos[2]);
@@ -127,9 +127,8 @@ public class Drivetrain extends Mechanism {
 
 	public boolean isFinished() {
 		double rotMOE = 2;
-		double xyMOE = 1;
-		return Math.abs(xpid.getTarget() - odo.getPosition().getX(DistanceUnit.INCH)) < xyMOE &&
-                  Math.abs(ypid.getTarget() - odo.getPosition().getY(DistanceUnit.INCH)) < xyMOE &&
+		double xyRMOE = 1;
+		return Math.hypot(xpid.getTarget() - odo.getPosition().getX(DistanceUnit.INCH), ypid.getTarget() - odo.getPosition().getY(DistanceUnit.INCH)) < xyRMOE &&
                   Math.abs(rpid.getTarget() - odo.getPosition().getHeading(AngleUnit.DEGREES)) < rotMOE;
     }
 
