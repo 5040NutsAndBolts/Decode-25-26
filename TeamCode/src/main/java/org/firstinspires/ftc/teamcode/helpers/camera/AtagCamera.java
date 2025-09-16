@@ -14,6 +14,7 @@ import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 @TeleOp (name = "AtagCam", group = "Teleop")
 public class AtagCamera extends LinearOpMode
 {
-    OpenCvCamera camera;
+    OpenCvWebcam camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
 
@@ -58,7 +59,7 @@ public class AtagCamera extends LinearOpMode
 
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "AprilTag"), cameraMonitorViewId);
+        OpenCvWebcam camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "AprilTag"), cameraMonitorViewId);
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
 
@@ -68,7 +69,7 @@ public class AtagCamera extends LinearOpMode
             @Override
             public void onOpened()
             {
-                camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+                camera.startStreaming(800,600, OpenCvCameraRotation.UPRIGHT);
                 telemetry.addLine("Camera sucessfully opened");
             }
 
