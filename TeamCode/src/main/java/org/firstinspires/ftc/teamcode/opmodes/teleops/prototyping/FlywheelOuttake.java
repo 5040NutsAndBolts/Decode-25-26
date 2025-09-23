@@ -16,14 +16,10 @@ public class FlywheelOuttake extends OpMode {
 	@Override
 	public void loop() {
 		
-		if(gamepad1.a && speed <= 1)
-			speed += 0.1;
-		if(gamepad1.b && speed >= 0)
-			speed -= 0.1;
-		while(gamepad1.left_stick_y > 0.1)
-			motor.setPower(speed);
-		while(gamepad1.left_stick_y < -0.1)
-			motor.setPower(-speed);
+		if (gamepad1.left_stick_y >= 0.1){
+			motor.setPower(0.8);
+		} else motor.setPower(0);
+
 		
 		telemetry.addLine("Motor Power: " + motor.getPower());
 		telemetry.update();
