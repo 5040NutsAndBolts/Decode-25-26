@@ -1,0 +1,81 @@
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import org.firstinspires.ftc.teamcode.helpers.states.Mechanism;
+import org.firstinspires.ftc.teamcode.helpers.states.Path;
+import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
+import java.util.ArrayList;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import java.util.List;
+
+
+@Autonomous(name = "Pinpoint Tags", group = "Autonomous")
+public class movingTag extends ParentAuton {
+
+    @Override
+	  public void init() {
+		  super.init();
+
+		  Path.addMechanisms(
+			  	new ArrayList<Mechanism>() {{
+				  	add(new Drivetrain(hardwareMap));
+				  }}
+		  );
+
+		Path turn = new Path("Turn");
+		turn.queueStates(
+				new ArrayList<Object[][]>() {{
+					add(new Object[][]{{Drivetrain.class}, new Object[]{0, 0, 90}});
+				}}
+		);
+	}
+        aprilTags aprilTags = new aprilTags(hardwareMap);
+
+        telemetry.addData("Status", "Ready to go!");
+        telemetry.update();
+
+        waitForStart();
+        while (opModeIsActive()) {
+            aprilTags.openLiveView();
+            List<AprilTagDetection> currentDetections = aprilTags.getDetections();
+
+            if (!currentDetections.isEmpty()) {
+                telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
+
+                for (AprilTagDetection detection : currentDetections) {
+                    telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
+                    telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
+                    telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
+                    telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
+                }
+                if(detection.ftcPose.X > 2){
+                    turn.queueStates(
+                      new ArrayList<Object[][]>() {{
+					          add(new Object[][]{{Drivetrain.class}, new Object[]{0, 0, 10}});
+				              }}
+		                );
+                  hold(1000);
+                } 
+                if(detection.ftcPose.X < -2){
+                    turn.queueStates(
+                      new ArrayList<Object[][]>() {{
+					          add(new Object[][]{{Drivetrain.class}, new Object[]{0, 0, -10}});
+				              }}
+		                );
+                  hold(1000);
+                } 
+            } else {
+                telemetry.addData("Status", "No AprilTags found. Searching...");
+
+                turn.queueStates(
+                  new ArrayList<Object[][]>() {{
+			            		add(new Object[][]{{Drivetrain.class}, new Object[]{0, 0, 5}});
+				          }}
+		            );
+                hold(1000);
+            }
+
+            telemetry.update();
+        }
+
+        aprilTags.close();
+    
+}
