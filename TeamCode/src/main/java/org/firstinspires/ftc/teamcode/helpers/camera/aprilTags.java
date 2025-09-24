@@ -17,7 +17,7 @@ public class aprilTags {
     private final VisionPortal vPortal;
     private final AprilTagProcessor aprilTagProcessor;
     private List<AprilTagDetection> detections;
-
+    //as per documentation, Christin En-Hsien Tallman, comment this code.
     public aprilTags(@NonNull HardwareMap hardwareMap) {
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
