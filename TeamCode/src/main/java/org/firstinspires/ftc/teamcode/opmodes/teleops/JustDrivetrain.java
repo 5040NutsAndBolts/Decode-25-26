@@ -3,7 +3,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 
-
 @TeleOp(name="JustDrivetrain", group="Teleop")
 public class JustDrivetrain extends OpMode {
 	private Drivetrain dt;
@@ -15,8 +14,6 @@ public class JustDrivetrain extends OpMode {
 
 	@Override
 	public void loop() {
-		dt.robotOrientedDrive(gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x);
-		telemetry.addLine(dt.toString());
-		telemetry.update();
+		dt.robotOrientedDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 	}
 }

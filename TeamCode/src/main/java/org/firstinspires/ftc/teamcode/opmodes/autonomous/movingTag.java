@@ -1,3 +1,6 @@
+/*package org.firstinspires.ftc.teamcode.opmodes.autonomous;
+
+import org.firstinspires.ftc.teamcode.helpers.camera.aprilTags;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.helpers.states.Mechanism;
 import org.firstinspires.ftc.teamcode.helpers.states.Path;
@@ -78,4 +81,4 @@ public class movingTag extends ParentAuton {
 
         aprilTags.close();
     
-}
+}*/

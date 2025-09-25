@@ -3,7 +3,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.helpers.states.Path;
 import java.util.ArrayList;
@@ -33,13 +32,13 @@ public class ParentAuton extends OpMode {
 	@Override
 	public void loop() {
 		/* Example !!
-		Path p = new Path();
-		paths.add(p);
-		p.queueStates(
-				new ArrayList<Object[][]>() {{
-					add(new Object[][]{{Drivetrain.class}, new Object[]{0, 0, 0}});
-				}}
-		);
+			Path p = new Path();
+			paths.add(p);
+			p.queueStates(
+					new ArrayList<Object[][]>() {{
+						add(new Object[][]{{Drivetrain.class}, new Object[]{0, 0, 0}});
+					}}
+			);
 		*/
 		for(Path p : paths)
 			while(!p.isFinished()) {

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.helpers.exCam;
+package org.firstinspires.ftc.teamcode.helpers.camera.exCam;
 
 import androidx.annotation.NonNull;
 

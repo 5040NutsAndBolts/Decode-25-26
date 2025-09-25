@@ -33,7 +33,8 @@ public class Drivetrain extends Mechanism {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //TODO: CONFIGURE OFFSETS
-        odo = new Odometry(hardwareMap, 0, 0);
+        odo = null;
+        //odo = new Odometry(hardwareMap, 0, 0);
     }
 
     public void robotOrientedDrive(double forward, double sideways, double rotation) {
@@ -98,6 +99,10 @@ public class Drivetrain extends Mechanism {
         lastButton = input;
     }
 
+    /**
+     * toggles slow mode
+     * @return slow mode is true
+     */
     public boolean isSlow() {return speed == .5;}
 
     //TODO: CONFIGURE PIDS

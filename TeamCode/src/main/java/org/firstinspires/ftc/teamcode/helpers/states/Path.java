@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.teamcode.helpers.states;
-
 import androidx.annotation.NonNull;
-
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import java.util.ArrayList;
 
 public class Path {
@@ -24,11 +20,13 @@ public class Path {
 	 * create a new path
 	 * @param name name of the path for telemetry
 	 */
-	public Path(String name){this.name=name;}
+	public Path(String name){
+		this.name=name;
+	}
 
 	/**
 	 * add states to the path
-	 * @param states states to be added
+	 * @param states states to be added (Using a runnable object allows arbitrary logic to be run)
 	 */
 	public void queueStates(@NonNull ArrayList<Object[][]> states) {
 		for(Object[][] state : states) {
@@ -49,8 +47,8 @@ public class Path {
 	}
 
 	/**
-	 * add a mechanishm to the path
-	 * @param mechanism mechanism to be added
+	 * add a mechanism to the path
+	 * @param mechanism mechanisms to be added
 	 */
 	public static void addMechanisms(@NonNull ArrayList<Mechanism> mechanism) {
 		for(Mechanism m : mechanism)
@@ -65,13 +63,22 @@ public class Path {
 		if(stateIter >= states.size()) return;
 		for(Mechanism m : mechanisms) {
 			//match state to mechanism
-			if(m.getClass().equals(states.get(stateIter)[0][0]))
-				m.update(states.get(stateIter)[1]);
+			if(m.getClass().equals(states.get(stateIter)[0][0])) {
+				//Allows arbitrary logic to be run
+				if(states.get(stateIter)[1][0] instanceof Runnable)
+					((Runnable) states.get(stateIter)[1][0]).run();
+				else
+					m.update(states.get(stateIter)[1]);
+			}
 		}
 		//increment if done
 		if(isFinished()) stateIter++;
 	}
 
+	/**
+	 * checks if all waitWorthy mechanisms are finished
+	 * @return true if all waitWorthy mechanisms are finished
+	 */
 	public boolean isFinished() {
 		for(Mechanism m : mechanisms) {
 			if(!m.isFinished() && m.waitWorthy)
@@ -80,16 +87,30 @@ public class Path {
 	}
 
 	/**
+	 * Exception thrown when a mechanism is not found in the path
+	 */
+	public static class MechanismNotFoundException extends Exception {
+		/**
+		 * creates a new MechanismNotFoundException
+		 * @param c Class of mechanism that was not found
+		 */
+		public MechanismNotFoundException(@NonNull Class<?> c) {
+			super("Mechanism of type " + c.getName() + " not found in mechanisms list");
+		}
+	}
+
+	/**
 	 * get a mechanism from the path's list of mechanisms
 	 * @param c Class of mechanism to get
-	 * @return Mechanism if found, null if not
+	 *
 	 */
-	public Mechanism getMechanism(Class<?> c) {
+	@NonNull
+	public static Mechanism getMechanism(Class<?> c) throws MechanismNotFoundException {
 		for(Mechanism m : mechanisms) {
 			if(c.isAssignableFrom(m.getClass()))
 				return m;
 		}
-		return null;
+		throw new MechanismNotFoundException(c);
 	}
 
 	/**
@@ -97,8 +118,8 @@ public class Path {
 	 * @param index index of mechanism in list to get
 	 * @return Mechanism if found, null if not
 	 */
-	public Mechanism getMechanism(short index) {
-		if(index >= mechanisms.size() || index < 0) return null;
+	public static Mechanism getMechanism(short index) {
+		if(index >= mechanisms.size() || index < 0) throw new IndexOutOfBoundsException("Index " + index + " is out of bounds");
 		return mechanisms.get(index);
 	}
 

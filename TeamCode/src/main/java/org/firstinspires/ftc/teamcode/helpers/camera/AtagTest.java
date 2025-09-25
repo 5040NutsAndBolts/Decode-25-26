@@ -18,7 +18,6 @@ public class AtagTest extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
-            aprilTags.openLiveView();
             List<AprilTagDetection> currentDetections = aprilTags.getDetections();
 
             if (!currentDetections.isEmpty()) {
