@@ -42,4 +42,8 @@ public class aprilTags {
         }
     }
 
+    public void check(){
+            vPortal.getActiveCamera();
+    }
+
 }
