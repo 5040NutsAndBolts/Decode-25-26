@@ -46,4 +46,8 @@ public class aprilTags {
             vPortal.getActiveCamera();
     }
 
+    public String currState(){
+            return "" + vPortal.getCameraState();
+    }
+
 }
