@@ -42,7 +42,7 @@ public class aprilTags {
         }
     }
 
-    public void check(){
+    public void check(){ //only important if using multiple cameras
             vPortal.getActiveCamera();
     }
 
