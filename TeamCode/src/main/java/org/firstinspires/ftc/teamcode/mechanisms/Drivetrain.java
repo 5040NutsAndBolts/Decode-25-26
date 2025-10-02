@@ -4,12 +4,12 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.helpers.PID;
 import org.firstinspires.ftc.teamcode.helpers.odo.Odometry;
-import org.firstinspires.ftc.teamcode.helpers.states.Mechanism;
+import org.firstinspires.ftc.teamcode.helpers.easypathing.Mechanism;
 
 public class Drivetrain extends Mechanism {
     public boolean waitWorthy = true;
@@ -18,7 +18,7 @@ public class Drivetrain extends Mechanism {
     private double speed = 1;
 
     public Drivetrain(@NonNull HardwareMap hardwareMap) {
-        //Drive Motor Initialization
+        //Drive motor initialization
         frontLeft = hardwareMap.get(DcMotorEx.class, "Front Left");
         frontRight = hardwareMap.get(DcMotorEx.class, "Front Right");
         backLeft = hardwareMap.get(DcMotorEx.class, "Back Left");
@@ -33,10 +33,15 @@ public class Drivetrain extends Mechanism {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //TODO: CONFIGURE OFFSETS
-        odo = null;
-        //odo = new Odometry(hardwareMap, 0, 0);
+        odo = new Odometry(hardwareMap, 0, 0);
     }
 
+    /**
+     * Drives robot based off current position of robot, not field
+     * @param forward forward power (negative for backwards)
+     * @param sideways sideways power (negative for left)
+     * @param rotation rotation power (negative for counterclockwise)
+     */
     public void robotOrientedDrive(double forward, double sideways, double rotation) {
         //Multiplied by speed variable, only changes when in slowmode
         forward *= speed;
@@ -75,10 +80,12 @@ public class Drivetrain extends Mechanism {
 
         double robotAngle = Math.atan2(forward, sideways);
 
-        double v5 = P * Math.sin(robotAngle - currentAngle) + P * Math.cos(robotAngle - currentAngle) - rotation;
-        double v6 = P * Math.sin(robotAngle - currentAngle) - P * Math.cos(robotAngle - currentAngle) + rotation;
-        double v7 = P * Math.sin(robotAngle - currentAngle) - P * Math.cos(robotAngle - currentAngle) - rotation;
-        double v8 = P * Math.sin(robotAngle - currentAngle) + P * Math.cos(robotAngle - currentAngle) + rotation;
+        double vcos = P * Math.cos(robotAngle - currentAngle);
+        double vsin = P * Math.sin(robotAngle - currentAngle);
+        double v5 = vsin + vcos - rotation;
+        double v6 = vsin - vcos + rotation;
+        double v7 = vsin - vcos - rotation;
+        double v8 = vsin + vcos + rotation;
 
         frontLeft.setPower(v5);
         frontRight.setPower(v6);
@@ -130,11 +137,35 @@ public class Drivetrain extends Mechanism {
         );
     }
 
-	public boolean isFinished() {
-		double rotMOE = 2;
-		double xyRMOE = 1;
+    /**
+     * is the robot within the tolerance of the target (for easypathing)
+     * @return true if the robot is within the tolerance of the target
+     */
+	public boolean isFinished(@NonNull Object[] tolerances) {
+        for(Object o : tolerances)
+            assert (o instanceof Double || o instanceof Float) && tolerances.length == 2;
+		double rotMOE = (double) tolerances[0];
+		double xyRMOE = (double) tolerances[1];
 		return Math.hypot(xpid.getTarget() - odo.getPosition().getX(DistanceUnit.INCH), ypid.getTarget() - odo.getPosition().getY(DistanceUnit.INCH)) < xyRMOE &&
                   Math.abs(rpid.getTarget() - odo.getPosition().getHeading(AngleUnit.DEGREES)) < rotMOE;
+    }
+
+    /**
+     * holds the robot at the current position
+     */
+    Pose2D pos;
+    private boolean lastState;
+    public void hold(boolean in) {
+        if (in) {
+            if(in != lastState)
+                pos = odo.getPosition();
+            this.update(new Object[]{
+                pos.getX(DistanceUnit.INCH),
+                pos.getY(DistanceUnit.INCH),
+                pos.getHeading(AngleUnit.DEGREES)
+            });
+        }else pos = null;
+        lastState = in;
     }
 
     @NonNull

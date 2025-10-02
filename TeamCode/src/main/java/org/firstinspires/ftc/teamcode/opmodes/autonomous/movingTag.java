@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode.opmodes.autonomous;
 
 import org.firstinspires.ftc.teamcode.helpers.camera.aprilTags;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import org.firstinspires.ftc.teamcode.helpers.states.Mechanism;
-import org.firstinspires.ftc.teamcode.helpers.states.Path;
+import org.firstinspires.ftc.teamcode.helpers.easypathing.Mechanism;
+import org.firstinspires.ftc.teamcode.helpers.easypathing.Path;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import java.util.ArrayList;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;

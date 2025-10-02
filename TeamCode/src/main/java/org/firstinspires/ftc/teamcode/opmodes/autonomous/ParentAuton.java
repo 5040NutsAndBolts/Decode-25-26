@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.helpers.states.Path;
+import org.firstinspires.ftc.teamcode.helpers.easypathing.Path;
 import java.util.ArrayList;
 
 @Disabled
@@ -27,10 +27,7 @@ public class ParentAuton extends OpMode {
 	@Override
 	public void init() {
 		dashboard = FtcDashboard.getInstance().getTelemetry();
-	}
 
-	@Override
-	public void loop() {
 		/* Example !!
 			Path p = new Path();
 			paths.add(p);
@@ -40,6 +37,10 @@ public class ParentAuton extends OpMode {
 					}}
 			);
 		*/
+	}
+
+	@Override
+	public void loop() {
 		for(Path p : paths)
 			while(!p.isFinished()) {
 				p.update();

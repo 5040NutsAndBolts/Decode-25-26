@@ -2,10 +2,10 @@ package org.firstinspires.ftc.teamcode.opmodes.autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.helpers.states.Mechanism;
-import org.firstinspires.ftc.teamcode.helpers.states.Path;
+import org.firstinspires.ftc.teamcode.helpers.easypathing.Mechanism;
+import org.firstinspires.ftc.teamcode.helpers.easypathing.Path;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
-import org.firstinspires.ftc.teamcode.helpers.states.Path.MechanismNotFoundException;
+import org.firstinspires.ftc.teamcode.helpers.easypathing.Path.MechanismNotFoundException;
 import java.util.ArrayList;
 
 @Autonomous(name="TestAuto", group="Autonomous")

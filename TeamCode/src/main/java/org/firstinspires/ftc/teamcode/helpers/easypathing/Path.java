@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.helpers.states;
+package org.firstinspires.ftc.teamcode.helpers.easypathing;
 import androidx.annotation.NonNull;
 import java.util.ArrayList;
 
 public class Path {
 	public static final ArrayList<Mechanism> mechanisms = new ArrayList<>();
-	private final ArrayList<Object[][]> states = new ArrayList<>();
+	private final ArrayList<Object[]> states = new ArrayList<>();
 	private final String name;
 
 	/**
@@ -26,12 +26,15 @@ public class Path {
 
 	/**
 	 * add states to the path
+	 * format: [Mechanism, Object[] (positions, coordinates, used in update for mechanisms), Object[] (tolerances, extra conditions, used in isFinished for mechanisms)]
 	 * @param states states to be added (Using a runnable object allows arbitrary logic to be run)
 	 */
 	public void queueStates(@NonNull ArrayList<Object[][]> states) {
-		for(Object[][] state : states) {
-			assert state.length == 2;
-			assert Mechanism.class.isAssignableFrom(state[0][0].getClass());
+		for(Object[] state : states) {
+			assert state.length == 3;
+			assert Mechanism.class.isAssignableFrom(state[0].getClass());
+			assert state[1].getClass().isArray();
+			assert state[2].getClass().isArray();
 		}
 		this.states.addAll(states);
 	}
@@ -63,12 +66,12 @@ public class Path {
 		if(stateIter >= states.size()) return;
 		for(Mechanism m : mechanisms) {
 			//match state to mechanism
-			if(m.getClass().equals(states.get(stateIter)[0][0])) {
+			if(m.getClass().equals(states.get(stateIter)[0])) {
 				//Allows arbitrary logic to be run
-				if(states.get(stateIter)[1][0] instanceof Runnable)
-					((Runnable) states.get(stateIter)[1][0]).run();
+				if(states.get(stateIter)[1] instanceof Runnable)
+					((Runnable) states.get(stateIter)[1]).run();
 				else
-					m.update(states.get(stateIter)[1]);
+					m.update((Object[]) states.get(stateIter)[1]);
 			}
 		}
 		//increment if done
@@ -81,7 +84,7 @@ public class Path {
 	 */
 	public boolean isFinished() {
 		for(Mechanism m : mechanisms) {
-			if(!m.isFinished() && m.waitWorthy)
+			if(!m.isFinished((Object[]) states.get(stateIter)[2]) && m.waitWorthy)
 				return false;
 		}return true;
 	}
