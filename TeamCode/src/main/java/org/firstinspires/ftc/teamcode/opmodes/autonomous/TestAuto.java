@@ -20,16 +20,16 @@ public class TestAuto extends ParentAuton{
 				}}
 		);
 
-		Path forward = new Path("Forward");
+		Path forward = new Path("movey movey");
 		forward.queueStates(
 				new ArrayList<Object[][]>() {{
-					add(new Object[][]{{Drivetrain.class}, new Object[]{0, 6, 0}});
+					add(new Object[][]{{Drivetrain.class}, new Object[]{6, 6, 45}, new Object[]{0,0}});
 				}}
 		);
 
 		hold(1000);
 
-		Path sideways = new Path("Sideways and Turn");
+		Path sideways = new Path("Return");
 		sideways.queueStates(
 				new ArrayList<Object[][]>() {{
 					add(new Object[][]{{Drivetrain.class}, new Object[]{(Runnable) () -> {
@@ -37,7 +37,7 @@ public class TestAuto extends ParentAuton{
 							Drivetrain dt = (Drivetrain) Path.getMechanism(Drivetrain.class);
 							ElapsedTime timer = new ElapsedTime();
 							while(timer.milliseconds() < 1000) {
-								dt.robotOrientedDrive(0, 0, 1);
+								dt.robotOrientedDrive(0, 0, 0);
 							}
 						}catch(MechanismNotFoundException e) {
 							telemetry.addLine(e.getMessage());

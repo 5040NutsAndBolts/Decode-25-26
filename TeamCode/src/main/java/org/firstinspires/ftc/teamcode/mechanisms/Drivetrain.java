@@ -33,7 +33,7 @@ public class Drivetrain extends Mechanism {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //TODO: CONFIGURE OFFSETS
-        odo = new Odometry(hardwareMap, 0, 0);
+        odo = new Odometry(hardwareMap, 4.5f, 7.25f);
     }
 
     /**
@@ -113,9 +113,9 @@ public class Drivetrain extends Mechanism {
     public boolean isSlow() {return speed == .5;}
 
     //TODO: CONFIGURE PIDS
-    private final PID xpid = new PID(0,0,0);
-    private final PID ypid = new PID(0,0,0);
-    private final PID rpid = new PID(0,0,0);
+    private final PID xpid = new PID(.15,0,0);
+    private final PID ypid = new PID(.15,0,0);
+    private final PID rpid = new PID(.15,0,0);
 
     /**
      * moves the drivetrain to a desired position
