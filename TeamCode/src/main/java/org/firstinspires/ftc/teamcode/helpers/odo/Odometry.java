@@ -25,9 +25,6 @@ public class Odometry {
 
         //Recalibrate IMU
         pinpoint.resetPosAndIMU();
-
-        //Ensure that we start  at 0,0
-        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH,0,0, AngleUnit.DEGREES,0));
     }
 
     public Pose2D getPosition () {
@@ -54,8 +51,8 @@ public class Odometry {
     public String toString() {
         return "Odometry:\n" +
                 "Status: " + pinpoint.getDeviceStatus() + "\n" +
-                "X: " + (pinpoint.getPosX() * .0393700787) + "\n" +
-                "Y: " + (pinpoint.getPosY() * .0393700787) + "\n" +
+                "X: " + (pinpoint.getPosX()) + "\n" +
+                "Y: " + (pinpoint.getPosY()) + "\n" +
                 "Heading: " + Math.toDegrees(pinpoint.getHeading());
     }
 }

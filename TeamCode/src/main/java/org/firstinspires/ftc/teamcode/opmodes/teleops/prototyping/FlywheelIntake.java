@@ -19,8 +19,7 @@ public class FlywheelIntake extends OpMode {
 
 	@Override
 	public void loop() {
-		spin.setPower(gamepad1.right_trigger);
-		spin.setPower(-gamepad1.left_trigger);
+		spin.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
 		dt.robotOrientedDrive(gamepad1.left_stick_y, gamepad1.left_stick_x,gamepad1.right_stick_x);
 		telemetry.addLine("spin Power: " + spin.getPower());
 		telemetry.update();

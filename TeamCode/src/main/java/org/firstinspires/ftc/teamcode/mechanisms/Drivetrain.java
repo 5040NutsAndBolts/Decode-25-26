@@ -123,7 +123,7 @@ public class Drivetrain extends Mechanism {
      */
     public void update (@NonNull Object[] pos) {
         for(Object o : pos)
-            assert (o instanceof Double || o instanceof Float) && pos.length == 3;
+            assert (o instanceof Double || o instanceof Float || o instanceof Integer) && pos.length == 3;
         xpid.setTarget((Double) pos[0]);
         ypid.setTarget((Double) pos[1]);
         rpid.setTarget((Double) pos[2]);
@@ -143,7 +143,7 @@ public class Drivetrain extends Mechanism {
      */
 	public boolean isFinished(@NonNull Object[] tolerances) {
         for(Object o : tolerances)
-            assert (o instanceof Double || o instanceof Float) && tolerances.length == 2;
+            assert (o instanceof Double || o instanceof Float || o instanceof Integer) && tolerances.length == 2;
 		double rotMOE = (double) tolerances[0];
 		double xyRMOE = (double) tolerances[1];
 		return Math.hypot(xpid.getTarget() - odo.getPosition().getX(DistanceUnit.INCH), ypid.getTarget() - odo.getPosition().getY(DistanceUnit.INCH)) < xyRMOE &&

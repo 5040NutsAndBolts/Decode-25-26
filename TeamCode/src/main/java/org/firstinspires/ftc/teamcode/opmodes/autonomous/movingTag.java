@@ -17,18 +17,14 @@ public class movingTag extends ParentAuton {
     public void init() {
         super.init();
 
-        Path.addMechanisms(
-                new ArrayList<Mechanism>() {{
-                    add(new Drivetrain(hardwareMap));
+        Path sideways = new Path("sideways");
+        sideways.queueStates(
+                new ArrayList<Object[]>() {{
+                    add(new Object[]{Drivetrain.class, new Object[]{2, 2, 0}, new Object[]{1,5}});
                 }}
         );
 
-        Path sideways = new Path("sideways");
-        sideways.queueStates(
-                new ArrayList<Object[][]>() {{
-                    add(new Object[][]{{Drivetrain.class}, new Object[]{2, 2, 0}});
-                }}
-        );
+        sideways.addMechanism(new Drivetrain(hardwareMap));
 
 
      atag = new aprilTags(hardwareMap);
@@ -48,16 +44,16 @@ public class movingTag extends ParentAuton {
 
                     if (detection.ftcPose.x > 2) {
                         sideways.queueStates(
-                                new ArrayList<Object[][]>() {{
-                                    add(new Object[][]{{Drivetrain.class}, new Object[]{1, 1, 0}});
+                                new ArrayList<Object[]>() {{
+                                    add(new Object[]{Drivetrain.class, new Object[]{1, 1, 0}, new Object[]{1,5}});
                                 }}
                         );
                         hold(1000);
                     }
                     if (detection.ftcPose.x < -2) {
                         sideways.queueStates(
-                                new ArrayList<Object[][]>() {{
-                                    add(new Object[][]{{Drivetrain.class}, new Object[]{-1, -1, 0}});
+                                new ArrayList<Object[]>() {{
+                                    add(new Object[]{Drivetrain.class, new Object[]{-1, -1, 0}, new Object[]{1,5}});
                                 }}
                         );
                         hold(1000);
@@ -65,8 +61,8 @@ public class movingTag extends ParentAuton {
                         telemetry.addData("Status", "No AprilTags found. Searching...");
 
                         sideways.queueStates(
-                                new ArrayList<Object[][]>() {{
-                                    add(new Object[][]{{Drivetrain.class}, new Object[]{2, 2, 0}});
+                                new ArrayList<Object[]>() {{
+                                    add(new Object[]{Drivetrain.class, new Object[]{2, 2, 0}, new Object[]{1,5}});
                                 }}
                         );
                         hold(1000);
