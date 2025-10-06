@@ -1,17 +1,25 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 import androidx.annotation.NonNull;
+
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.teamcode.helpers.easypathing.Mechanism;
 
 public class Launcher extends Mechanism {
-	private final DcMotorEx flywheelOut, flywheelIn, transfer;
+	public boolean waitWorthy = false;
+	private final DcMotorEx flywheelOut, flywheelIn;
+	private final CRServo wheelServo;
+	private final Servo flickServo;
 
 	public Launcher(@NonNull HardwareMap hardwareMap) {
 		//Motor initialization
 		flywheelIn = hardwareMap.get(DcMotorEx.class, "Fly In");
 		flywheelOut = hardwareMap.get(DcMotorEx.class, "Fly Out");
-		transfer = hardwareMap.get(DcMotorEx.class, "Transfer");
+		wheelServo = hardwareMap.get(CRServo.class, "Transfer");
+		flickServo = hardwareMap.get(Servo.class, "Flick");
 	}
 
 	/**
@@ -20,19 +28,22 @@ public class Launcher extends Mechanism {
 	 */
 	@Override
 	public void update(@NonNull Object[] powers) {
-		if(powers.length == 1) {
-			assert powers[0] instanceof Double;
-			flywheelOut.setPower((Double) powers[0]);
-			flywheelIn.setPower((Double) powers[0]);
-			transfer.setPower((Double) powers[0]);
-		}else if(powers.length == 3) {
+		assert powers.length == 2 || powers.length == 4;
+		if (powers.length == 2) {
 			for(Object o : powers)
-				assert o instanceof Double;
-			flywheelOut.setPower((Double) powers[0]);
+				assert o instanceof Double || o instanceof Float || o instanceof Integer;
+			flick((Double) powers[0] == 0);
+			flywheelOut.setPower((Double) powers[1]);
 			flywheelIn.setPower((Double) powers[1]);
-			transfer.setPower((Double) powers[2]);
+			wheelServo.setPower((Double) powers[1]);
+		}else {
+			for(Object o : powers)
+				assert o instanceof Double || o instanceof Float || o instanceof Integer;
+			flick((Double) powers[0] == 0);
+			flywheelOut.setPower((Double) powers[1]);
+			flywheelIn.setPower((Double) powers[2]);
+			wheelServo.setPower((Double) powers[3]);
 		}
-		else throw new IllegalArgumentException("Powers must be either [speed] or [flywheelOutSpeed, flywheelInSpeed, transferSpeed]");
 	}
 
 	public void outtake(double power) {
@@ -41,12 +52,20 @@ public class Launcher extends Mechanism {
 
 	public void intake(double power) {
 		flywheelIn.setPower(power);
-		transfer.setPower(power);
+		wheelServo.setPower(power);
+	}
+
+	public void flick(boolean in) {
+		if(in)
+			flickServo.setPosition(1);
+		else
+			flickServo.setPosition(0);
 	}
 
 	@Override
-	protected boolean isFinished(Object[] o) {
-		return true;
+	protected boolean isFinished(@NonNull Object[] o) {
+		assert o.length == 1 &&( o[0] instanceof Double || o[0] instanceof Float || o[0] instanceof Integer);
+		return flickServo.getPosition() == (double)o[0];
 	}
 
 	@NonNull
@@ -55,6 +74,6 @@ public class Launcher extends Mechanism {
 		return
 				"Flywheel In Power: " + flywheelIn.getPower() + "\n" +
 				"Flywheel Out Power: " + flywheelOut.getPower() + "\n" +
-				"Transfer Power: " + transfer.getPower();
+				"Wheel Servo Power: " + wheelServo.getPower();
 	}
 }
