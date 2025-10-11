@@ -33,7 +33,7 @@ public class Drivetrain extends Mechanism {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //TODO: CONFIGURE OFFSETS
-        odo = new Odometry(hardwareMap, 4.5f, 7.25f);
+        odo = new Odometry(hardwareMap, 121.92f, 147.32f);
     }
 
     /**

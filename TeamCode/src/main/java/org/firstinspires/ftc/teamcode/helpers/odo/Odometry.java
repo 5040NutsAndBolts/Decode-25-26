@@ -45,14 +45,13 @@ public class Odometry {
     public void reset(int x, int y, int heading) {
         pinpoint.setPosition(new Pose2D(DistanceUnit.INCH,x,y, AngleUnit.DEGREES,heading));
     }
-
     @NonNull
     @Override
     public String toString() {
         return "Odometry:\n" +
-                "Status: " + pinpoint.getDeviceStatus() + "\n" +
-                "X: " + (pinpoint.getPosX()) + "\n" +
-                "Y: " + (pinpoint.getPosY()) + "\n" +
-                "Heading: " + Math.toDegrees(pinpoint.getHeading());
+                "\tStatus: " + pinpoint.getDeviceStatus() + "\n" +
+                "\tX: " + (pinpoint.getPosition().getX(DistanceUnit.INCH)) + "\n" +
+                "\tY: " + (pinpoint.getPosition().getY(DistanceUnit.INCH)) + "\n" +
+                "\tHeading: " + Math.toDegrees(pinpoint.getHeading());
     }
 }
