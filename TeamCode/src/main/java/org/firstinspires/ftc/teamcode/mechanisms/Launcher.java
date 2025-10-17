@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.helpers.PID;
 import org.firstinspires.ftc.teamcode.helpers.easypathing.Mechanism;
 
 public class Launcher extends Mechanism {
-	public boolean waitWorthy = false;
+	public boolean waitWorthy = true;
 	private final DcMotorEx flywheel;
 	private final DcMotorEx wheelMotor;
 	private final Servo flickServo;
@@ -19,12 +19,12 @@ public class Launcher extends Mechanism {
 
 	public Launcher(@NonNull HardwareMap hardwareMap) {
 		//Motor initialization
-		flywheel = hardwareMap.get(DcMotorEx.class, "fly");
+		flywheel = hardwareMap.get(DcMotorEx.class, "Flywheel");
 		flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-		wheelMotor = hardwareMap.get(DcMotorEx.class, "intake");
+		wheelMotor = hardwareMap.get(DcMotorEx.class, "Intake");
 		wheelMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		flickServo = hardwareMap.get(Servo.class, "Flick");
-		transferServo = hardwareMap.get(CRServo.class, "Transpin");
+		transferServo = hardwareMap.get(CRServo.class, "Conveyor");
 	}
 
 	/**
@@ -56,7 +56,8 @@ public class Launcher extends Mechanism {
 	public void outtake(double power) {
 		long farRPM = 5500;
 		flywheelPID.setTarget(power > .5 ? farRPM : 0);
-		flywheel.setPower(flywheelPID.autoControl(flywheelRPMS()));
+		double outpower = flywheelPID.autoControl(flywheelRPMS());
+		flywheel.setPower(outpower > .2 ? outpower : 0);
 	}
 
 	public void intake(double power) {
@@ -72,15 +73,14 @@ public class Launcher extends Mechanism {
 
 	@Override
 	protected boolean isFinished(@NonNull Object[] o) {
-		return true;
-		//assert o.length == 1 &&( o[0] instanceof Double || o[0] instanceof Float || o[0] instanceof Integer);
-		//return flickServo.getPosition() == (double)o[0];
+		assert o.length == 1 && (o[0] instanceof Double || o[0] instanceof Float || o[0] instanceof Integer );
+		return Math.abs(flywheelRPMS() - flywheelPID.getTarget()) < (double)o[0];
 	}
 
-	private final double degreesPerTick = 2.67857485;
 	public double flywheelRPMS() {
 		double currentTPS = flywheel.getVelocity();
-		return currentTPS * degreesPerTick * 60;
+		double degreesPerTick = 2.67857485;
+		return (currentTPS * degreesPerTick * 60);
 	}
 
 	@NonNull

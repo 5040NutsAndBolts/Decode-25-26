@@ -11,7 +11,7 @@ public class Odometry {
     private final GoBildaPinpointDriver pinpoint;
 
     public Odometry (@NonNull HardwareMap hardwareMap, float xOffset, float yOffset) {
-        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "Pinpoint");
 
         //We use the swingarm GoBilda pods, change if you are using different pods (it's ticks/mm)
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_SWINGARM_POD);

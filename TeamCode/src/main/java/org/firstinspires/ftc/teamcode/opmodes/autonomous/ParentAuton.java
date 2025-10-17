@@ -12,8 +12,6 @@ import java.util.ArrayList;
 
 @Disabled
 public class ParentAuton extends OpMode {
-	protected ArrayList<Path> paths = new ArrayList<>();
-	protected Telemetry dashboard;
 
 	/**
 	 * holds the robot for a certain amount of time
@@ -29,7 +27,6 @@ public class ParentAuton extends OpMode {
 
 	@Override
 	public void init() {
-		dashboard = FtcDashboard.getInstance().getTelemetry();
 	}
 
 	@Override
@@ -40,12 +37,5 @@ public class ParentAuton extends OpMode {
 
 	@Override
 	public void loop() {
-		for(Path p : paths) {
-			while(!p.isFinished()) {
-				p.update();
-				telemetry.addLine(p.toString());
-				telemetry.update();
-			}
-		}
 	}
 }

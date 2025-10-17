@@ -113,9 +113,9 @@ public class Drivetrain extends Mechanism {
     public boolean isSlow() {return speed == .5;}
 
     //TODO: CONFIGURE PIDS
-    private final PID xpid = new PID(.15,0,0);
-    private final PID ypid = new PID(.15,0,0);
-    private final PID rpid = new PID(.15,0,0);
+    private final PID xpid = new PID(.015,0,0);
+    private final PID ypid = new PID(.015,0,0);
+    private final PID rpid = new PID(.015,0,0);
 
     /**
      * moves the drivetrain to a desired position

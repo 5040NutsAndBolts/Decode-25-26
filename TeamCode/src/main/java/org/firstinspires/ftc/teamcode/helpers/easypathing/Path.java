@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.helpers.easypathing;
 import androidx.annotation.NonNull;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Path {
 	public final ArrayList<Mechanism> mechanisms = new ArrayList<>();
@@ -31,10 +32,14 @@ public class Path {
 	 */
 	public void queueStates(@NonNull ArrayList<Object[]> states) {
 		for(Object[] state : states) {
-			assert state.length == 3;
-			assert Mechanism.class.isAssignableFrom((Class<?>) state[0]);
-			assert state[1].getClass().isArray();
-			assert state[2].getClass().isArray();
+			assert state.length == 3 || state.length == 1;
+			if(state.length == 3) {
+				assert Mechanism.class.isAssignableFrom((Class<?>) state[0]);
+				assert state[1].getClass().isArray();
+				assert state[2].getClass().isArray();
+			}else {
+				assert state[0] instanceof Runnable;
+			}
 		}
 		this.states.addAll(states);
 	}
@@ -66,7 +71,7 @@ public class Path {
 		if(stateIter >= states.size()) return;
 
 		// Correctly get the target mechanism class from the nested array
-		Class<?> targetMechanismClass = ((Class<?>[]) states.get(stateIter)[0])[0];
+		Class<?> targetMechanismClass = (Class<?>) states.get(stateIter)[0];
 
 		for(Mechanism m : mechanisms) {
 			// Use isInstance() for a safe and correct check
@@ -139,6 +144,7 @@ public class Path {
 		StringBuilder s = new StringBuilder();
 		s.append(name).append("\n");
 		mechanisms.forEach((m) -> s.append(m.toString()).append("\n"));
+		s.append("Current State Iter: ").append(stateIter).append("\n");
 		return s.toString();
 	}
 }

@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="shmegus", group="Teleop")
-public class shmegus extends OpMode {
+@TeleOp(name="Servo Test", group="Teleop")
+public class ServoTest extends OpMode {
     private Servo shmegus;
     @Override
     public void init() {
