@@ -14,7 +14,10 @@ public class JustDrivetrain extends OpMode {
 
 	@Override
 	public void loop() {
-		dt.robotOrientedDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+		dt.fieldOrientedDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 		dt.toggleSlowMode(gamepad1.b);
+		dt.updateOdo();
+		telemetry.addLine(dt.toString());
+		telemetry.update();
 	}
 }

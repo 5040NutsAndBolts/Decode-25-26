@@ -52,6 +52,6 @@ public class Odometry {
                 "\tStatus: " + pinpoint.getDeviceStatus() + "\n" +
                 "\tX: " + (pinpoint.getPosition().getX(DistanceUnit.INCH)) + "\n" +
                 "\tY: " + (pinpoint.getPosition().getY(DistanceUnit.INCH)) + "\n" +
-                "\tHeading: " + Math.toDegrees(pinpoint.getHeading());
+                "\tHeading: " + ((Math.toDegrees(pinpoint.getHeading()) + 360) % 360);
     }
 }

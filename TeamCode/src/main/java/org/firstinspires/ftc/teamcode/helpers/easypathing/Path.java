@@ -32,13 +32,13 @@ public class Path {
 	 */
 	public void queueStates(@NonNull ArrayList<Object[]> states) {
 		for(Object[] state : states) {
-			assert state.length == 3 || state.length == 1;
+			if(! (state.length == 3 || state.length == 1))
+				throw new Error();
 			if(state.length == 3) {
-				assert Mechanism.class.isAssignableFrom((Class<?>) state[0]);
-				assert state[1].getClass().isArray();
-				assert state[2].getClass().isArray();
+				if(!(Mechanism.class.isAssignableFrom((Class<?>) state[0]) && state[1].getClass().isArray() && state[2].getClass().isArray()))
+					throw new Error();
 			}else {
-				assert state[0] instanceof Runnable;
+				throw new Error();
 			}
 		}
 		this.states.addAll(states);
@@ -50,7 +50,8 @@ public class Path {
 	 */
 	public void addMechanism(@NonNull Object mechanism) {
 		//ensure that the mechanism is a subclass of Mechanism
-		assert Mechanism.class.isAssignableFrom(mechanism.getClass());
+		if(!( Mechanism.class.isAssignableFrom(mechanism.getClass())))
+			throw new Error();
 		mechanisms.add((Mechanism) mechanism);
 	}
 
@@ -76,12 +77,7 @@ public class Path {
 		for(Mechanism m : mechanisms) {
 			// Use isInstance() for a safe and correct check
 			if(targetMechanismClass.isInstance(m)) {
-				// Allows arbitrary logic to be run
-				if(states.get(stateIter)[1] instanceof Runnable)
-					((Runnable) states.get(stateIter)[1]).run();
-				else
-					m.update((Object[]) states.get(stateIter)[1]);
-
+				m.update((double[]) states.get(stateIter)[1]);
 				// We found and updated the correct mechanism for this state, so we can stop searching.
 				break;
 			}
@@ -96,7 +92,7 @@ public class Path {
 	 */
 	public boolean isFinished() {
 		for(Mechanism m : mechanisms) {
-			if(!m.isFinished((Object[]) states.get(stateIter)[2]) && m.waitWorthy)
+			if(!m.isFinished((double[]) states.get(stateIter)[2]) && m.waitWorthy)
 				return false;
 		}return true;
 	}

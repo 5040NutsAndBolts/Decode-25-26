@@ -32,7 +32,7 @@ public class Launcher extends Mechanism {
 	 * @param powers [flywheelOutSpeed, transferSpeed]
 	 */
 	@Override
-	public void update(@NonNull Object[] powers) {
+	public void update(@NonNull double[] powers) {
 		assert powers.length == 2 || powers.length == 3;
 		for(Object o : powers)
 			assert o instanceof Double || o instanceof Float || o instanceof Integer;
@@ -72,9 +72,8 @@ public class Launcher extends Mechanism {
 	}
 
 	@Override
-	protected boolean isFinished(@NonNull Object[] o) {
-		assert o.length == 1 && (o[0] instanceof Double || o[0] instanceof Float || o[0] instanceof Integer );
-		return Math.abs(flywheelRPMS() - flywheelPID.getTarget()) < (double)o[0];
+	protected boolean isFinished(@NonNull double[] o) {
+		return Math.abs(flywheelRPMS() - flywheelPID.getTarget()) < o[0];
 	}
 
 	public double flywheelRPMS() {

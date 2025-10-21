@@ -10,7 +10,7 @@ public abstract class Mechanism {
 	@Override
 	abstract public String toString();
 
-	abstract public void update(@NonNull Object[] o);
+	abstract public void update(@NonNull double[] o);
 
-	protected abstract boolean isFinished(Object[] o);
+	protected abstract boolean isFinished(double[] o);
 }

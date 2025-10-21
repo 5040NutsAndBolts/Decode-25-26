@@ -34,6 +34,11 @@ public class Drivetrain extends Mechanism {
 
         //TODO: CONFIGURE OFFSETS
         odo = new Odometry(hardwareMap, 121.92f, 147.32f);
+        this.resetOdo();
+    }
+
+    public void updateOdo() {
+        odo.update();
     }
 
     /**
@@ -74,9 +79,11 @@ public class Drivetrain extends Mechanism {
     }
 
     //field oriented drive
-    public void fieldOrientedDrive(double forward, double sideways, double rotation, @NonNull Odometry odo) {
+    public void fieldOrientedDrive(double forward, double sideways, double rotation) {
+        rotation *=-1;
+        sideways *=-1;
         double P = Math.hypot(sideways, forward);
-        double currentAngle = odo.getPinpoint().getHeading();
+        double currentAngle = (odo.getPinpoint().getHeading() + 360)%360;
 
         double robotAngle = Math.atan2(forward, sideways);
 
@@ -92,6 +99,8 @@ public class Drivetrain extends Mechanism {
         backLeft.setPower(v7);
         backRight.setPower(v8);
     }
+
+    public void resetOdo(){odo.reset();}
 
 
     boolean lastButton = false;
@@ -113,27 +122,24 @@ public class Drivetrain extends Mechanism {
     public boolean isSlow() {return speed == .5;}
 
     //TODO: CONFIGURE PIDS
-    private final PID xpid = new PID(.015,0,0);
-    private final PID ypid = new PID(.015,0,0);
-    private final PID rpid = new PID(.015,0,0);
+    private final PID xpid = new PID(.025,0.000001,0);
+    private final PID ypid = new PID(.025,0.000001,0);
+    private final PID rpid = new PID(0,0,0);
 
     /**
      * moves the drivetrain to a desired position
      * @param pos Doubles, [x,y,r] in inches and degrees
      */
-    public void update (@NonNull Object[] pos) {
-        for(Object o : pos)
-            assert (o instanceof Double || o instanceof Float || o instanceof Integer) && pos.length == 3;
-        xpid.setTarget((Double) pos[0]);
-        ypid.setTarget((Double) pos[1]);
-        rpid.setTarget((Double) pos[2]);
+    public void update (@NonNull double[] pos) {
+        xpid.setTarget(pos[0]);
+        ypid.setTarget(pos[1]);
+        rpid.setTarget(pos[2]);
 
         odo.update();
         fieldOrientedDrive(
-                ypid.autoControl(odo.getPosition().getX(DistanceUnit.INCH)),
-                xpid.autoControl(odo.getPosition().getY(DistanceUnit.INCH)),
-                rpid.autoControl(odo.getPosition().getHeading(AngleUnit.DEGREES)),
-                odo
+                ypid.autoControl(odo.getPosition().getY(DistanceUnit.INCH)),
+                xpid.autoControl(odo.getPosition().getX(DistanceUnit.INCH)),
+                rpid.autoControl((odo.getPosition().getHeading(AngleUnit.DEGREES) + 360)%360)
         );
     }
 
@@ -141,13 +147,11 @@ public class Drivetrain extends Mechanism {
      * is the robot within the tolerance of the target (for easypathing)
      * @return true if the robot is within the tolerance of the target
      */
-	public boolean isFinished(@NonNull Object[] tolerances) {
-        for(Object o : tolerances)
-            assert (o instanceof Double || o instanceof Float || o instanceof Integer) && tolerances.length == 2;
-		double rotMOE = (double) tolerances[0];
-		double xyRMOE = (double) tolerances[1];
+	public boolean isFinished(@NonNull double[] tolerances) {
+		double rotMOE =  tolerances[0];
+		double xyRMOE = tolerances[1];
 		return Math.hypot(xpid.getTarget() - odo.getPosition().getX(DistanceUnit.INCH), ypid.getTarget() - odo.getPosition().getY(DistanceUnit.INCH)) < xyRMOE &&
-                  Math.abs(rpid.getTarget() - odo.getPosition().getHeading(AngleUnit.DEGREES)) < rotMOE;
+                  Math.abs(rpid.getTarget() - ((odo.getPosition().getHeading(AngleUnit.DEGREES)+360)%360)) < rotMOE;
     }
 
     /**
@@ -159,10 +163,10 @@ public class Drivetrain extends Mechanism {
         if (in) {
             if(in != lastState)
                 pos = odo.getPosition();
-            this.update(new Object[]{
+            this.update(new double[]{
                 pos.getX(DistanceUnit.INCH),
                 pos.getY(DistanceUnit.INCH),
-                pos.getHeading(AngleUnit.DEGREES)
+                (pos.getHeading(AngleUnit.DEGREES)+360)%360
             });
         }else pos = null;
         lastState = in;
@@ -172,13 +176,12 @@ public class Drivetrain extends Mechanism {
     @Override
     public String toString() {
         return
+                "Slow: "+isSlow()+"\n"+
                 "Front Left: " + frontLeft.getPower() + "\n" +
                 "Front Right: " + frontRight.getPower() + "\n" +
                 "Back Left: " + backLeft.getPower() + "\n" +
                 "Back Right: " + backRight.getPower() + "\n" +
-                "X: " + odo.getPosition().getX(DistanceUnit.INCH) + "\n" +
-                "Y: " + odo.getPosition().getY(DistanceUnit.INCH) + "\n" +
-                "Rotation: " + odo.getPosition().getHeading(AngleUnit.DEGREES) + "\n" +
+                odo.toString() + "\n" +
                 "X controller: " + xpid + "\n" +
                 "Y controller: " + ypid + "\n" +
                 "Rotation controller: " + rpid;

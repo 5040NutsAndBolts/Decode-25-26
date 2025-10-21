@@ -57,7 +57,7 @@ public class PID {
 		//Instantaneous error
 		double Proportional = kp * currentError;
 		//Error over time
-		double Integral = ki * errorSum;
+		double Integral = ki * errorSum  *deltaTime;
 		//Rate of change of error
 		double Derivative = kd * (currentError - lastError) / deltaTime;
 
@@ -73,7 +73,7 @@ public class PID {
 	}
 	private double calculate(double currentPosition) {
 		//If deltaTime is too small, return last output to minimize floating point errors
-		if(deltaTime < 5)
+		if(deltaTime < 3)
 			return lastOutput;
 
 
@@ -83,7 +83,7 @@ public class PID {
 		//Instantaneous error
 		double Proportional = kp * currentError;
 		//Error over time
-		double Integral = ki * errorSum;
+		double Integral = ki * errorSum * deltaTime;
 		//Rate of change of error
 		double Derivative = kd * (currentError - lastError) / deltaTime;
 

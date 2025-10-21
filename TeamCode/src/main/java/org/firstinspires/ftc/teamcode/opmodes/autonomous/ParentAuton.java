@@ -30,12 +30,6 @@ public class ParentAuton extends OpMode {
 	}
 
 	@Override
-	public void init_loop() {
-		telemetry.addLine("Initializing...");
-		telemetry.update();
-	}
-
-	@Override
 	public void loop() {
 	}
 }

@@ -1,46 +1,38 @@
 package org.firstinspires.ftc.teamcode.opmodes.autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.helpers.easypathing.Path;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 @Autonomous(name="TestAuto", group="Autonomous")
 public class TestAuto extends ParentAuton{
-	private final ArrayList<Path> paths = new ArrayList<>();
+	Drivetrain drivetrain;
 
 	@Override
 	public void init() {
-		super.init();
-
-		Drivetrain drivetrain = new Drivetrain(hardwareMap);
-		Path forward = new Path("movey movey");
-		forward.addMechanism(drivetrain);
-
-		ArrayList<Object[]> states = new ArrayList<>();
-
-		states.add(new Object[]{
-				(Runnable) () -> {
-					while (!drivetrain.isFinished(new Object[]{1.0, 1.0, 5.0})) {
-						drivetrain.update(new Object[]{ 10.0, 10.0, 45.0 });
-						telemetry.addLine("IN MOVEY MOVEY RUNNABLE");
-						telemetry.update();
-					}
-				}
-		});
-
-		forward.queueStates(states);
-		paths.add(forward);
+		 drivetrain = new Drivetrain(hardwareMap);
+		telemetry.addLine((drivetrain + "I"));
+		telemetry.update();
 	}
 
-	private int iter = 0;
+	@Override
+	public void init_loop() {
+		super.init_loop();
+		telemetry.addLine((drivetrain.toString() + "IL"));
+		telemetry.update();
+	}
+
 	@Override
 	public void loop() {
-		telemetry.addLine(Arrays.toString(paths.toArray()));
+		while(!drivetrain.isFinished(new double[] {.1,3})){
+			drivetrain.update(new double[] {10,10,0});
+			telemetry.addLine((drivetrain.toString() + "\nL1\nRuntime:" + getRuntime()));
+			telemetry.update();
+		}
+		drivetrain.robotOrientedDrive(0,0,0);
+		drivetrain.updateOdo();
+		telemetry.addLine((drivetrain.toString() + "\nOL\nRuntime:" + getRuntime()));
 		telemetry.update();
-		paths.get(0).update();
 	}
 }
