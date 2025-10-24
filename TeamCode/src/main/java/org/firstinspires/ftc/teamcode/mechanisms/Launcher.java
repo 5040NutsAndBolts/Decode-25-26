@@ -52,7 +52,7 @@ public class Launcher extends Mechanism {
 		transferServo.setPower(power);
 	}
 
-	private final PID flywheelPID = new PID(.0065,0.000001,0);
+	private final PID flywheelPID = new PID(.3,0.00001,0.0);
 	public void outtake(double power) {
 		long farRPM = 5500;
 		flywheelPID.setTarget(power > .5 ? farRPM : 0);
@@ -65,10 +65,7 @@ public class Launcher extends Mechanism {
 	}
 
 	public void flick(boolean in) {
-		if(in)
-			flickServo.setPosition(1);
-		else
-			flickServo.setPosition(0);
+		flickServo.setPosition(in ? flickServo.getPosition() == 1 ? 0 : 1 : flickServo.getPosition());
 	}
 
 	@Override
@@ -78,8 +75,7 @@ public class Launcher extends Mechanism {
 
 	public double flywheelRPMS() {
 		double currentTPS = flywheel.getVelocity();
-		double degreesPerTick = 2.67857485;
-		return (currentTPS * degreesPerTick * 60);
+		return (currentTPS * (2.67857485));
 	}
 
 	@NonNull
