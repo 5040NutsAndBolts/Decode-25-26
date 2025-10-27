@@ -1,4 +1,8 @@
 package org.firstinspires.ftc.teamcode.helpers;
+import static java.lang.Double.NaN;
+
+import android.nfc.NdefRecord;
+
 import androidx.annotation.NonNull;
 import java.util.function.Supplier;
 
@@ -73,7 +77,7 @@ public class PID {
 	}
 	private double calculate(double currentPosition) {
 		//If deltaTime is too small, return last output to minimize floating point errors
-		if(deltaTime < 3)
+		if(deltaTime < 10)
 			return lastOutput;
 
 
@@ -83,9 +87,12 @@ public class PID {
 		//Instantaneous error
 		double Proportional = kp * currentError;
 		//Error over time
-		double Integral = ki * errorSum * deltaTime;
+		double Integral = ki * errorSum;
 		//Rate of change of error
 		double Derivative = kd * (currentError - lastError) / deltaTime;
+
+		if(Proportional == NaN || Integral == NaN || Derivative == NaN)
+			throw new Error("NANANANANANANANANA");
 
 		double output = Proportional + Integral + Derivative;
 

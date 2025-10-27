@@ -12,7 +12,6 @@ import java.util.ArrayList;
 
 @Disabled
 public class ParentAuton extends OpMode {
-
 	/**
 	 * holds the robot for a certain amount of time
 	 * @param timeout time in milliseconds

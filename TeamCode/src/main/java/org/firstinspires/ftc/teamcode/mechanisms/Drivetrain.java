@@ -172,6 +172,14 @@ public class Drivetrain extends Mechanism {
         lastState = in;
     }
 
+    public double[] getPos() {
+        return new double[]{
+                odo.getPosition().getX(DistanceUnit.INCH),
+                odo.getPosition().getY(DistanceUnit.INCH),
+                odo.getPosition().getHeading(AngleUnit.DEGREES)
+        };
+    }
+
     @NonNull
     @Override
     public String toString() {
