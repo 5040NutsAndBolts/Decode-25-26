@@ -37,13 +37,13 @@ public class Launcher extends Mechanism {
 		for(Object o : powers)
 			assert o instanceof Double || o instanceof Float || o instanceof Integer;
 		if (powers.length == 2) {
-			flick((Double) powers[0] == 0);
-			flywheel.setPower((Double) powers[1]);
-			wheelMotor.setPower((Double) powers[1]);
+			flick(powers[0] == 0);
+			flywheel.setPower(powers[1]);
+			wheelMotor.setPower(powers[1]);
 		}else {
-			flick((Double) powers[0] == 0);
-			flywheel.setPower((Double) powers[1]);
-			wheelMotor.setPower((Double) powers[2]);
+			flick(powers[0] == 0);
+			flywheel.setPower(powers[1]);
+			wheelMotor.setPower(powers[2]);
 		}
 	}
 
@@ -54,18 +54,19 @@ public class Launcher extends Mechanism {
 
 	private final PID flywheelPID = new PID(.3,0.00001,0.0);
 	public void outtake(double power) {
-		long farRPM = 5500;
+		flywheel.setPower(power);
+	/*	long farRPM = 10000;
 		flywheelPID.setTarget(power > .5 ? farRPM : 0);
 		double outpower = flywheelPID.autoControl(flywheelRPMS());
 		flywheel.setPower(outpower > .2 ? outpower : 0);
-	}
+*/	}
 
 	public void intake(double power) {
 		wheelMotor.setPower(power);
 	}
 
 	public void flick(boolean in) {
-		flickServo.setPosition(in ? flickServo.getPosition() == 1 ? 0 : 1 : flickServo.getPosition());
+		flickServo.setPosition(in ? 1 : 0);
 	}
 
 	@Override

@@ -27,16 +27,20 @@ public class Odometry {
         pinpoint.resetPosAndIMU();
     }
 
-    public Pose2D getPosition () {
-        return pinpoint.getPosition();
-    }
-
     public GoBildaPinpointDriver getPinpoint() {
     	return pinpoint;
     }
 
     public void update() {
         pinpoint.update();
+    }
+
+    public double[] getPosition() {
+        return new double[] {
+                (pinpoint.getPosition().getX(DistanceUnit.INCH)),
+                (pinpoint.getPosition().getY(DistanceUnit.INCH)),
+                Math.toDegrees(pinpoint.getHeading())
+        };
     }
 
     public void reset() {
@@ -52,6 +56,6 @@ public class Odometry {
                 "\tStatus: " + pinpoint.getDeviceStatus() + "\n" +
                 "\tX: " + (pinpoint.getPosition().getX(DistanceUnit.INCH)) + "\n" +
                 "\tY: " + (pinpoint.getPosition().getY(DistanceUnit.INCH)) + "\n" +
-                "\tHeading: " + ((Math.toDegrees(pinpoint.getHeading()) + 360) % 360);
+                "\tHeading: " + Math.toDegrees(pinpoint.getHeading());
     }
 }

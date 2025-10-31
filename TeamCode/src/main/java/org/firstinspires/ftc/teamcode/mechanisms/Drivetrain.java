@@ -80,12 +80,12 @@ public class Drivetrain extends Mechanism {
 
     //field oriented drive
     public void fieldOrientedDrive(double forward, double sideways, double rotation) {
-        rotation *=-1;
-        sideways *=-1;
+        odo.update();
         double P = Math.hypot(sideways, forward);
         double currentAngle = (odo.getPinpoint().getHeading() + 360)%360;
 
         double robotAngle = Math.atan2(forward, sideways);
+
 
         double vcos = P * Math.cos(robotAngle - currentAngle);
         double vsin = P * Math.sin(robotAngle - currentAngle);
@@ -137,9 +137,9 @@ public class Drivetrain extends Mechanism {
 
         odo.update();
         fieldOrientedDrive(
-                ypid.autoControl(odo.getPosition().getY(DistanceUnit.INCH)),
-                xpid.autoControl(odo.getPosition().getX(DistanceUnit.INCH)),
-                rpid.autoControl((odo.getPosition().getHeading(AngleUnit.DEGREES) + 360)%360)
+                ypid.autoControl(odo.getPosition()[0]),
+                xpid.autoControl(odo.getPosition()[1]),
+                rpid.autoControl(odo.getPosition()[2])
         );
     }
 
@@ -150,34 +150,26 @@ public class Drivetrain extends Mechanism {
 	public boolean isFinished(@NonNull double[] tolerances) {
 		double rotMOE =  tolerances[0];
 		double xyRMOE = tolerances[1];
-		return Math.hypot(xpid.getTarget() - odo.getPosition().getX(DistanceUnit.INCH), ypid.getTarget() - odo.getPosition().getY(DistanceUnit.INCH)) < xyRMOE &&
-                  Math.abs(rpid.getTarget() - ((odo.getPosition().getHeading(AngleUnit.DEGREES)+360)%360)) < rotMOE;
+		return Math.hypot(xpid.getTarget() - odo.getPosition()[0], ypid.getTarget() - odo.getPosition()[1]) < xyRMOE &&
+                  Math.abs(rpid.getTarget() - odo.getPosition()[2]) < rotMOE;
     }
 
     /**
      * holds the robot at the current position
      */
-    Pose2D pos;
+    double[] pos;
     private boolean lastState;
     public void hold(boolean in) {
         if (in) {
             if(in != lastState)
                 pos = odo.getPosition();
-            this.update(new double[]{
-                pos.getX(DistanceUnit.INCH),
-                pos.getY(DistanceUnit.INCH),
-                (pos.getHeading(AngleUnit.DEGREES)+360)%360
-            });
+            this.update(pos);
         }else pos = null;
         lastState = in;
     }
 
-    public double[] getPos() {
-        return new double[]{
-                odo.getPosition().getX(DistanceUnit.INCH),
-                odo.getPosition().getY(DistanceUnit.INCH),
-                odo.getPosition().getHeading(AngleUnit.DEGREES)
-        };
+    public double[] getPosition() {
+        return odo.getPosition();
     }
 
     @NonNull
