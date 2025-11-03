@@ -23,7 +23,7 @@ public class TestAuto extends ParentAuton{
 		odo = new Odometry(hardwareMap, 0, 0);
 		telemetry.update();
 		setTarget = new double[]{
-				5, 0, 0
+				0, -7.75, 0
 		};
 	}
 		@Override
@@ -37,21 +37,54 @@ public class TestAuto extends ParentAuton{
 	}
 
 
-		@Override
-		public void loop() {
-			ElapsedTime timer = new ElapsedTime();
-			while(timer.seconds()<2){
-				launcher.outtake(1.0);
-			}
-			launcher.flick(true);
-			while(timer.seconds()<2){}
-			launcher.flick(false);
-			while(setTarget != drivetrain.getPosition()){
-				drivetrain.robotOrientedDrive(0.2, 0, 0);
-				drivetrain.updateOdo();
-				telemetry.addLine((drivetrain.toString() + "IL"));
-				telemetry.update();
-			}
+	@Override
+	public void loop() {
+		while(setTarget[1] < drivetrain.getPosition()[1]){
+			drivetrain.robotOrientedDrive(.2, 0, 0);
+			drivetrain.updateOdo();
+			telemetry.addLine((drivetrain.toString() + "first move loop"));
+			telemetry.update();
+		}
+		drivetrain.robotOrientedDrive(0, 0, 0);
+
+		ElapsedTime timer = new ElapsedTime();
+		while(timer.seconds()<2){
+			drivetrain.robotOrientedDrive(0, 0, 0);
+			launcher.outtake(1);
+			telemetry.addLine(String.valueOf(timer.seconds()));
+			telemetry.addLine((drivetrain.toString() + "first launch loop"));
+			telemetry.update();
 		}
 
+		launcher.flick(true);
+
+		timer = new ElapsedTime();
+		while(timer.seconds()<2){
+			drivetrain.robotOrientedDrive(0, 0, 0);
+			telemetry.addLine(String.valueOf(timer.seconds()));
+			telemetry.addLine((drivetrain.toString() + "first wait loop"));
+			telemetry.update();
+		}
+
+		launcher.flick(false);
+
+		timer = new ElapsedTime();
+		while(timer.seconds()<1.5){
+			drivetrain.robotOrientedDrive(0, 0, 0);
+			telemetry.addLine(String.valueOf(timer.seconds()));
+			telemetry.addLine((drivetrain.toString() + "second wait loop"));
+			telemetry.update();
+		}
+
+		setTarget[1]=-18;
+		while(setTarget[1] < drivetrain.getPosition()[1]){
+			drivetrain.robotOrientedDrive(.2, -.15, 0);
+			drivetrain.updateOdo();
+			telemetry.addLine((drivetrain.toString() + "second move loop"));
+			telemetry.update();
+		}
+		drivetrain.robotOrientedDrive(0, 0, 0);
+
+		stop();
 	}
+}
