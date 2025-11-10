@@ -1,15 +1,15 @@
-package org.firstinspires.ftc.teamcode.opmodes.autonomous;
+package org.firstinspires.ftc.teamcode.opmodes.autonomous.comp;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.helpers.odo.Odometry;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
+import org.firstinspires.ftc.teamcode.opmodes.autonomous.ParentAuton;
 
 
-@Autonomous(name="TestAuto", group="Autonomous")
-public class TestAuto extends ParentAuton{
+@Autonomous(name="BlueFar", group="Autonomous")
+public class BlueFar extends ParentAuton {
 	Drivetrain drivetrain;
 	Odometry odo;
 	Launcher launcher;
@@ -22,7 +22,7 @@ public class TestAuto extends ParentAuton{
 		drivetrain.updateOdo();
 		odo = new Odometry(hardwareMap, 0, 0);
 		telemetry.update();
-		setTarget = new double[]{
+		setTarget = new double[]{ 
 				0, -7.75, 0
 		};
 	}
@@ -39,6 +39,7 @@ public class TestAuto extends ParentAuton{
 
 	@Override
 	public void loop() {
+		launcher.transfer(1);
 		while(setTarget[1] < drivetrain.getPosition()[1]){
 			drivetrain.robotOrientedDrive(.2, 0, 0);
 			drivetrain.updateOdo();
@@ -46,11 +47,14 @@ public class TestAuto extends ParentAuton{
 			telemetry.update();
 		}
 		drivetrain.robotOrientedDrive(0, 0, 0);
+		launcher.flick(false);
 
 		ElapsedTime timer = new ElapsedTime();
 		while(timer.seconds()<2){
+			launcher.transfer(1);
+			launcher.transfer(1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
-			launcher.outtake(1);
+			launcher.outtake(0.94);
 			telemetry.addLine(String.valueOf(timer.seconds()));
 			telemetry.addLine((drivetrain.toString() + "first launch loop"));
 			telemetry.update();
@@ -60,6 +64,7 @@ public class TestAuto extends ParentAuton{
 
 		timer = new ElapsedTime();
 		while(timer.seconds()<2){
+			launcher.transfer(1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
 			telemetry.addLine(String.valueOf(timer.seconds()));
 			telemetry.addLine((drivetrain.toString() + "first wait loop"));
@@ -70,6 +75,7 @@ public class TestAuto extends ParentAuton{
 
 		timer = new ElapsedTime();
 		while(timer.seconds()<1.5){
+			launcher.transfer(1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
 			telemetry.addLine(String.valueOf(timer.seconds()));
 			telemetry.addLine((drivetrain.toString() + "second wait loop"));
@@ -78,6 +84,7 @@ public class TestAuto extends ParentAuton{
 
 		setTarget[1]=-18;
 		while(setTarget[1] < drivetrain.getPosition()[1]){
+			launcher.transfer(1);
 			drivetrain.robotOrientedDrive(.2, -.15, 0);
 			drivetrain.updateOdo();
 			telemetry.addLine((drivetrain.toString() + "second move loop"));
@@ -85,6 +92,6 @@ public class TestAuto extends ParentAuton{
 		}
 		drivetrain.robotOrientedDrive(0, 0, 0);
 
-		stop();
+		requestOpModeStop();
 	}
 }
