@@ -50,7 +50,7 @@ public class BlueFar extends ParentAuton {
 		launcher.flick(false);
 
 		ElapsedTime timer = new ElapsedTime();
-		while(timer.seconds()<2){
+		while(timer.seconds()<4){
 			launcher.transfer(1);
 			launcher.transfer(1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
