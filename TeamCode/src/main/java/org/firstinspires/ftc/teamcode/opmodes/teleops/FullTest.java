@@ -21,11 +21,13 @@ public class FullTest extends OpMode {
 	public void loop() {
 		dt.robotOrientedDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 		dt.updateOdo();
-		la.intake(gamepad2.right_trigger);
+		la.intake(gamepad1.right_trigger);
+		la.intake(-gamepad1.left_trigger);
+		la.outtake(gamepad2.right_trigger);
 		la.transfer(gamepad2.left_stick_y);
-		la.flick(gamepad2.b);
-		dt.toggleSlowMode(gamepad1.b);
-		la.outtake(gamepad2.left_trigger > .15 ? 1 : .25);
+		la.flick(gamepad2.a);
+		dt.toggleSlowMode(gamepad1.dpad_down);
+		la.outtake(.95);;
 
 		telemetry.addLine("Launcher: \n" + la.toString());
 		telemetry.addLine("Drivetrain: \n" + dt.toString());
