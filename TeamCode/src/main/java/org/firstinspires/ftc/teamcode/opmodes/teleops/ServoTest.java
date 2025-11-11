@@ -20,9 +20,9 @@ public class ServoTest extends OpMode {
 
     @Override
     public void loop() {
-        if(gamepad1.a)
+        if(gamepad2.a)
             shmegus.setPosition(0);
-        if(gamepad1.b)
+        if(gamepad2.b)
             shmegus.setPosition(1);
         if(gamepad1.left_stick_y > 0.5)
             shmogus.setPower(1);
