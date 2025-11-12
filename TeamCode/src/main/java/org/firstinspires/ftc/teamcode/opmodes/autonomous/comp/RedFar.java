@@ -8,8 +8,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.ParentAuton;
 
 
-@Autonomous(name="BlueFar", group="Autonomous")
-public class BlueFar extends ParentAuton {
+@Autonomous(name="RedFar", group="Autonomous")
+public class RedFar extends ParentAuton {
 	Drivetrain drivetrain;
 	Odometry odo;
 	Launcher launcher;
@@ -22,15 +22,13 @@ public class BlueFar extends ParentAuton {
 		drivetrain.updateOdo();
 		odo = new Odometry(hardwareMap, 0, 0);
 		telemetry.update();
-		setTarget = new double[]{ 
+		setTarget = new double[]{
 				0, -7.75, 0
 		};
 	}
-		@Override
+	@Override
 	public void init_loop() {
 		super.init_loop();
-
-		telemetry.addLine("Launcher: \n" + launcher.toString());
 		telemetry.addLine((drivetrain.toString() + "IL"));
 		telemetry.addLine(""+drivetrain.getPosition()[0]);
 		telemetry.addLine(""+drivetrain.getPosition()[1]);
@@ -42,25 +40,21 @@ public class BlueFar extends ParentAuton {
 	@Override
 	public void loop() {
 		launcher.transfer(1);
-		launcher.outtake(1);
 		while(setTarget[1] < drivetrain.getPosition()[1]){
 			drivetrain.robotOrientedDrive(.2, 0, 0);
 			drivetrain.updateOdo();
 			telemetry.addLine((drivetrain.toString() + "first move loop"));
-			launcher.outtake(1);
 			telemetry.update();
 		}
 		drivetrain.robotOrientedDrive(0, 0, 0);
 		launcher.flick(false);
-		launcher.outtake(1);
 
 		ElapsedTime timer = new ElapsedTime();
 		while(timer.seconds()<4){
 			launcher.transfer(1);
 			launcher.transfer(1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
-			launcher.outtake(1);
-			telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
+			launcher.outtake(0.94);
 			telemetry.addLine(String.valueOf(timer.seconds()));
 			telemetry.addLine((drivetrain.toString() + "first launch loop"));
 			telemetry.update();
