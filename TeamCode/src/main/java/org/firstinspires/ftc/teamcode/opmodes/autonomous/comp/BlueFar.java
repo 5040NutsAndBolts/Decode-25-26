@@ -30,8 +30,8 @@ public class BlueFar extends ParentAuton {
 	public void init_loop() {
 		super.init_loop();
 
-		telemetry.addLine("Launcher: \n" + launcher.toString());
 		telemetry.addLine((drivetrain.toString() + "IL"));
+		telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
 		telemetry.addLine(""+drivetrain.getPosition()[0]);
 		telemetry.addLine(""+drivetrain.getPosition()[1]);
 		odo.update();
@@ -42,7 +42,7 @@ public class BlueFar extends ParentAuton {
 	@Override
 	public void loop() {
 		launcher.transfer(1);
-		launcher.outtake(1);
+		launcher.outtake(0.96);
 		while(setTarget[1] < drivetrain.getPosition()[1]){
 			drivetrain.robotOrientedDrive(.2, 0, 0);
 			drivetrain.updateOdo();
