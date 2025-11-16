@@ -88,6 +88,6 @@ public class Launcher extends Mechanism {
 				"Transfer servo power: " + transferServo.getPower() + "\n" +
 				"Wheel motor power: " + wheelMotor.getPower() + "\n" +
 				"Flick: " + flickServo.getPosition() + "\n" +
-				"Flywheel PID: " + flywheelPID;
+				"Flywheel PID: " + flywheelPID + "\n";
 	}
 }

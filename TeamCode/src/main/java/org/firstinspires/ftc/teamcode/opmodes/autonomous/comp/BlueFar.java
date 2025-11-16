@@ -42,25 +42,24 @@ public class BlueFar extends ParentAuton {
 	@Override
 	public void loop() {
 		launcher.transfer(1);
-		launcher.outtake(0.96);
+		launcher.outtake(0.82);
+		telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
 		while(setTarget[1] < drivetrain.getPosition()[1]){
+			telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
 			drivetrain.robotOrientedDrive(.2, 0, 0);
 			drivetrain.updateOdo();
 			telemetry.addLine((drivetrain.toString() + "first move loop"));
-			launcher.outtake(1);
 			telemetry.update();
 		}
 		drivetrain.robotOrientedDrive(0, 0, 0);
 		launcher.flick(false);
-		launcher.outtake(1);
 
 		ElapsedTime timer = new ElapsedTime();
 		while(timer.seconds()<4){
+			telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
 			launcher.transfer(1);
 			launcher.transfer(1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
-			launcher.outtake(1);
-			telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
 			telemetry.addLine(String.valueOf(timer.seconds()));
 			telemetry.addLine((drivetrain.toString() + "first launch loop"));
 			telemetry.update();
