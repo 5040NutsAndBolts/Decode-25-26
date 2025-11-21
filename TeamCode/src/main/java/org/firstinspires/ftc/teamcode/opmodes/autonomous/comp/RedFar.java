@@ -42,7 +42,7 @@ public class RedFar extends ParentAuton {
 	@Override
 	public void loop() {
 		launcher.transfer(1);
-		launcher.outtake(0.82);
+		launcher.outtake(0.78);
 		telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
 		while(setTarget[1] < drivetrain.getPosition()[1]){
 			telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());

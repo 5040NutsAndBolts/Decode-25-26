@@ -48,6 +48,9 @@ public class Drivetrain extends Mechanism {
      * @param rotation rotation power (negative for counterclockwise)
      */
     public void robotOrientedDrive(double forward, double sideways, double rotation) {
+        try {
+            updateOdo();
+        }catch(Exception ignored) {}
         //Multiplied by speed variable, only changes when in slowmode
         forward *= speed;
         sideways *= speed;
