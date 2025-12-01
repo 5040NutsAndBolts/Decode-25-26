@@ -88,6 +88,12 @@ public class RedFar extends ParentAuton {
 			telemetry.update();
 		}
 
+		timer = new ElapsedTime();
+		while(timer.seconds()<1.5){
+			launcher.transfer(1);
+			launcher.flick(true);
+		}
+
 		setTarget[1]=-18;
 		while(setTarget[1] < drivetrain.getPosition()[1]){
 			launcher.transfer(1);

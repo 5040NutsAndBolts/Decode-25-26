@@ -23,7 +23,7 @@ public class BlueFar extends ParentAuton {
 		odo = new Odometry(hardwareMap, 0, 0);
 		telemetry.update();
 		setTarget = new double[]{ 
-				0, -7.75, 0
+				0, 4.5, 0
 		};
 	}
 		@Override
@@ -46,7 +46,7 @@ public class BlueFar extends ParentAuton {
 		telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
 		while(setTarget[1] < drivetrain.getPosition()[1]){
 			telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
-			drivetrain.robotOrientedDrive(.2, 0, 0);
+			drivetrain.robotOrientedDrive(-.2, 0, 0);
 			drivetrain.updateOdo();
 			telemetry.addLine((drivetrain.toString() + "first move loop"));
 			telemetry.update();
@@ -87,10 +87,16 @@ public class BlueFar extends ParentAuton {
 			telemetry.update();
 		}
 
+		timer = new ElapsedTime();
+		while(timer.seconds()<1.5){
+			launcher.transfer(1);
+			launcher.flick(true);
+		}
+
 		setTarget[1]=-18;
 		while(setTarget[1] < drivetrain.getPosition()[1]){
 			launcher.transfer(1);
-			drivetrain.robotOrientedDrive(.2, -.15, 0);
+			drivetrain.robotOrientedDrive(-.2, -.15, 0);
 			drivetrain.updateOdo();
 			telemetry.addLine((drivetrain.toString() + "second move loop"));
 			telemetry.update();
