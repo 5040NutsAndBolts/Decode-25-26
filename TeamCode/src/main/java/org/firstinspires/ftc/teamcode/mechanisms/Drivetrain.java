@@ -10,14 +10,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.helpers.PID;
 import org.firstinspires.ftc.teamcode.helpers.odo.Odometry;
 import org.firstinspires.ftc.teamcode.helpers.easypathing.Mechanism;
-
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 public class Drivetrain extends Mechanism {
     public boolean waitWorthy = true;
     private final DcMotorEx frontLeft,frontRight,backLeft,backRight;
     private final Odometry odo;
     private double speed = 1;
-
+    private final VoltageSensor voltageSensor;
     public Drivetrain(@NonNull HardwareMap hardwareMap) {
+        voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
         //Drive motor initialization
         frontLeft = hardwareMap.get(DcMotorEx.class, "Front Left");
         frontRight = hardwareMap.get(DcMotorEx.class, "Front Right");
@@ -178,6 +179,7 @@ public class Drivetrain extends Mechanism {
         return odo.getPosition();
     }
 
+
     @NonNull
     @Override
     public String toString() {
@@ -190,6 +192,7 @@ public class Drivetrain extends Mechanism {
                 odo.toString() + "\n" +
                 "X controller: " + xpid + "\n" +
                 "Y controller: " + ypid + "\n" +
-                "Rotation controller: " + rpid;
+                "Rotation controller: " + rpid + "\n" +
+                "Battery Voltage: " + voltageSensor.getVoltage();
     }
 }

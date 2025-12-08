@@ -11,6 +11,8 @@ public class FullTest extends OpMode {
 	Launcher la;
 	Drivetrain dt;
 
+	double power = 0.9;
+
 	@Override
 	public void init() {
 		dt = new Drivetrain(hardwareMap);
@@ -34,13 +36,21 @@ public class FullTest extends OpMode {
 
 		dt.toggleSlowMode(gamepad1.b);
 
-		la.outtake(gamepad2.left_trigger > .15 ? 0.9 : .2);
+/*		if(gamepad2.y && power > 0)
+			power -= 0.05;
+		if(gamepad2.x && power < 1)
+			power += 0.05;
+
+		la.outtake(gamepad2.left_trigger > .15 ? power : .2);
+*/
+
+		la.outtake(gamepad2.left_trigger > 0.5 ? 1 : 0);
 
 		la.flick(gamepad2.a);
 
 		dt.toggleSlowMode(gamepad1.dpad_down);
 
-		if(la.flywheelRPMS() > 5000 && gamepad2.left_trigger > .15) {
+		if(la.flywheelRPMS() > 5750 && gamepad2.left_trigger > .15) {
 			gamepad2.rumble(100);
 			gamepad1.rumble(100);
 			telemetry.addLine("rumbling");
@@ -49,6 +59,8 @@ public class FullTest extends OpMode {
 			//li.setPattern(Lights.Color.BLOOD_ORANGE);
 		//}
 
+		telemetry.addLine("Flywheel Power: " + power);
+		telemetry.addLine("Flick In: " + gamepad2.a);
 
 		telemetry.addLine("Launcher: \n" + la.toString());
 		telemetry.addLine("Drivetrain: \n" + dt.toString());

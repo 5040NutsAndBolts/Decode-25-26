@@ -10,6 +10,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.helpers.PID;
 import org.firstinspires.ftc.teamcode.helpers.easypathing.Mechanism;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Launcher extends Mechanism {
 	public boolean waitWorthy = true;
 	private final DcMotorEx flywheel;
@@ -20,7 +23,7 @@ public class Launcher extends Mechanism {
 	public Launcher(@NonNull HardwareMap hardwareMap) {
 		//Motor initialization
 		flywheel = hardwareMap.get(DcMotorEx.class, "Flywheel");
-		flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+		flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 		wheelMotor = hardwareMap.get(DcMotorEx.class, "Intake");
 		wheelMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		flickServo = hardwareMap.get(Servo.class, "Flick");
@@ -47,19 +50,16 @@ public class Launcher extends Mechanism {
 		}
 	}
 
-
 	public void transfer(double power) {
 		transferServo.setPower(power);
 	}
 
-	private final PID flywheelPID = new PID(.3,0.00001,0.0);
+	private double numero;
+	private final PID flywheelPID = new PID(.03,0.0001,0.0, this::flywheelRPMS, .5);
 	public void outtake(double power) {
-		flywheel.setPower(power);
-	/*	long farRPM = 10000;
-		flywheelPID.setTarget(power > .5 ? farRPM : 0);
-		double outpower = flywheelPID.autoControl(flywheelRPMS());
-		flywheel.setPower(outpower > .2 ? outpower : 0);
-*/	}
+		getPIDTelemetry(false);
+		//flywheel.setPower(numero);
+	}
 
 	public void intake(double power) {
 		wheelMotor.setPower(power);
@@ -68,7 +68,11 @@ public class Launcher extends Mechanism {
 	public void flick(boolean in) {
 		flickServo.setPosition(in ? 1 : 0);
 	}
-
+	boolean lastFlickIn = false;
+	public void setFlick(boolean in) {
+		flickServo.setPosition(in && lastFlickIn ? flickServo.getPosition() == 1 ? 0 : 1 : 0);
+		lastFlickIn = in;
+	}
 	@Override
 	protected boolean isFinished(@NonNull double[] o) {
 		return Math.abs(flywheelRPMS() - flywheelPID.getTarget()) < o[0];
@@ -89,5 +93,19 @@ public class Launcher extends Mechanism {
 				"Wheel motor power: " + wheelMotor.getPower() + "\n" +
 				"Flick: " + flickServo.getPosition() + "\n" +
 				"Flywheel PID: " + flywheelPID + "\n";
+
+	}
+
+	public Map<String, Object> getPIDTelemetry(boolean inInit) {
+		HashMap<String, Object> map = new HashMap<>();
+		map.put("Flywheel PID Target", 5800);
+		map.put("Flywheel Current", flywheelRPMS());
+		map.put("Flywheel PID Output", flywheelPID.getCurrentOutput());
+		//no idea why but this HAS to be calculated here
+		numero = (5800-flywheelRPMS()) * .0035;
+		if (!inInit) flywheel.setPower(numero);
+		map.put("Flywheel Real Input Power", numero);
+		map.put("Flywheel Motor Power", flywheel.getPower());
+		return map;
 	}
 }

@@ -56,7 +56,7 @@ public class PID {
 
 
 		double currentError = currentTarget - currentPosition;
-		errorSum += currentError;
+		errorSum += currentError * deltaTime;
 
 		//Instantaneous error
 		double Proportional = kp * currentError;
@@ -77,22 +77,19 @@ public class PID {
 	}
 	private double calculate(double currentPosition) {
 		//If deltaTime is too small, return last output to minimize floating point errors
-		if(deltaTime < 10)
+		if(deltaTime < 5)
 			return lastOutput;
 
 
 		double currentError = currentTarget - currentPosition;
-		errorSum += currentError;
+		errorSum += currentError * deltaTime;
 
 		//Instantaneous error
 		double Proportional = kp * currentError;
 		//Error over time
-		double Integral = ki * errorSum;
+		double Integral = ki * errorSum * deltaTime;
 		//Rate of change of error
 		double Derivative = kd * (currentError - lastError) / deltaTime;
-
-		if(Proportional == NaN || Integral == NaN || Derivative == NaN)
-			throw new Error("NANANANANANANANANA");
 
 		double output = Proportional + Integral + Derivative;
 
@@ -144,6 +141,9 @@ public class PID {
 		return currentTarget;
 	}
 
+	public double getCurrentOutput() {
+		return currentOutput;
+	}
 	@NonNull
 	@Override
 	public String toString() {
