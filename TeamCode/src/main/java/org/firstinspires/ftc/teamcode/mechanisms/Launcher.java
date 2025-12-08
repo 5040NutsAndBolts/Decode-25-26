@@ -54,15 +54,18 @@ public class Launcher extends Mechanism {
 		transferServo.setPower(power);
 	}
 
-	private double numero;
+	private boolean nullifier = true;
 	private final PID flywheelPID = new PID(.03,0.0001,0.0, this::flywheelRPMS, .5);
 	public void outtake(double power) {
+		nullifier = power > .5;
 		getPIDTelemetry(false);
-		//flywheel.setPower(numero);
 	}
 
 	public void intake(double power) {
 		wheelMotor.setPower(power);
+	}
+	public void setOuttakePower(double p) {
+		flywheel.setPower(p);
 	}
 
 	public void flick(boolean in) {
@@ -102,7 +105,7 @@ public class Launcher extends Mechanism {
 		map.put("Flywheel Current", flywheelRPMS());
 		map.put("Flywheel PID Output", flywheelPID.getCurrentOutput());
 		//no idea why but this HAS to be calculated here
-		numero = (5800-flywheelRPMS()) * .0035;
+		double numero = nullifier ? ((5800 - flywheelRPMS()) * .0035) : .3;
 		if (!inInit) flywheel.setPower(numero);
 		map.put("Flywheel Real Input Power", numero);
 		map.put("Flywheel Motor Power", flywheel.getPower());

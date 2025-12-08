@@ -11,8 +11,6 @@ public class FullTest extends OpMode {
 	Launcher la;
 	Drivetrain dt;
 
-	double power = 0.9;
-
 	@Override
 	public void init() {
 		dt = new Drivetrain(hardwareMap);
@@ -21,7 +19,7 @@ public class FullTest extends OpMode {
 
 	@Override
 	public void loop() {
-		dt.robotOrientedDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+		dt.robotOrientedDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 		dt.updateOdo();
 
 		la.intake(gamepad1.right_trigger > 0.2 ? -1 : 0);
@@ -36,31 +34,20 @@ public class FullTest extends OpMode {
 
 		dt.toggleSlowMode(gamepad1.b);
 
-/*		if(gamepad2.y && power > 0)
-			power -= 0.05;
-		if(gamepad2.x && power < 1)
-			power += 0.05;
-
-		la.outtake(gamepad2.left_trigger > .15 ? power : .2);
-*/
-
-		la.outtake(gamepad2.left_trigger > 0.5 ? 1 : 0);
+		la.setOuttakePower(gamepad2.left_trigger > 0.5 ? 1 : .2);
 
 		la.flick(gamepad2.a);
 
 		dt.toggleSlowMode(gamepad1.dpad_down);
 
-		if(la.flywheelRPMS() > 5750 && gamepad2.left_trigger > .15) {
+		if(la.flywheelRPMS() > 5650 && gamepad2.left_trigger > .15) {
 			gamepad2.rumble(100);
 			gamepad1.rumble(100);
 			telemetry.addLine("rumbling");
 			//li.setPattern(Lights.Color.GREEN);
 		}//else {
-			//li.setPattern(Lights.Color.BLOOD_ORANGE);
+		//li.setPattern(Lights.Color.BLOOD_ORANGE);
 		//}
-
-		telemetry.addLine("Flywheel Power: " + power);
-		telemetry.addLine("Flick In: " + gamepad2.a);
 
 		telemetry.addLine("Launcher: \n" + la.toString());
 		telemetry.addLine("Drivetrain: \n" + dt.toString());
