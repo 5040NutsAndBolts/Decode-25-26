@@ -25,8 +25,8 @@ public class Drivetrain extends Mechanism {
         backLeft = hardwareMap.get(DcMotorEx.class, "Back Left");
         backRight = hardwareMap.get(DcMotorEx.class, "Back Right");
 
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
