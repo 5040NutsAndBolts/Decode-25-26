@@ -56,7 +56,7 @@ public class BlueFar extends ParentAuton {
 		telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
 		while(setTarget[0] > drivetrain.getPosition()[0]){
 			telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
-			drivetrain.robotOrientedDrive(-.2, 0, 0);
+			drivetrain.robotOrientedDrive(0.2, 0, 0);
 			drivetrain.updateOdo();
 			telemetry.addLine((drivetrain.toString() + "first move loop"));
 			packet.clearLines();
@@ -129,9 +129,9 @@ public class BlueFar extends ParentAuton {
 			dash.sendTelemetryPacket(packet);
 		}
 		setTarget[0]=18;
-		while(setTarget[0] < drivetrain.getPosition()[0]){
+		while(setTarget[0] > drivetrain.getPosition()[0]){
 			launcher.transfer(1);
-			drivetrain.robotOrientedDrive(-.2, 0, 0);
+			drivetrain.robotOrientedDrive(.2, 0, 0);
 			drivetrain.updateOdo();
 			telemetry.addLine((drivetrain.toString() + "second move loop"));
 			telemetry.update();

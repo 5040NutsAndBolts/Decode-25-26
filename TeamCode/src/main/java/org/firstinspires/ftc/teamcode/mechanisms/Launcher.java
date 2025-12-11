@@ -101,11 +101,11 @@ public class Launcher extends Mechanism {
 
 	public Map<String, Object> getPIDTelemetry(boolean inInit) {
 		HashMap<String, Object> map = new HashMap<>();
-		map.put("Flywheel PID Target", 5800);
+		map.put("Flywheel PID Target", 5100);
 		map.put("Flywheel Current", flywheelRPMS());
 		map.put("Flywheel PID Output", flywheelPID.getCurrentOutput());
 		//no idea why but this HAS to be calculated here
-		double numero = nullifier ? ((5800 - flywheelRPMS()) * .0035) : .3;
+		double numero = nullifier ? ((5100 - flywheelRPMS()) * .0035) : .3;
 		if (!inInit) flywheel.setPower(numero);
 		map.put("Flywheel Real Input Power", numero);
 		map.put("Flywheel Motor Power", flywheel.getPower());

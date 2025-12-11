@@ -19,7 +19,7 @@ public class FullTest extends OpMode {
 
 	@Override
 	public void loop() {
-		dt.robotOrientedDrive(gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+		dt.robotOrientedDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x);
 		dt.updateOdo();
 
 		la.intake(gamepad1.right_trigger > 0.2 ? -1 : 0);
@@ -34,7 +34,7 @@ public class FullTest extends OpMode {
 
 		dt.toggleSlowMode(gamepad1.b);
 
-		la.setOuttakePower(gamepad2.left_trigger > 0.5 ? 0.85 : .2);
+		la.setOuttakePower(gamepad2.left_trigger > 0.25 ? 0.9 : .2);
 
 		la.flick(gamepad2.a);
 
@@ -43,11 +43,8 @@ public class FullTest extends OpMode {
 		if(la.flywheelRPMS() > 4900 && gamepad2.left_trigger > .15) {
 			gamepad2.rumble(100);
 			gamepad1.rumble(100);
-			telemetry.addLine("rumbling");
-			//li.setPattern(Lights.Color.GREEN);
-		}//else {
-		//li.setPattern(Lights.Color.BLOOD_ORANGE);
-		//}
+			telemetry.addLine("rumbling, far");
+		}
 
 		telemetry.addLine("Launcher: \n" + la.toString());
 		telemetry.addLine("Drivetrain: \n" + dt.toString());
