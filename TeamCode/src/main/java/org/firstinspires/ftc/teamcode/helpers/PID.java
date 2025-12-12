@@ -56,11 +56,12 @@ public class PID {
 
 
 		double currentError = currentTarget - currentPosition;
+		// christian - i think one of hte issues with the pid is that youre multiplying the integral by dT twice which happens in both calculate loops
 		errorSum += currentError * deltaTime;
 
 		//Instantaneous error
 		double Proportional = kp * currentError;
-		//Error over time
+		//Error over time                       // christian - i think one of hte issues with the pid is that youre multiplying the integral by dT twice
 		double Integral = ki * errorSum  *deltaTime;
 		//Rate of change of error
 		double Derivative = kd * (currentError - lastError) / deltaTime;
