@@ -1,8 +1,4 @@
 package org.firstinspires.ftc.teamcode.helpers;
-import static java.lang.Double.NaN;
-
-import android.nfc.NdefRecord;
-
 import androidx.annotation.NonNull;
 import java.util.function.Supplier;
 
@@ -51,7 +47,7 @@ public class PID {
 		double currentPosition = getCurrent.get();
 
 		//If deltaTime is too small, return last output to minimize floating point errors
-		if(deltaTime < 5)
+		if(deltaTime < 3)
 			return lastOutput;
 
 
@@ -62,7 +58,7 @@ public class PID {
 		//Instantaneous error
 		double Proportional = kp * currentError;
 		//Error over time                       // christian - i think one of hte issues with the pid is that youre multiplying the integral by dT twice
-		double Integral = ki * errorSum  *deltaTime;
+		double Integral = ki * errorSum;
 		//Rate of change of error
 		double Derivative = kd * (currentError - lastError) / deltaTime;
 
@@ -88,7 +84,7 @@ public class PID {
 		//Instantaneous error
 		double Proportional = kp * currentError;
 		//Error over time
-		double Integral = ki * errorSum * deltaTime;
+		double Integral = ki * errorSum;
 		//Rate of change of error
 		double Derivative = kd * (currentError - lastError) / deltaTime;
 
