@@ -14,8 +14,7 @@ public class Launcher extends Mechanism {
 	public boolean waitWorthy = true;
 	private final DcMotorEx flywheel;
 	private final DcMotorEx wheelMotor;
-	private final Servo flickServo;
-	private final CRServo transferServo;
+	private final CRServo transferServo, flingServo;
 
 	public Launcher(@NonNull HardwareMap hardwareMap) {
 		//Motor initialization
@@ -23,7 +22,7 @@ public class Launcher extends Mechanism {
 		flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 		wheelMotor = hardwareMap.get(DcMotorEx.class, "Intake");
 		wheelMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-		flickServo = hardwareMap.get(Servo.class, "Flick");
+		flingServo = hardwareMap.get(CRServo.class, "Fling");
 		transferServo = hardwareMap.get(CRServo.class, "Conveyor");
 	}
 
@@ -37,11 +36,11 @@ public class Launcher extends Mechanism {
 		for(Object o : powers)
 			assert o instanceof Double || o instanceof Float || o instanceof Integer;
 		if (powers.length == 2) {
-			flick(powers[0] == 0);
+			fling(powers[0] == 0);
 			flywheel.setPower(powers[1]);
 			wheelMotor.setPower(powers[1]);
 		}else {
-			flick(powers[0] == 0);
+			fling(powers[0] == 0);
 			flywheel.setPower(powers[1]);
 			wheelMotor.setPower(powers[2]);
 		}
@@ -65,13 +64,8 @@ public class Launcher extends Mechanism {
 		flywheel.setPower(p);
 	}
 
-	public void flick(boolean in) {
-		flickServo.setPosition(in ? 1 : 0);
-	}
-	boolean lastFlickIn = false;
-	public void setFlick(boolean in) {
-		flickServo.setPosition(in && lastFlickIn ? flickServo.getPosition() == 1 ? 0 : 1 : 0);
-		lastFlickIn = in;
+	public void fling(boolean in) {
+		flingServo.setPower(in ? 1 : 0);
 	}
 	@Override
 	protected boolean isFinished(@NonNull double[] o) {
@@ -91,18 +85,17 @@ public class Launcher extends Mechanism {
 				"Flywheel out power: " + flywheel.getPower() + "\n" +
 				"Transfer servo power: " + transferServo.getPower() + "\n" +
 				"Wheel motor power: " + wheelMotor.getPower() + "\n" +
-				"Flick: " + flickServo.getPosition() + "\n" +
+				"Flick: " + flingServo.getPower() + "\n" +
 				"Flywheel PID: " + flywheelPID + "\n";
-
 	}
 
 	public Map<String, Object> getPIDTelemetry(boolean inInit) {
 		HashMap<String, Object> map = new HashMap<>();
-		map.put("Flywheel PID Target", 5100);
+		map.put("Flywheel PID Target", 5450);
 		map.put("Flywheel Current", flywheelRPMS());
 		map.put("Flywheel PID Output", flywheelPID.getCurrentOutput());
 		//no idea why but this HAS to be calculated here
-		double numero = nullifier ? ((5100 - flywheelRPMS()) * .0035) : .3;
+		double numero = nullifier ? ((5450 - flywheelRPMS()) * .0035) : .3;
 		if (!inInit) flywheel.setPower(numero);
 		map.put("Flywheel Real Input Power", numero);
 		map.put("Flywheel Motor Power", flywheel.getPower());

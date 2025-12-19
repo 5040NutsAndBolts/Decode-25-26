@@ -52,7 +52,7 @@ public class RedFar extends ParentAuton {
 			telemetry.update();
 		}
 		drivetrain.robotOrientedDrive(0, 0, 0);
-		launcher.flick(false);
+		launcher.fling(false);
 		launcher.outtake(1);
 
 		ElapsedTime timer = new ElapsedTime();
@@ -66,7 +66,7 @@ public class RedFar extends ParentAuton {
 			telemetry.update();
 		}
 
-		launcher.flick(true);
+		launcher.fling(true);
 
 		timer = new ElapsedTime();
 		while(timer.seconds()<2){
@@ -77,7 +77,7 @@ public class RedFar extends ParentAuton {
 			telemetry.update();
 		}
 
-		launcher.flick(false);
+		launcher.fling(false);
 
 		timer = new ElapsedTime();
 		while(timer.seconds()<1.5){
@@ -91,7 +91,7 @@ public class RedFar extends ParentAuton {
 		timer = new ElapsedTime();
 		while(timer.seconds()<1.5){
 			launcher.transfer(1);
-			launcher.flick(true);
+			launcher.fling(true);
 		}
 
 		setTarget[1]=-18;

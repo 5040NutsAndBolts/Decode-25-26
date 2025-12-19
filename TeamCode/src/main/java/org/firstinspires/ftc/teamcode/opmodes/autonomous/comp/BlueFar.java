@@ -65,7 +65,7 @@ public class BlueFar extends ParentAuton {
 			telemetry.update();
 		}
 		drivetrain.robotOrientedDrive(0, 0, 0);
-		launcher.flick(false);
+		launcher.fling(false);
 
 		ElapsedTime timer = new ElapsedTime();
 		while(timer.seconds()<4){
@@ -81,7 +81,7 @@ public class BlueFar extends ParentAuton {
 			telemetry.update();
 		}
 
-		launcher.flick(true);
+		launcher.fling(true);
 
 		timer = new ElapsedTime();
 		while(timer.seconds()<2){
@@ -95,7 +95,7 @@ public class BlueFar extends ParentAuton {
 			telemetry.update();
 		}
 
-		launcher.flick(false);
+		launcher.fling(false);
 
 		timer = new ElapsedTime();
 		while(timer.seconds()<1.5){
@@ -118,12 +118,12 @@ public class BlueFar extends ParentAuton {
 			dash.sendTelemetryPacket(packet);
 		}
 
-		launcher.flick(true);
+		launcher.fling(true);
 
 		timer = new ElapsedTime();
 		while(timer.seconds()<3)
 		{
-			launcher.flick(true);
+			launcher.fling(true);
 			packet.clearLines();
 			packet.putAll(launcher.getPIDTelemetry(false));
 			dash.sendTelemetryPacket(packet);

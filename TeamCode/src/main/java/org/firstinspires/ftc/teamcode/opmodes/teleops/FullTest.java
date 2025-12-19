@@ -30,17 +30,17 @@ public class FullTest extends OpMode {
 
 		la.transfer(gamepad2.left_stick_y);
 
-		la.flick(gamepad2.b);
+		la.fling(gamepad2.b);
 
 		dt.toggleSlowMode(gamepad1.b);
 
-		la.setOuttakePower(gamepad2.left_trigger > 0.25 ? 0.9 : .2);
+		la.setOuttakePower(gamepad2.left_trigger > 0.25 ? 0.89 : .2);
 
-		la.flick(gamepad2.a);
+		la.fling(gamepad2.a);
 
 		dt.toggleSlowMode(gamepad1.dpad_down);
 
-		if(la.flywheelRPMS() > 4900 && gamepad2.left_trigger > .15) {
+		if(la.flywheelRPMS() > 5100 && gamepad2.left_trigger > .15) {
 			gamepad2.rumble(100);
 			gamepad1.rumble(100);
 			telemetry.addLine("rumbling, far");
