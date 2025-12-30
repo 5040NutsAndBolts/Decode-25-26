@@ -5,16 +5,20 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
+import org.firstinspires.ftc.teamcode.mechanisms.Lights;
 
 @TeleOp(name="FullTest", group="Teleop")
 public class FullTest extends OpMode {
 	Launcher la;
 	Drivetrain dt;
 
+	Lights li;
+
 	@Override
 	public void init() {
 		dt = new Drivetrain(hardwareMap);
 		la = new Launcher(hardwareMap);
+		li = new Lights(hardwareMap);
 	}
 
 	@Override
@@ -26,7 +30,7 @@ public class FullTest extends OpMode {
 		if( gamepad1.left_trigger > .2 || gamepad1.right_trigger > .2 )
 			la.intake(gamepad1.left_trigger-gamepad1.right_trigger);
 
-		la.intake(gamepad1.left_trigger > 0.2 ? 1 : 0);
+		la.intake(gamepad2.right_trigger > 0.2 ? 1 : 0);
 
 		la.transfer(gamepad2.left_stick_y);
 
@@ -44,6 +48,9 @@ public class FullTest extends OpMode {
 			gamepad2.rumble(100);
 			gamepad1.rumble(100);
 			telemetry.addLine("rumbling, far");
+			li.setPattern(Lights.Color.GREEN);
+		} else {
+			li.setPattern(Lights.Color.RED);
 		}
 
 		telemetry.addLine("Launcher: \n" + la.toString());

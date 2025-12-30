@@ -14,7 +14,8 @@ public class Launcher extends Mechanism {
 	public boolean waitWorthy = true;
 	private final DcMotorEx flywheel;
 	private final DcMotorEx wheelMotor;
-	private final CRServo transferServo, flingServo;
+	private final DcMotorEx transfer;
+	private final CRServo  flingServo;
 
 	public Launcher(@NonNull HardwareMap hardwareMap) {
 		//Motor initialization
@@ -23,7 +24,8 @@ public class Launcher extends Mechanism {
 		wheelMotor = hardwareMap.get(DcMotorEx.class, "Intake");
 		wheelMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		flingServo = hardwareMap.get(CRServo.class, "Fling");
-		transferServo = hardwareMap.get(CRServo.class, "Conveyor");
+		transfer = hardwareMap.get(DcMotorEx.class, "Transfer");
+		transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 	}
 
 	/**
@@ -47,7 +49,7 @@ public class Launcher extends Mechanism {
 	}
 
 	public void transfer(double power) {
-		transferServo.setPower(power);
+		transfer.setPower(power);
 	}
 
 	private boolean nullifier = true;
@@ -83,7 +85,7 @@ public class Launcher extends Mechanism {
 		return
 				"Flywheel RPMs: " + flywheelRPMS()+ "\n" +
 				"Flywheel out power: " + flywheel.getPower() + "\n" +
-				"Transfer servo power: " + transferServo.getPower() + "\n" +
+				"Transfer servo power: " + transfer.getPower() + "\n" +
 				"Wheel motor power: " + wheelMotor.getPower() + "\n" +
 				"Flick: " + flingServo.getPower() + "\n" +
 				"Flywheel PID: " + flywheelPID + "\n";

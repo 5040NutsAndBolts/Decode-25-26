@@ -48,7 +48,7 @@ public class BlueFar extends ParentAuton {
 	@Override
 	public void loop() {
 		drivetrain.resetOdo();
-		launcher.transfer(1);
+		launcher.transfer(-1);
 		launcher.outtake(0.8);
 		packet.clearLines();
 		packet.putAll(launcher.getPIDTelemetry(false));
@@ -70,8 +70,7 @@ public class BlueFar extends ParentAuton {
 		ElapsedTime timer = new ElapsedTime();
 		while(timer.seconds()<4){
 			telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
-			launcher.transfer(1);
-			launcher.transfer(1);
+			launcher.transfer(-1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
 			telemetry.addLine(String.valueOf(timer.seconds()));
 			telemetry.addLine((drivetrain.toString() + "first launch loop"));
@@ -85,7 +84,7 @@ public class BlueFar extends ParentAuton {
 
 		timer = new ElapsedTime();
 		while(timer.seconds()<2){
-			launcher.transfer(1);
+			launcher.transfer(-1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
 			telemetry.addLine(String.valueOf(timer.seconds()));
 			telemetry.addLine((drivetrain.toString() + "first wait loop"));
@@ -99,20 +98,20 @@ public class BlueFar extends ParentAuton {
 
 		timer = new ElapsedTime();
 		while(timer.seconds()<1.5){
-			launcher.transfer(1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
+			launcher.setOuttakePower(0.8);
 			telemetry.addLine(String.valueOf(timer.seconds()));
 			telemetry.addLine((drivetrain.toString() + "second wait loop"));
 			packet.clearLines();
 			packet.putAll(launcher.getPIDTelemetry(false));
 			dash.sendTelemetryPacket(packet);
 			telemetry.update();
+
 		}
 
 		timer = new ElapsedTime();
 		while(timer.seconds()<5){
 			launcher.intake(1);
-			launcher.transfer(1);
 			packet.clearLines();
 			packet.putAll(launcher.getPIDTelemetry(false));
 			dash.sendTelemetryPacket(packet);
@@ -130,7 +129,6 @@ public class BlueFar extends ParentAuton {
 		}
 		setTarget[0]=18;
 		while(setTarget[0] > drivetrain.getPosition()[0]){
-			launcher.transfer(1);
 			drivetrain.robotOrientedDrive(.2, 0, 0);
 			drivetrain.updateOdo();
 			telemetry.addLine((drivetrain.toString() + "second move loop"));
@@ -139,12 +137,28 @@ public class BlueFar extends ParentAuton {
 			packet.putAll(launcher.getPIDTelemetry(false));
 			dash.sendTelemetryPacket(packet);
 		}
+
 		drivetrain.robotOrientedDrive(0, 0, 0);
 		packet.clearLines();
 		packet.putAll(launcher.getPIDTelemetry(false));
 		dash.sendTelemetryPacket(packet);
 		telemetry.update();
 
+		setTarget[2] = 114.6;
+		while(setTarget[2] > drivetrain.getPosition()[2]){
+			drivetrain.robotOrientedDrive(0, 0, -0.2);
+			drivetrain.updateOdo();
+			telemetry.addLine((drivetrain.toString() + "second move loop"));
+			telemetry.update();
+		}
+
+		setTarget[1] = 24;
+		while(setTarget[2] > drivetrain.getPosition()[2]) {
+			drivetrain.robotOrientedDrive(0, -0.2, 0);
+			drivetrain.updateOdo();
+			telemetry.addLine((drivetrain.toString() + "second move loop"));
+			telemetry.update();
+		}
 		requestOpModeStop();
 	}
 }

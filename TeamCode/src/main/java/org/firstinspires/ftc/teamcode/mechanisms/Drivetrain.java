@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -17,6 +18,7 @@ public class Drivetrain extends Mechanism {
     private final Odometry odo;
     private double speed = 1;
     private final VoltageSensor voltageSensor;
+    //public ColorSensor colorSensor;
     public Drivetrain(@NonNull HardwareMap hardwareMap) {
         voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
         //Drive motor initialization
@@ -28,11 +30,12 @@ public class Drivetrain extends Mechanism {
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        //colorSensor = hardwareMap.get(ColorSensor.class, "Color Sensor");
 
         //TODO: CONFIGURE OFFSETS
         odo = new Odometry(hardwareMap, 121.92f, 147.32f);
