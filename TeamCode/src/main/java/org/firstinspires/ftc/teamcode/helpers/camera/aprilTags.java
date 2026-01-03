@@ -6,16 +6,19 @@ import androidx.annotation.NonNull;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.openftc.apriltag.AprilTagDetection;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class aprilTags {
     private final VisionPortal vPortal;
-    private final AprilTagProcessor aprilTagProcessor;
+    private static AprilTagProcessor aprilTagProcessor;
     public aprilTags(@NonNull HardwareMap hardwareMap) {
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
@@ -30,7 +33,7 @@ public class aprilTags {
                 .build();
     }
 
-    public ArrayList<org.firstinspires.ftc.vision.apriltag.AprilTagDetection> getDetections() {
+    public static ArrayList<AprilTagDetection> getDetections() {
         return aprilTagProcessor.getDetections();
     }
 
@@ -39,6 +42,7 @@ public class aprilTags {
             vPortal.close();
         }
     }
+
 
     public void check(){ //only important if using multiple cameras
             vPortal.getActiveCamera();

@@ -5,23 +5,32 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.helpers.camera.aprilTags;
 import org.firstinspires.ftc.teamcode.helpers.odo.Odometry;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
 import org.firstinspires.ftc.teamcode.opmodes.autonomous.ParentAuton;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+
+import java.util.HashMap;
+import java.util.List;
 
 
 @Autonomous(name="BlueFar", group="Autonomous")
 public class BlueFar extends ParentAuton {
 	Drivetrain drivetrain;
 	Launcher launcher;
+	aprilTags aprilTag;
 	double[] setTarget;
 	TelemetryPacket packet;
 	FtcDashboard dash;
+	HashMap<String, Object> map = new HashMap<>();
+
 	@Override
 	public void init() {
 		drivetrain = new Drivetrain(hardwareMap);
 		launcher = new Launcher(hardwareMap);
+		aprilTag = new aprilTags(hardwareMap);
 		telemetry.addLine((drivetrain + "I"));
 		drivetrain.updateOdo();
 		telemetry.update();
@@ -38,6 +47,25 @@ public class BlueFar extends ParentAuton {
 		packet.putAll(launcher.getPIDTelemetry(true));
 		dash.sendTelemetryPacket(packet);
 
+		List<AprilTagDetection> currentDetections = aprilTags.getDetections();
+
+			if (!currentDetections.isEmpty()) {
+				telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
+
+				for (AprilTagDetection detection : currentDetections) {
+					telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
+					telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
+					telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
+					telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
+					map.put("Pitch", detection.ftcPose.pitch);
+					map.put("Yaw", detection.ftcPose.yaw);
+					packet.putAll(map);
+				}
+			} else {
+				telemetry.addData("Status", "No AprilTags found.");
+			}
+
+
 		telemetry.addLine((drivetrain.toString() + "IL"));
 		telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
 		telemetry.addLine(""+drivetrain.getPosition()[0]);
@@ -47,6 +75,23 @@ public class BlueFar extends ParentAuton {
 
 	@Override
 	public void loop() {
+		List<AprilTagDetection> currentDetections = aprilTags.getDetections();
+
+		if (!currentDetections.isEmpty()) {
+			telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
+
+			for (AprilTagDetection detection : currentDetections) {
+				telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
+				telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
+				telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
+				telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
+				map.put("Pitch", detection.ftcPose.pitch);
+				map.put("Yaw", detection.ftcPose.yaw);
+				packet.putAll(map);
+			}
+		} else {
+			telemetry.addData("Status", "No AprilTags found.");
+		}
 		drivetrain.resetOdo();
 		launcher.transfer(-1);
 		launcher.outtake(0.8);
@@ -68,7 +113,7 @@ public class BlueFar extends ParentAuton {
 		launcher.fling(false);
 
 		ElapsedTime timer = new ElapsedTime();
-		while(timer.seconds()<4){
+		while(timer.seconds()<2){
 			telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
 			launcher.transfer(-1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
@@ -99,7 +144,6 @@ public class BlueFar extends ParentAuton {
 		timer = new ElapsedTime();
 		while(timer.seconds()<1.5){
 			drivetrain.robotOrientedDrive(0, 0, 0);
-			launcher.setOuttakePower(0.8);
 			telemetry.addLine(String.valueOf(timer.seconds()));
 			telemetry.addLine((drivetrain.toString() + "second wait loop"));
 			packet.clearLines();
@@ -110,7 +154,7 @@ public class BlueFar extends ParentAuton {
 		}
 
 		timer = new ElapsedTime();
-		while(timer.seconds()<5){
+		while(timer.seconds()<1){
 			launcher.intake(1);
 			packet.clearLines();
 			packet.putAll(launcher.getPIDTelemetry(false));
@@ -120,7 +164,7 @@ public class BlueFar extends ParentAuton {
 		launcher.fling(true);
 
 		timer = new ElapsedTime();
-		while(timer.seconds()<3)
+		while(timer.seconds()<1.5)
 		{
 			launcher.fling(true);
 			packet.clearLines();
@@ -129,6 +173,7 @@ public class BlueFar extends ParentAuton {
 		}
 		setTarget[0]=18;
 		while(setTarget[0] > drivetrain.getPosition()[0]){
+			launcher.outtake(0);
 			drivetrain.robotOrientedDrive(.2, 0, 0);
 			drivetrain.updateOdo();
 			telemetry.addLine((drivetrain.toString() + "second move loop"));
@@ -138,27 +183,124 @@ public class BlueFar extends ParentAuton {
 			dash.sendTelemetryPacket(packet);
 		}
 
-		drivetrain.robotOrientedDrive(0, 0, 0);
+			drivetrain.robotOrientedDrive(0, 0, 0);
 		packet.clearLines();
 		packet.putAll(launcher.getPIDTelemetry(false));
 		dash.sendTelemetryPacket(packet);
 		telemetry.update();
 
-		setTarget[2] = 114.6;
-		while(setTarget[2] > drivetrain.getPosition()[2]){
+		timer = new ElapsedTime();
+		while(timer.seconds() < 0.5)
+			setTarget[2] = -111;
+
+		while(setTarget[2] < drivetrain.getPosition()[2]){
 			drivetrain.robotOrientedDrive(0, 0, -0.2);
 			drivetrain.updateOdo();
 			telemetry.addLine((drivetrain.toString() + "second move loop"));
 			telemetry.update();
 		}
 
-		setTarget[1] = 24;
-		while(setTarget[2] > drivetrain.getPosition()[2]) {
-			drivetrain.robotOrientedDrive(0, -0.2, 0);
+		setTarget[1] = 26.7;
+		while(setTarget[1] > drivetrain.getPosition()[1]) {
+			drivetrain.robotOrientedDrive(0, 0.4, 0);
 			drivetrain.updateOdo();
 			telemetry.addLine((drivetrain.toString() + "second move loop"));
 			telemetry.update();
 		}
+
+		setTarget[0] = 28.7;
+		while(setTarget[0] > drivetrain.getPosition()[0]){
+			drivetrain.robotOrientedDrive(-0.25, 0, 0);
+			launcher.intake(1);
+			launcher.transfer(-1);
+			launcher.outtake(0);
+			drivetrain.updateOdo();
+			telemetry.addLine((drivetrain.toString() + "second move loop"));
+			telemetry.update();
+		}
+
+		timer = new ElapsedTime();
+		while(timer.seconds()<0.2)
+			drivetrain.robotOrientedDrive(0,0,0);
+
+		timer = new ElapsedTime();
+		while(timer.seconds()<0.05)
+			launcher.intake(0);
+		//retrieve ball
+
+		setTarget[0] = 21;
+		while(setTarget[0] < drivetrain.getPosition()[0]){
+			launcher.fling(false);
+			drivetrain.robotOrientedDrive(0.25, 0, 0);
+			drivetrain.updateOdo();
+			telemetry.update();
+		}
+
+		timer = new ElapsedTime();
+		while(timer.seconds() < 0.5)
+			drivetrain.robotOrientedDrive(0,0,0);
+
+		setTarget[1] = 34;
+		while(setTarget[1] < drivetrain.getPosition()[1]) {
+			drivetrain.robotOrientedDrive(0, -0.4, 0);
+			drivetrain.updateOdo();
+			telemetry.addLine((drivetrain.toString() + "second move loop"));
+			telemetry.update();
+
+		}
+
+		setTarget[2] = 0;
+		while(setTarget[2] > drivetrain.getPosition()[2]){
+			drivetrain.robotOrientedDrive(0, 0, 0.2);
+			drivetrain.updateOdo();
+			telemetry.addLine((drivetrain.toString() + "second move loop"));
+			telemetry.update();
+		}
+
+		setTarget[0]= 1.5;
+		while(setTarget[0] < drivetrain.getPosition()[0]){
+			launcher.outtake(0.8);
+			drivetrain.robotOrientedDrive(-.2, 0, 0);
+			drivetrain.updateOdo();
+			telemetry.update();
+		}
+
+		timer = new ElapsedTime();
+		while(timer.seconds() < 2.5)
+			drivetrain.robotOrientedDrive(0,0,0);
+		if (!currentDetections.isEmpty()) {
+			telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
+
+			for (AprilTagDetection detection : currentDetections) {
+				telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
+				telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
+				telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
+				telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
+				map.put("Pitch", detection.ftcPose.pitch);
+				map.put("Yaw", detection.ftcPose.yaw);
+				packet.putAll(map);
+			}
+		} else {
+			telemetry.addData("Status", "No AprilTags found.");
+		}
+
+		timer = new ElapsedTime();
+		while(timer.seconds() < 0.5)
+			launcher.transfer(-1);
+
+		launcher.fling(true);
+
+		timer = new ElapsedTime();
+		while(timer.seconds() < 2) {
+			launcher.intake(1);
+			launcher.transfer(-1);
+		}
+		timer = new ElapsedTime();
+		while(timer.seconds() < 3)
+			launcher.fling(true);
+
+
+		//23.8 x
 		requestOpModeStop();
 	}
 }
