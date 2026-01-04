@@ -47,23 +47,7 @@ public class BlueFar extends ParentAuton {
 		packet.putAll(launcher.getPIDTelemetry(true));
 		dash.sendTelemetryPacket(packet);
 
-		List<AprilTagDetection> currentDetections = aprilTags.getDetections();
-
-			if (!currentDetections.isEmpty()) {
-				telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
-
-				for (AprilTagDetection detection : currentDetections) {
-					telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
-					telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
-					telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
-					telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
-					map.put("Pitch", detection.ftcPose.pitch);
-					map.put("Yaw", detection.ftcPose.yaw);
-					packet.putAll(map);
-				}
-			} else {
-				telemetry.addData("Status", "No AprilTags found.");
-			}
+		packet.putAll(aprilTag.getCameraTelemetry(true));
 
 
 		telemetry.addLine((drivetrain.toString() + "IL"));
@@ -75,23 +59,9 @@ public class BlueFar extends ParentAuton {
 
 	@Override
 	public void loop() {
-		List<AprilTagDetection> currentDetections = aprilTags.getDetections();
 
-		if (!currentDetections.isEmpty()) {
-			telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
+		packet.putAll(aprilTag.getCameraTelemetry(true));
 
-			for (AprilTagDetection detection : currentDetections) {
-				telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
-				telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
-				telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
-				telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
-				map.put("Pitch", detection.ftcPose.pitch);
-				map.put("Yaw", detection.ftcPose.yaw);
-				packet.putAll(map);
-			}
-		} else {
-			telemetry.addData("Status", "No AprilTags found.");
-		}
 		drivetrain.resetOdo();
 		launcher.transfer(-1);
 		launcher.outtake(0.8);
@@ -266,22 +236,11 @@ public class BlueFar extends ParentAuton {
 		}
 
 		timer = new ElapsedTime();
-		while(timer.seconds() < 2.5)
-			drivetrain.robotOrientedDrive(0,0,0);
-		if (!currentDetections.isEmpty()) {
-			telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
+		while(timer.seconds() < 2.5) {
 
-			for (AprilTagDetection detection : currentDetections) {
-				telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
-				telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
-				telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
-				telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
-				map.put("Pitch", detection.ftcPose.pitch);
-				map.put("Yaw", detection.ftcPose.yaw);
-				packet.putAll(map);
-			}
-		} else {
-			telemetry.addData("Status", "No AprilTags found.");
+			drivetrain.robotOrientedDrive(0, 0, 0);
+			packet.putAll(aprilTag.getCameraTelemetry(true));
+
 		}
 
 		timer = new ElapsedTime();

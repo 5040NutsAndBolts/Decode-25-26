@@ -43,11 +43,32 @@ public class aprilTags {
         }
     }
 
+    public Map<String, Object> getCameraTelemetry(boolean inInit) { //scans the currently detected tags and puts all the telemetry to dashboard
+
+        HashMap<String, Object> map = new HashMap<>(); //object used to store and name sets of data
+
+        List<AprilTagDetection> currentDetections = aprilTags.getDetections();
+
+        if (!currentDetections.isEmpty()) {
+
+            for (AprilTagDetection detection : currentDetections) { //the packet.putAll only takes map objects
+                map.put("Z", detection.ftcPose.z);
+                map.put("Pitch", detection.ftcPose.pitch);
+                map.put("Yaw", detection.ftcPose.yaw);
+            }
+        }
+        return map;
+    }
 
     public void check(){ //only important if using multiple cameras
             vPortal.getActiveCamera();
     }
-
+    public void pause(){
+        vPortal.stopStreaming();
+    }
+    public void resume(){
+        vPortal.resumeStreaming();
+    }
     public String currState(){
             return "" + vPortal.getCameraState();
     }
