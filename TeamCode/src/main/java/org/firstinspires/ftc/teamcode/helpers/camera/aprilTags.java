@@ -52,9 +52,11 @@ public class aprilTags {
         if (!currentDetections.isEmpty()) {
 
             for (AprilTagDetection detection : currentDetections) { //the packet.putAll only takes map objects
-                map.put("Z", detection.ftcPose.z);
-                map.put("Pitch", detection.ftcPose.pitch);
-                map.put("Yaw", detection.ftcPose.yaw);
+                map.put("Detecting: ", detection.id);
+                map.put("Z: ", detection.ftcPose.z);
+                map.put("Pitch: ", detection.ftcPose.pitch);
+                map.put("Yaw: ", detection.ftcPose.yaw);
+
             }
         }
         return map;
