@@ -47,7 +47,6 @@ public class TestAuto extends ParentAuton {
         ElapsedTime timer;
         timer = new ElapsedTime();
         while(timer.seconds() < 5){
-            drivetrain.robotOrientedDrive(0,0,0);
         List<AprilTagDetection> currentDetections = aprilTags.getDetections();
 
         if (!currentDetections.isEmpty()) {
@@ -58,10 +57,15 @@ public class TestAuto extends ParentAuton {
                 telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
                 telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
                 telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
+                telemetry.addLine(String.format("  - Yaw: %.2f", detection.ftcPose.yaw));
+                telemetry.addLine(String.format("  - Roll: %.2f", detection.ftcPose.roll));
+                telemetry.addLine(String.format("  - Pitch: %.2f", detection.ftcPose.pitch));
+
             }
         } else {
             telemetry.addData("Status", "No AprilTags found.");
         }
-        requestOpModeStop();
+        telemetry.update();
     }
+        requestOpModeStop();
 }}

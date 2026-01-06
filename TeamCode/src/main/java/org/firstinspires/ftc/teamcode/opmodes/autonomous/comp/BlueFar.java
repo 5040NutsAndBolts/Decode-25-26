@@ -22,7 +22,6 @@ public class BlueFar extends ParentAuton {
 	Drivetrain drivetrain;
 	Launcher launcher;
 	aprilTags aprilTag;
-	Lights light;
 	double[] setTarget;
 	TelemetryPacket packet;
 	FtcDashboard dash;
@@ -33,7 +32,6 @@ public class BlueFar extends ParentAuton {
 		drivetrain = new Drivetrain(hardwareMap);
 		launcher = new Launcher(hardwareMap);
 		aprilTag = new aprilTags(hardwareMap);
-		light = new Lights(hardwareMap);
 		telemetry.addLine((drivetrain + "I"));
 		drivetrain.updateOdo();
 		telemetry.update();
@@ -220,7 +218,7 @@ public class BlueFar extends ParentAuton {
 							telemetry.update();
 						}
 
-						setTarget[0] = 28.7;
+						setTarget[0] = 29;
 						while (setTarget[0] > drivetrain.getPosition()[0]) {
 							drivetrain.robotOrientedDrive(-0.25, 0, 0);
 							launcher.intake(1);
@@ -297,24 +295,25 @@ public class BlueFar extends ParentAuton {
 						}
 
 						timer = new ElapsedTime();
-						while (timer.seconds() < 0.5)
+						while (timer.seconds() < 3) {
 							launcher.transfer(-1);
-
+							launcher.fling(true);
+						}
 						launcher.fling(true);
 
 						timer = new ElapsedTime();
 						while (timer.seconds() < 2) {
 							launcher.intake(1);
 							launcher.transfer(-1);
+
 						}
-						timer = new ElapsedTime();
-						while (timer.seconds() < 3)
-							launcher.fling(true);
 
 
-						timer = new ElapsedTime();
-						while (timer.seconds() < 7 && !aprilTags.getDetections().isEmpty())
-							light.setPattern(Lights.Color.BLUE);
-						//23.8 x
-						requestOpModeStop();
-					}}}}}}
+
+					}
+					}
+			}}timer = new ElapsedTime();
+		while (timer.seconds() < 5)
+			drivetrain.robotOrientedDrive(0,0,0);
+		launcher.fling(true);
+		requestOpModeStop();}}
