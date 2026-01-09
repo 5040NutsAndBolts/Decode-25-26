@@ -1,13 +1,20 @@
 package org.firstinspires.ftc.teamcode.helpers.camera;
 
+import android.graphics.Bitmap;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 
+import org.firstinspires.ftc.robotcore.external.function.Consumer;
+import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
+
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -19,7 +26,12 @@ import java.util.Map;
 public class aprilTags {
     private final VisionPortal vPortal;
     private static AprilTagProcessor aprilTagProcessor;
+    private final CameraStreamProcessor cameraStreamProcessor;
+
     public aprilTags(@NonNull HardwareMap hardwareMap) {
+
+        cameraStreamProcessor = new CameraStreamProcessor();
+
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                 .build();
@@ -28,13 +40,19 @@ public class aprilTags {
                 .setCamera(hardwareMap.get(WebcamName.class, "AprilTags"))
                 .addProcessor(aprilTagProcessor)
                 .setStreamFormat(VisionPortal.StreamFormat.YUY2)
-                .setCameraResolution(new Size(800,600))
+                .setCameraResolution(new Size(640,480))
+                .addProcessor(cameraStreamProcessor)
+                .setAutoStartStreamOnBuild(true)
                 .enableLiveView(true)
                 .build();
     }
 
     public static ArrayList<AprilTagDetection> getDetections() {
         return aprilTagProcessor.getDetections();
+    }
+
+    public CameraStreamProcessor getCameraStreamProcessor() {
+        return cameraStreamProcessor;
     }
 
     public void close() {

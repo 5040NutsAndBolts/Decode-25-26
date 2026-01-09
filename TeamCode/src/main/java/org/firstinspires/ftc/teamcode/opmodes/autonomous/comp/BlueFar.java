@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.teamcode.helpers.camera.aprilTags;
 import org.firstinspires.ftc.teamcode.helpers.odo.Odometry;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
@@ -57,9 +58,9 @@ public class BlueFar extends ParentAuton {
 
 			for (AprilTagDetection detection : currentDetections) {
 				telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
-				telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
-				telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
 				telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
+				telemetry.addLine(String.format("  - Yaw: %.2f", detection.ftcPose.yaw));
+				map.put("ID", detection.id);
 				map.put("Pitch", detection.ftcPose.pitch);
 				map.put("Yaw", detection.ftcPose.yaw);
 				packet.putAll(map);
@@ -68,6 +69,7 @@ public class BlueFar extends ParentAuton {
 			telemetry.addData("Status", "No AprilTags found.");
 		}
 
+		dash.startCameraStream(aprilTag.getCameraStreamProcessor(),0);
 
 		telemetry.addLine((drivetrain.toString() + "IL"));
 		telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
@@ -85,10 +87,9 @@ public class BlueFar extends ParentAuton {
 
 			for (AprilTagDetection detection : currentDetections) {
 				telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
-				telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
-				telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
 				telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
-				map.put("Pitch", detection.ftcPose.pitch);
+				telemetry.addLine(String.format("  - Yaw: %.2f", detection.ftcPose.yaw));
+				map.put("ID", detection.id);
 				map.put("Yaw", detection.ftcPose.yaw);
 				packet.putAll(map);
 			}
@@ -109,6 +110,7 @@ public class BlueFar extends ParentAuton {
 			telemetry.addLine((drivetrain.toString() + "first move loop"));
 			packet.clearLines();
 			packet.putAll(launcher.getPIDTelemetry(false));
+
 			dash.sendTelemetryPacket(packet);
 			telemetry.update();
 		}
@@ -132,7 +134,7 @@ public class BlueFar extends ParentAuton {
 			launcher.fling(true);
 
 			timer = new ElapsedTime();
-			while(timer.seconds()<2){
+			while(timer.seconds()<3.5){
 				launcher.transfer(-1);
 				drivetrain.robotOrientedDrive(0, 0, 0);
 				telemetry.addLine(String.valueOf(timer.seconds()));
@@ -143,10 +145,9 @@ public class BlueFar extends ParentAuton {
 				telemetry.update();
 			}
 
-			launcher.fling(false);
 
 			timer = new ElapsedTime();
-			while(timer.seconds()<1.5){
+			while(timer.seconds()<3){
 				drivetrain.robotOrientedDrive(0, 0, 0);
 				telemetry.addLine(String.valueOf(timer.seconds()));
 				telemetry.addLine((drivetrain.toString() + "second wait loop"));
@@ -158,7 +159,6 @@ public class BlueFar extends ParentAuton {
 			}
 
 			timer = new ElapsedTime();
-			while(timer.seconds()<5){
 				while(timer.seconds()<2.5){
 					launcher.intake(1);
 					packet.clearLines();
@@ -277,33 +277,15 @@ public class BlueFar extends ParentAuton {
 							telemetry.update();
 						}
 
-						timer = new ElapsedTime();
-						while (timer.seconds() < 2.5)
-							drivetrain.robotOrientedDrive(0, 0, 0);
-						if (!currentDetections.isEmpty()) {
-							telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
-
-							for (AprilTagDetection detection : currentDetections) {
-								telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
-								telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
-								telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
-								telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
-								map.put("Pitch", detection.ftcPose.pitch);
-								map.put("Yaw", detection.ftcPose.yaw);
-								packet.putAll(map);
-							}
-						} else {
-							telemetry.addData("Status", "No AprilTags found.");
-						}
 
 						timer = new ElapsedTime();
 						while (timer.seconds() < 0.5)
-							launcher.transfer(-1);
-
+							launcher.transfer(0.2);
+						launcher.transfer(-1);
 						launcher.fling(true);
 
 						timer = new ElapsedTime();
-						while (timer.seconds() < 2) {
+						while (timer.seconds() < 4) {
 							launcher.intake(1);
 							launcher.transfer(-1);
 						}
@@ -315,6 +297,34 @@ public class BlueFar extends ParentAuton {
 						timer = new ElapsedTime();
 						while (timer.seconds() < 7 && !aprilTags.getDetections().isEmpty())
 							light.setPattern(Lights.Color.BLUE);
-						//23.8 x
-						requestOpModeStop();
-					}}}}}}
+
+
+						}
+
+					}}timer = new ElapsedTime();
+		while(timer.seconds() < 10) {
+			drivetrain.robotOrientedDrive(0, 0, 0);
+			currentDetections = aprilTags.getDetections();
+
+			if (!currentDetections.isEmpty()) {
+				telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
+
+				for (AprilTagDetection detection : currentDetections) {
+					telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
+					telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
+					telemetry.addLine(String.format("  - Yaw: %.2f", detection.ftcPose.yaw));
+					map.put("ID", detection.id);
+					map.put("Pitch", detection.ftcPose.pitch);
+					map.put("Yaw", detection.ftcPose.yaw);
+					packet.putAll(map);
+
+				}
+			} else {
+				telemetry.addData("Status", "No AprilTags found.");
+			}
+			telemetry.update();
+			//23.8 x
+		}
+		timer = new ElapsedTime();
+		while(timer.seconds() < 10){
+		requestOpModeStop();}}}
