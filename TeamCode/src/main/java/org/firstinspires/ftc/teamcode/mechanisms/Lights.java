@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class Lights {
     private final Servo lights;
-    public Lights(@NonNull HardwareMap hardwareMap) {
-        this.lights = hardwareMap.get(Servo.class, "Lights");
+    public Lights(@NonNull HardwareMap hardwareMap, String name) {
+        this.lights = hardwareMap.get(Servo.class, name);
     }
 
     public enum Color {

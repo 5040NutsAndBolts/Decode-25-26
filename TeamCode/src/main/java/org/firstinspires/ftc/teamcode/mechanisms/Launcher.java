@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -16,6 +17,7 @@ public class Launcher extends Mechanism {
 	private final DcMotorEx wheelMotor;
 	private final DcMotorEx transfer;
 	private final CRServo  flingServo;
+	private final ColorSensor topColor, lowColor;
 
 	public Launcher(@NonNull HardwareMap hardwareMap) {
 		//Motor initialization
@@ -26,6 +28,8 @@ public class Launcher extends Mechanism {
 		flingServo = hardwareMap.get(CRServo.class, "Fling");
 		transfer = hardwareMap.get(DcMotorEx.class, "Transfer");
 		transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+		topColor = hardwareMap.get(ColorSensor.class, "Top Color");
+		lowColor = hardwareMap.get(ColorSensor.class, "Low Color");
 	}
 
 	/**
@@ -79,10 +83,36 @@ public class Launcher extends Mechanism {
 		return (currentTPS * (2.67857485));
 	}
 
+	public Lights.Color topColor() {
+		int gScore = topColor.green();
+		int oScore = topColor.red() + (int)(topColor.green()*.4);
+		int pScore = topColor.blue() + (int) (topColor.red() * .7);
+		int highest = Math.max(gScore, Math.max(oScore, pScore));
+		if(highest < 300 || highest == oScore)
+			return Lights.Color.BLOOD_ORANGE;
+		else if (highest ==  pScore)
+			return Lights.Color.PURPLE;
+		else return Lights.Color.GREEN;
+	}
+
+	public Lights.Color lowColor() {
+		int gScore = lowColor.green();
+		int oScore = lowColor.red() + (int)(lowColor.green()*.4);
+		int pScore = lowColor.blue() + (int) (lowColor.red() * .7);
+		int highest = Math.max(gScore, Math.max(oScore, pScore));
+		if(highest < 300 || highest == oScore)
+			return Lights.Color.BLOOD_ORANGE;
+		else if (highest ==  pScore)
+			return Lights.Color.PURPLE;
+		else return Lights.Color.GREEN;
+	}
+
 	@NonNull
 	@Override
 	public String toString() {
 		return
+				"topColor: r" + topColor.red() + " g" + topColor.green() + " b" + topColor.blue() + "\n" +
+				"lowColor: r" + lowColor.red() + " g" + lowColor.green() + " b" + lowColor.blue() + "\n" +
 				"Flywheel RPMs: " + flywheelRPMS()+ "\n" +
 				"Flywheel out power: " + flywheel.getPower() + "\n" +
 				"Transfer servo power: " + transfer.getPower() + "\n" +

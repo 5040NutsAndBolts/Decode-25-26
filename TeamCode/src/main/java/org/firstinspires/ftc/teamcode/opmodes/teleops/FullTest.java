@@ -12,13 +12,14 @@ public class FullTest extends OpMode {
 	Launcher la;
 	Drivetrain dt;
 
-	Lights li;
+	Lights lH, lL;
 
 	@Override
 	public void init() {
 		dt = new Drivetrain(hardwareMap);
 		la = new Launcher(hardwareMap);
-		li = new Lights(hardwareMap);
+		lH = new Lights(hardwareMap, "Lights High");
+		lL = new Lights(hardwareMap, "Lights Low");
 	}
 
 	@Override
@@ -44,13 +45,14 @@ public class FullTest extends OpMode {
 
 		dt.toggleSlowMode(gamepad1.dpad_down);
 
+
 		if(la.flywheelRPMS() > 5100 && gamepad2.left_trigger > .15) {
-			gamepad2.rumble(100);
-			gamepad1.rumble(100);
+			gamepad2.rumble(200);
+			gamepad1.rumble(200);
 			telemetry.addLine("rumbling, far");
-			li.setPattern(Lights.Color.GREEN);
 		} else {
-			li.setPattern(Lights.Color.RED);
+			lH.setPattern(la.topColor());
+			lL.setPattern(la.lowColor());
 		}
 
 		telemetry.addLine("Launcher: \n" + la.toString());

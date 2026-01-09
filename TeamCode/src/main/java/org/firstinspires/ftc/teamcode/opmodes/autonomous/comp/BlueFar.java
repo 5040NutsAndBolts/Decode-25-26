@@ -22,6 +22,7 @@ public class BlueFar extends ParentAuton {
 	Drivetrain drivetrain;
 	Launcher launcher;
 	aprilTags aprilTag;
+	Lights light;
 	double[] setTarget;
 	TelemetryPacket packet;
 	FtcDashboard dash;
@@ -32,7 +33,8 @@ public class BlueFar extends ParentAuton {
 		drivetrain = new Drivetrain(hardwareMap);
 		launcher = new Launcher(hardwareMap);
 		aprilTag = new aprilTags(hardwareMap);
-		telemetry.addLine((drivetrain + "I"));
+		light = new Lights(hardwareMap, "Lights High");
+		telemetry.addLine((drivetrain.toString() + "Initializing"));
 		drivetrain.updateOdo();
 		telemetry.update();
 		setTarget = new double[]{
@@ -210,17 +212,17 @@ public class BlueFar extends ParentAuton {
 					setTarget[1] = 24;
 					while (setTarget[2] > drivetrain.getPosition()[2]) {
 						drivetrain.robotOrientedDrive(0, -0.2, 0);
-						setTarget[1] = 26.7;
+						setTarget[1] = 27;
 						while (setTarget[1] > drivetrain.getPosition()[1]) {
-							drivetrain.robotOrientedDrive(0, 0.4, 0);
+							drivetrain.robotOrientedDrive(0, 0.3, 0);
 							drivetrain.updateOdo();
 							telemetry.addLine((drivetrain.toString() + "second move loop"));
 							telemetry.update();
 						}
 
-						setTarget[0] = 29;
+						setTarget[0] = 28.7;
 						while (setTarget[0] > drivetrain.getPosition()[0]) {
-							drivetrain.robotOrientedDrive(-0.25, 0, 0);
+							drivetrain.robotOrientedDrive(-0.35, 0, 0);
 							launcher.intake(1);
 							launcher.transfer(-1);
 							launcher.outtake(0);
@@ -252,7 +254,7 @@ public class BlueFar extends ParentAuton {
 
 						setTarget[1] = 34;
 						while (setTarget[1] < drivetrain.getPosition()[1]) {
-							drivetrain.robotOrientedDrive(0, -0.4, 0);
+							drivetrain.robotOrientedDrive(0, -0.3, 0);
 							drivetrain.updateOdo();
 							telemetry.addLine((drivetrain.toString() + "second move loop"));
 							telemetry.update();
@@ -295,25 +297,24 @@ public class BlueFar extends ParentAuton {
 						}
 
 						timer = new ElapsedTime();
-						while (timer.seconds() < 3) {
+						while (timer.seconds() < 0.5)
 							launcher.transfer(-1);
-							launcher.fling(true);
-						}
+
 						launcher.fling(true);
 
 						timer = new ElapsedTime();
 						while (timer.seconds() < 2) {
 							launcher.intake(1);
 							launcher.transfer(-1);
-
 						}
+						timer = new ElapsedTime();
+						while (timer.seconds() < 3)
+							launcher.fling(true);
 
 
-
-					}
-					}
-			}}timer = new ElapsedTime();
-		while (timer.seconds() < 5)
-			drivetrain.robotOrientedDrive(0,0,0);
-		launcher.fling(true);
-		requestOpModeStop();}}
+						timer = new ElapsedTime();
+						while (timer.seconds() < 7 && !aprilTags.getDetections().isEmpty())
+							light.setPattern(Lights.Color.BLUE);
+						//23.8 x
+						requestOpModeStop();
+					}}}}}}
