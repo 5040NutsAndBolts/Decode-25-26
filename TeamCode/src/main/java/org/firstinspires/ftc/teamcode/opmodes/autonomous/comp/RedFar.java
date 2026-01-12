@@ -193,30 +193,26 @@ public class RedFar extends ParentAuton {
 				dash.sendTelemetryPacket(packet);
 				telemetry.update();
 
-				setTarget[2] = 114.6;
-				while(setTarget[2] > drivetrain.getPosition()[2]) {
-					timer = new ElapsedTime();
-					while (timer.seconds() < 0.5)
-						setTarget[2] = 130; // still needs testing
+						setTarget[2] = 118;
 
-					while (setTarget[2] < drivetrain.getPosition()[2]) {
+					while (setTarget[2] > drivetrain.getPosition()[2]) {
 						drivetrain.robotOrientedDrive(0, 0, 0.2);
 						drivetrain.updateOdo();
 						telemetry.addLine((drivetrain.toString() + "second move loop"));
 						telemetry.update();
 					}
 
-					setTarget[1] = 20.3;
+					setTarget[1] = -1.5;
 
-						while (setTarget[1] > drivetrain.getPosition()[1]) {
-							drivetrain.robotOrientedDrive(0, 0.4, 0);
+						while (setTarget[1] < drivetrain.getPosition()[1]) {
+							drivetrain.robotOrientedDrive(0, -0.3, 0);
 							drivetrain.updateOdo();
 							telemetry.addLine((drivetrain.toString() + "second move loop"));
 							telemetry.update();
 						}
 
 						setTarget[0] = 19;
-						while (setTarget[0] > drivetrain.getPosition()[0]) {
+						while (setTarget[0] < drivetrain.getPosition()[0]) {
 							drivetrain.robotOrientedDrive(0.25, 0, 0);
 							launcher.intake(1);
 							launcher.transfer(-1);
@@ -308,4 +304,4 @@ public class RedFar extends ParentAuton {
 
 
 						requestOpModeStop();
-					}}}}}
+					}}}}
