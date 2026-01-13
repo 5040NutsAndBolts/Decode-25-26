@@ -102,180 +102,224 @@ public class RedFar extends ParentAuton {
 		drivetrain.robotOrientedDrive(0, 0, 0);
 		launcher.fling(false);
 
-			while(timer.seconds()<2){
-				telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
-				launcher.transfer(-1);
-				drivetrain.robotOrientedDrive(0, 0, 0);
-				telemetry.addLine(String.valueOf(timer.seconds()));
-				telemetry.addLine((drivetrain.toString() + "first launch loop"));
+		while(timer.seconds()<2){
+			telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
+			launcher.transfer(-1);
+			drivetrain.robotOrientedDrive(0, 0, 0);
+			telemetry.addLine(String.valueOf(timer.seconds()));
+			telemetry.addLine((drivetrain.toString()));
+			packet.clearLines();
+			packet.putAll(launcher.getPIDTelemetry(false));
+			dash.sendTelemetryPacket(packet);
+			telemetry.update();
+		}
+
+		launcher.fling(true);
+
+		timer = new ElapsedTime();
+		while(timer.seconds()<2.5){
+			launcher.transfer(-1);
+			drivetrain.robotOrientedDrive(0, 0, 0);
+			telemetry.addLine(String.valueOf(timer.seconds()));
+			telemetry.addLine((drivetrain.toString()));
+			packet.clearLines();
+			packet.putAll(launcher.getPIDTelemetry(false));
+			dash.sendTelemetryPacket(packet);
+			telemetry.update();
+		}
+
+		launcher.fling(false);
+		timer = new ElapsedTime();
+		while(timer.seconds()<0.1){
+			drivetrain.robotOrientedDrive(0,0,-0.15);
+		}
+		drivetrain.robotOrientedDrive(0,0,0);
+
+		timer = new ElapsedTime();
+		while(timer.seconds()<2){
+			drivetrain.robotOrientedDrive(0, 0, 0);
+			telemetry.addLine(String.valueOf(timer.seconds()));
+			telemetry.addLine((drivetrain.toString()));
+			packet.clearLines();
+			packet.putAll(launcher.getPIDTelemetry(false));
+			dash.sendTelemetryPacket(packet);
+			telemetry.update();
+
+		}
+
+		timer = new ElapsedTime();
+			while (timer.seconds() < 2.5) {
+				launcher.intake(1);
 				packet.clearLines();
 				packet.putAll(launcher.getPIDTelemetry(false));
 				dash.sendTelemetryPacket(packet);
-				telemetry.update();
 			}
 
 			launcher.fling(true);
 
 			timer = new ElapsedTime();
-			while(timer.seconds()<2.5){
+			while (timer.seconds() < 1.5) {
+				launcher.fling(true);
+				packet.clearLines();
+				packet.putAll(launcher.getPIDTelemetry(false));
+				dash.sendTelemetryPacket(packet);
+			}
+			setTarget[0] = 17;
+			while (setTarget[0] > drivetrain.getPosition()[0]) {
+				launcher.outtake(0);
+				drivetrain.robotOrientedDrive(.2, 0, 0);
+				drivetrain.updateOdo();
+				telemetry.addLine((drivetrain.toString()));
+				telemetry.update();
+				packet.clearLines();
+				packet.putAll(launcher.getPIDTelemetry(false));
+				dash.sendTelemetryPacket(packet);
+			}
+
+			drivetrain.robotOrientedDrive(0, 0, 0);
+			packet.clearLines();
+			packet.putAll(launcher.getPIDTelemetry(false));
+			dash.sendTelemetryPacket(packet);
+			telemetry.update();
+
+			setTarget[2] = 109.5;
+
+			while (setTarget[2] > drivetrain.getPosition()[2]) {
+				drivetrain.robotOrientedDrive(0, 0, 0.2);
+				drivetrain.updateOdo();
+				telemetry.addLine((drivetrain.toString() ));
+				telemetry.update();
+				launcher.intake(1);
+				packet.clearLines();
+				packet.putAll(launcher.getPIDTelemetry(false));
+				dash.sendTelemetryPacket(packet);
+			}
+			drivetrain.robotOrientedDrive(0, 0, 0);
+
+			setTarget[1] = 3;
+
+			while (setTarget[1] < drivetrain.getPosition()[1]) {
+				drivetrain.robotOrientedDrive(0, -0.3, 0);
+				drivetrain.updateOdo();
+				telemetry.addLine((drivetrain.toString()));
+				telemetry.update();
+				launcher.intake(1);
+				packet.clearLines();
+				packet.putAll(launcher.getPIDTelemetry(false));
+				dash.sendTelemetryPacket(packet);
+			}
+			//stops readig entirely
+			setTarget[0] = 0;
+			while (setTarget[0] < drivetrain.getPosition()[0]) {
+				drivetrain.robotOrientedDrive(-0.25, 0, 0);
+				launcher.intake(1);
 				launcher.transfer(-1);
+				launcher.outtake(0);
+				drivetrain.updateOdo();
+				telemetry.addLine(("\nThis the one you want :33333"));
+				telemetry.update();
+				packet.clearLines();
+				packet.putAll(launcher.getPIDTelemetry(false));
+				dash.sendTelemetryPacket(packet);
+			}
+
+			timer = new ElapsedTime();
+			while (timer.seconds() < 0.2) {
 				drivetrain.robotOrientedDrive(0, 0, 0);
-				telemetry.addLine(String.valueOf(timer.seconds()));
-				telemetry.addLine((drivetrain.toString() + "first wait loop"));
+				packet.clearLines();
+				packet.putAll(launcher.getPIDTelemetry(false));
+				dash.sendTelemetryPacket(packet);
+			}
+
+			timer = new ElapsedTime();
+			while (timer.seconds() < 0.05) {
+				launcher.intake(0);
+				packet.clearLines();
+				packet.putAll(launcher.getPIDTelemetry(false));
+				dash.sendTelemetryPacket(packet);
+			}
+			//retrieve ball
+
+			setTarget[0] = 13;
+			while (setTarget[0] < drivetrain.getPosition()[0]) {
+				launcher.fling(false);
+				drivetrain.robotOrientedDrive(-0.25, 0, 0);
+				drivetrain.updateOdo();
+				telemetry.update();
+				packet.clearLines();
+				packet.putAll(launcher.getPIDTelemetry(false));
+				dash.sendTelemetryPacket(packet);
+			}
+
+			timer = new ElapsedTime();
+			while (timer.seconds() < 0.5) {
+				drivetrain.robotOrientedDrive(0, 0, 0);
+
+				packet.clearLines();
+				packet.putAll(launcher.getPIDTelemetry(false));
+				dash.sendTelemetryPacket(packet);
+			}
+
+			setTarget[1] = 20;
+			while (setTarget[1] < drivetrain.getPosition()[1]) {
+				drivetrain.robotOrientedDrive(0, -0.4, 0);
+				drivetrain.updateOdo();
+				telemetry.addLine((drivetrain.toString() + "second move loop"));
 				packet.clearLines();
 				packet.putAll(launcher.getPIDTelemetry(false));
 				dash.sendTelemetryPacket(packet);
 				telemetry.update();
+
 			}
 
-			launcher.fling(false);
-			timer = new ElapsedTime();
-			while(timer.seconds()<0.1){
-				drivetrain.robotOrientedDrive(0,0,-0.15);
-			}
-			drivetrain.robotOrientedDrive(0,0,0);
-
-			timer = new ElapsedTime();
-			while(timer.seconds()<2){
-				drivetrain.robotOrientedDrive(0, 0, 0);
-				telemetry.addLine(String.valueOf(timer.seconds()));
-				telemetry.addLine((drivetrain.toString() + "second wait loop"));
+			setTarget[2] = 0;
+			while (setTarget[2] > drivetrain.getPosition()[2]) {
+				drivetrain.robotOrientedDrive(0, 0, 0.2);
+				drivetrain.updateOdo();
+				telemetry.addLine((drivetrain.toString() + "second move loop"));
+				telemetry.update();
 				packet.clearLines();
 				packet.putAll(launcher.getPIDTelemetry(false));
 				dash.sendTelemetryPacket(packet);
-				telemetry.update();
-
 			}
 
-			timer = new ElapsedTime();
-				while (timer.seconds() < 2.5) {
-					launcher.intake(1);
-					packet.clearLines();
-					packet.putAll(launcher.getPIDTelemetry(false));
-					dash.sendTelemetryPacket(packet);
-				}
+			setTarget[0] = 1.5;
+			while (setTarget[0] < drivetrain.getPosition()[0]) {
+				launcher.outtake(0.8);
+				drivetrain.robotOrientedDrive(-.2, 0, 0);
+				drivetrain.updateOdo();
+				telemetry.update();
+				packet.clearLines();
+				packet.putAll(launcher.getPIDTelemetry(false));
+				dash.sendTelemetryPacket(packet);
+			}
 
+
+			timer = new ElapsedTime();
+			while (timer.seconds() < 0.5) {
+				launcher.transfer(-1);
+				packet.clearLines();
+				packet.putAll(launcher.getPIDTelemetry(false));
+				dash.sendTelemetryPacket(packet);
+			}
+
+			launcher.fling(true);
+
+			timer = new ElapsedTime();
+			while (timer.seconds() < 2) {
+				launcher.intake(1);
+				launcher.transfer(-1);
+				packet.clearLines();
+				packet.putAll(launcher.getPIDTelemetry(false));
+				dash.sendTelemetryPacket(packet);
+			}
+			timer = new ElapsedTime();
+			while (timer.seconds() < 3)
 				launcher.fling(true);
-
-				timer = new ElapsedTime();
-				while (timer.seconds() < 1.5) {
-					launcher.fling(true);
-					packet.clearLines();
-					packet.putAll(launcher.getPIDTelemetry(false));
-					dash.sendTelemetryPacket(packet);
-				}
-				setTarget[0] = 17;
-				while (setTarget[0] > drivetrain.getPosition()[0]) {
-					launcher.outtake(0);
-					drivetrain.robotOrientedDrive(.2, 0, 0);
-					drivetrain.updateOdo();
-					telemetry.addLine((drivetrain.toString() + "second move loop"));
-					telemetry.update();
-					packet.clearLines();
-					packet.putAll(launcher.getPIDTelemetry(false));
-					dash.sendTelemetryPacket(packet);
-				}
-
-				drivetrain.robotOrientedDrive(0, 0, 0);
 				packet.clearLines();
 				packet.putAll(launcher.getPIDTelemetry(false));
 				dash.sendTelemetryPacket(packet);
-				telemetry.update();
-
-				setTarget[2] = 110;
-
-				while (setTarget[2] > drivetrain.getPosition()[2]) {
-					drivetrain.robotOrientedDrive(0, 0, 0.2);
-					drivetrain.updateOdo();
-					telemetry.addLine((drivetrain.toString() + "second move loop"));
-					telemetry.update();
-					launcher.intake(1);
-				}
-				drivetrain.robotOrientedDrive(0, 0, 0);
-
-				setTarget[1] = 4.5;
-
-				while (setTarget[1] < drivetrain.getPosition()[1]) {
-					drivetrain.robotOrientedDrive(0, -0.3, 0);
-					drivetrain.updateOdo();
-					telemetry.addLine((drivetrain.toString() + "second move loop"));
-					telemetry.update();
-					launcher.intake(1);
-				}
-
-				setTarget[0] = 65;
-				while (setTarget[0] < drivetrain.getPosition()[0]) {
-					drivetrain.robotOrientedDrive(-0.25, 0, 0);
-					launcher.intake(1);
-					launcher.transfer(-1);
-					launcher.outtake(0);
-					drivetrain.updateOdo();
-					telemetry.addLine((drivetrain.toString() + "second move loop"));
-					telemetry.update();
-				}
-
-				timer = new ElapsedTime();
-				while (timer.seconds() < 0.2)
-					drivetrain.robotOrientedDrive(0, 0, 0);
-
-				timer = new ElapsedTime();
-				while (timer.seconds() < 0.05)
-					launcher.intake(0);
-				//retrieve ball
-
-				setTarget[0] = 13;
-				while (setTarget[0] < drivetrain.getPosition()[0]) {
-					launcher.fling(false);
-					drivetrain.robotOrientedDrive(-0.25, 0, 0);
-					drivetrain.updateOdo();
-					telemetry.update();
-				}
-
-				timer = new ElapsedTime();
-				while (timer.seconds() < 0.5)
-					drivetrain.robotOrientedDrive(0, 0, 0);
-
-				setTarget[1] = 20;
-				while (setTarget[1] < drivetrain.getPosition()[1]) {
-					drivetrain.robotOrientedDrive(0, -0.4, 0);
-					drivetrain.updateOdo();
-					telemetry.addLine((drivetrain.toString() + "second move loop"));
-					telemetry.update();
-
-				}
-
-				setTarget[2] = 0;
-				while (setTarget[2] > drivetrain.getPosition()[2]) {
-					drivetrain.robotOrientedDrive(0, 0, 0.2);
-					drivetrain.updateOdo();
-					telemetry.addLine((drivetrain.toString() + "second move loop"));
-					telemetry.update();
-				}
-
-				setTarget[0] = 1.5;
-				while (setTarget[0] < drivetrain.getPosition()[0]) {
-					launcher.outtake(0.8);
-					drivetrain.robotOrientedDrive(-.2, 0, 0);
-					drivetrain.updateOdo();
-					telemetry.update();
-				}
 
 
-				timer = new ElapsedTime();
-				while (timer.seconds() < 0.5)
-					launcher.transfer(-1);
-
-				launcher.fling(true);
-
-				timer = new ElapsedTime();
-				while (timer.seconds() < 2) {
-					launcher.intake(1);
-					launcher.transfer(-1);
-				}
-				timer = new ElapsedTime();
-				while (timer.seconds() < 3)
-					launcher.fling(true);
-
-
-				requestOpModeStop();
-					}}
+			requestOpModeStop();
+				}}

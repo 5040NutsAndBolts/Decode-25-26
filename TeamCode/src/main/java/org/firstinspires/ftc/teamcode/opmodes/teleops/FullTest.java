@@ -24,14 +24,10 @@ public class FullTest extends OpMode {
 
 	@Override
 	public void loop() {
-		dt.robotOrientedDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x);
+		dt.robotOrientedDrive(gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
 		dt.updateOdo();
 
-		la.intake(gamepad1.right_trigger > 0.2 ? -1 : 0);
-		if( gamepad1.left_trigger > .2 || gamepad1.right_trigger > .2 )
-			la.intake(gamepad1.left_trigger-gamepad1.right_trigger);
-
-		la.intake(gamepad2.right_trigger > 0.2 ? 1 : 0);
+		la.intake(gamepad1.left_trigger-gamepad1.right_trigger);
 
 		la.transfer(gamepad2.left_stick_y);
 
@@ -46,7 +42,7 @@ public class FullTest extends OpMode {
 		dt.toggleSlowMode(gamepad1.dpad_down);
 
 
-		if(la.flywheelRPMS() > 5100 && gamepad2.left_trigger > .15) {
+		if(la.flywheelRPMS() > 5100) {
 			gamepad2.rumble(200);
 			gamepad1.rumble(200);
 			telemetry.addLine("rumbling, far");
