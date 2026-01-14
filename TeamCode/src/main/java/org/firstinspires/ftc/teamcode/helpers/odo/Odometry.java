@@ -44,7 +44,13 @@ public class Odometry {
     }
 
     public void reset() {
+        pinpoint.resetPosAndIMU();
         pinpoint.setPosition(new Pose2D(DistanceUnit.INCH,0,0, AngleUnit.DEGREES,0));
+    }
+
+    public void set(Pose2D pose) {
+        pinpoint.resetPosAndIMU();
+        pinpoint.setPosition(pose);
     }
     public void reset(int x, int y, int heading) {
         pinpoint.setPosition(new Pose2D(DistanceUnit.INCH,x,y, AngleUnit.DEGREES,heading));

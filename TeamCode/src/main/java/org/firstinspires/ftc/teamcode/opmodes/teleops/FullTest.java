@@ -24,12 +24,12 @@ public class FullTest extends OpMode {
 
 	@Override
 	public void loop() {
-		dt.robotOrientedDrive(gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+		dt.robotOrientedDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x);
 		dt.updateOdo();
 
 		la.intake(gamepad1.left_trigger-gamepad1.right_trigger);
 
-		la.transfer(gamepad2.left_stick_y);
+		la.transfer(-gamepad2.left_stick_y);
 
 		la.fling(gamepad2.b);
 

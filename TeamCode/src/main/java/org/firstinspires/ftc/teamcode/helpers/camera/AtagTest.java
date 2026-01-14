@@ -8,7 +8,6 @@ import java.util.List;
 
 @TeleOp(name = "Find Tags", group = "TeleOp")
 public class AtagTest extends LinearOpMode {
-
     @Override
     public void runOpMode() {
         aprilTags aprilTags = new aprilTags(hardwareMap);
@@ -28,6 +27,7 @@ public class AtagTest extends LinearOpMode {
                     telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
                     telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
                     telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
+                    telemetry.addLine("yaw: " +detection.ftcPose.yaw);
                 }
             } else {
                 telemetry.addData("Status", "No AprilTags found.");
@@ -39,3 +39,4 @@ public class AtagTest extends LinearOpMode {
         aprilTags.close();
     }
 }
+// z: 19 ft yaw: -76 to -80

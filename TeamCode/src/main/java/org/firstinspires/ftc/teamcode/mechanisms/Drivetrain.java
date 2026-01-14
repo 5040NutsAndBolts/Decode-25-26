@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 public class Drivetrain extends Mechanism {
     public boolean waitWorthy = true;
     private final DcMotorEx frontLeft,frontRight,backLeft,backRight;
-    private final Odometry odo;
+    public final Odometry odo;
     private double speed = 1;
     private final VoltageSensor voltageSensor;
     //public ColorSensor colorSensor;

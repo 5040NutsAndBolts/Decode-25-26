@@ -65,6 +65,7 @@ public class BlueFar extends ParentAuton {
 			telemetry.addData("Status", "No AprilTags found.");
 		}
 
+		dash.startCameraStream(aprilTag.getCameraStreamProcessor(), 0);
 
 		telemetry.addLine((drivetrain.toString() + "IL"));
 		telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
@@ -203,7 +204,7 @@ public class BlueFar extends ParentAuton {
 			telemetry.addLine((drivetrain.toString() + "second move loop"));
 			telemetry.update();
 		}
-
+		//need to adjust pick up - jack
 		timer = new ElapsedTime();
 		while(timer.seconds()<0.2)
 			drivetrain.robotOrientedDrive(0,0,0);
