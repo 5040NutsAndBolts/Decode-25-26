@@ -35,7 +35,7 @@ public class FullTest extends OpMode {
 
 		dt.toggleSlowMode(gamepad1.b);
 
-		la.setOuttakePower(gamepad2.left_trigger > 0.25 ? 0.89 : .2);
+		la.setOuttakePower(gamepad2.left_trigger > 0.25 ? .95 : .2);
 
 		la.fling(gamepad2.a);
 

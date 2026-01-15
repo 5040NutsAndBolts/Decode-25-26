@@ -14,6 +14,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Autonomous(name="BlueFar", group="Autonomous")
@@ -40,6 +41,22 @@ public class BlueFar extends ParentAuton {
 		dash = FtcDashboard.getInstance();
 		packet=new TelemetryPacket();
 	}
+
+	private void sendTelemetry (String loopName) {
+		telemetry.addLine(loopName);
+		telemetry.addLine("Flywheel speed: " + launcher.flywheelRPMS());
+		telemetry.addLine("Odo: " + drivetrain.getPosition()[0] + " , " + drivetrain.getPosition()[1] + " , " + drivetrain.getPosition()[2]);
+		telemetry.update();
+		packet.clearLines();
+		Map<String, Object> map = launcher.getPIDTelemetry(false);
+		map.put("Odo X", drivetrain.getPosition()[0]);
+		map.put("Odo Y", drivetrain.getPosition()[1]);
+		map.put("Odo R", drivetrain.getPosition()[2]);
+		map.put("", loopName);
+		packet.putAll(map);
+		dash.sendTelemetryPacket(packet);
+	}
+
 	@Override
 	public void init_loop() {
 		super.init_loop();
@@ -114,7 +131,7 @@ public class BlueFar extends ParentAuton {
 		launcher.fling(true);
 
 		timer = new ElapsedTime();
-		while(timer.seconds()<2){
+		while(timer.seconds()<1.2){
 			launcher.transfer(-1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
 			telemetry.addLine(String.valueOf(timer.seconds()));
@@ -140,7 +157,7 @@ public class BlueFar extends ParentAuton {
 		}
 
 		timer = new ElapsedTime();
-		while(timer.seconds()<2){
+		while(timer.seconds()<1){
 			launcher.intake(1);
 			packet.clearLines();
 			packet.putAll(launcher.getPIDTelemetry(false));
@@ -150,7 +167,7 @@ public class BlueFar extends ParentAuton {
 		launcher.fling(true);
 
 		timer = new ElapsedTime();
-		while(timer.seconds()<3)
+		while(timer.seconds()<2)
 		{
 			launcher.fling(true);
 			packet.clearLines();
@@ -175,8 +192,6 @@ public class BlueFar extends ParentAuton {
 		dash.sendTelemetryPacket(packet);
 		telemetry.update();
 
-		timer = new ElapsedTime();
-		while(timer.seconds() < 0.5)
 			setTarget[2] = -111;
 
 		while(setTarget[2] < drivetrain.getPosition()[2]){
@@ -186,7 +201,7 @@ public class BlueFar extends ParentAuton {
 			telemetry.update();
 		}
 
-		setTarget[1] = 27.4;
+		setTarget[1] = 29.5;
 		while(setTarget[1] > drivetrain.getPosition()[1]) {
 			drivetrain.robotOrientedDrive(0, 0.4, 0);
 			drivetrain.updateOdo();
@@ -194,7 +209,7 @@ public class BlueFar extends ParentAuton {
 			telemetry.update();
 		}
 
-		setTarget[0] = 27;
+		setTarget[0] = 30;
 		while(setTarget[0] > drivetrain.getPosition()[0]){
 			drivetrain.robotOrientedDrive(-0.25, 0, 0);
 			launcher.intake(1);
@@ -243,29 +258,29 @@ public class BlueFar extends ParentAuton {
 			telemetry.update();
 		}
 
-		setTarget[0]= -2.5;
-		while(setTarget[0] < drivetrain.getPosition()[0]){
+		setTarget[0]= 2.5;
+		while(-17 < drivetrain.getPosition()[0]){
 			launcher.outtake(0.8);
 			drivetrain.robotOrientedDrive(-.2, 0, 0);
 			drivetrain.updateOdo();
 			telemetry.update();
 		}
-
-		timer = new ElapsedTime();
-		while(timer.seconds() < 0.5) {
-			drivetrain.robotOrientedDrive(0, 0, 0);
-			launcher.transfer(-1);
-		}
-		launcher.fling(true);
+		drivetrain.robotOrientedDrive(0, 0, 0);
 
 		timer = new ElapsedTime();
 		while(timer.seconds() < 2) {
 			launcher.intake(1);
 			launcher.transfer(-1);
-			map.put("shouldClose:", shouldClose);
-			shouldClose = true;
+			launcher.fling(true);
+			sendTelemetry("Launch second collected ball");
 		}
-		if(shouldClose)
-			requestOpModeStop();
+
+		while(true){
+			sendTelemetry("waity waity waity");
+			drivetrain.robotOrientedDrive(0,0,0);
+			drivetrain.neutral();
+			drivetrain.updateOdo();
+		}
+		/*requestOpModeStop();*/
 	}
 }
