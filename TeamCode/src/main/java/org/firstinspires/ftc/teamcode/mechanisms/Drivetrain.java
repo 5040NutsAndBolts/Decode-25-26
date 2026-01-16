@@ -179,6 +179,7 @@ public class Drivetrain extends Mechanism {
     }
 
     public double[] getPosition() {
+        this.updateOdo();
         return odo.getPosition();
     }
 

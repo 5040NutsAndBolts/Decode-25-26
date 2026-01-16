@@ -121,7 +121,7 @@ public class Launcher extends Mechanism {
 				"Flywheel PID: " + flywheelPID + "\n";
 	}
 
-	public Map<String, Object> getPIDTelemetry(boolean inInit) {
+	public HashMap<String, Object> getPIDTelemetry(boolean inInit) {
 		HashMap<String, Object> map = new HashMap<>();
 		map.put("Flywheel PID Target", 5550);
 		map.put("Flywheel Current", flywheelRPMS());
@@ -129,6 +129,7 @@ public class Launcher extends Mechanism {
 		//no idea why but this HAS to be calculated here
 		double numero = nullifier ? ((5550 - flywheelRPMS()) * .0035) : .3;
 		if (!inInit) flywheel.setPower(numero);
+		else flywheel.setPower(0);
 		map.put("Flywheel Real Input Power", numero);
 		map.put("Flywheel Motor Power", flywheel.getPower());
 		return map;
