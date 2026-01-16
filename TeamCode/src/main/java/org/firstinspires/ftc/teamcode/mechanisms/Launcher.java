@@ -84,7 +84,7 @@ public class Launcher extends Mechanism {
 	}
 
 	public Lights.Color topColor() {
-		int gScore = topColor.green();
+		int gScore = (int) (topColor.green() - (topColor.blue()*.2));
 		int oScore = topColor.red() + (int)(topColor.green()*.4);
 		int pScore = topColor.blue() + (int) (topColor.red() * .7);
 		int highest = Math.max(gScore, Math.max(oScore, pScore));
@@ -96,7 +96,7 @@ public class Launcher extends Mechanism {
 	}
 
 	public Lights.Color lowColor() {
-		int gScore = lowColor.green();
+		int gScore = (int) (lowColor.green()-(lowColor.blue()*.2));
 		int oScore = lowColor.red() + (int)(lowColor.green()*.4);
 		int pScore = lowColor.blue() + (int) (lowColor.red() * .7);
 		int highest = Math.max(gScore, Math.max(oScore, pScore));

@@ -44,8 +44,8 @@ public class FullTest extends OpMode {
 		la.setOuttakePower(gamepad2.left_trigger > 0.25 ? .95 : .2);
 		if(gamepad2.right_trigger > 0.25){
 			la.setOuttakePower(.75);
-			gamepad2.rumble(200);
-			gamepad1.rumble(200);
+			gamepad2.rumble(100);
+			gamepad1.rumble(100);
 		}
 
 		la.fling(gamepad2.a);
@@ -53,17 +53,6 @@ public class FullTest extends OpMode {
 		dt.toggleSlowMode(gamepad1.dpad_down);
 
 		List<AprilTagDetection> currentDetections = aprilTags.getDetections();
-
-		if(la.flywheelRPMS() > 5100) {
-			gamepad2.rumble(200);
-			gamepad1.rumble(200);
-			telemetry.addLine("rumbling, far");
-		} else {
-			if(!cameraGood){
-				lH.setPattern(la.topColor());
-				lL.setPattern(la.lowColor());
-			}
-		}
 
 		if (!currentDetections.isEmpty()) {
 			telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
@@ -74,12 +63,22 @@ public class FullTest extends OpMode {
 				if (detection.ftcPose.yaw >= 27 && detection.ftcPose.yaw <= 34.7 && detection.id == 20) {
 					lH.setPattern(Lights.Color.BLUE);
 					cameraGood = true;
-				}	else
-						lH.setPattern(Lights.Color.WHITE);
+				}
 			}
 		} else {
 			telemetry.addLine("no tags seen");
 			cameraGood = false;
+		}
+
+		if(la.flywheelRPMS() > 5100) {
+			gamepad2.rumble(100);
+			gamepad1.rumble(100);
+			telemetry.addLine("rumbling, far");
+		} else {
+			if(!cameraGood){
+				lH.setPattern(la.topColor());
+				lL.setPattern(la.lowColor());
+			}
 		}
 
 		telemetry.addLine("Launcher: \n" + la.toString());
