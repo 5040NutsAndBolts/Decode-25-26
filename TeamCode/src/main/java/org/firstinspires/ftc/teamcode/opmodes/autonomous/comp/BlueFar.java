@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.helpers.camera.aprilTags;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
@@ -51,6 +52,9 @@ public class  BlueFar extends ParentAuton {
 		map.put("Odo X", drivetrain.getPosition()[0]);
 		map.put("Odo Y", drivetrain.getPosition()[1]);
 		map.put("Odo R", drivetrain.getPosition()[2]);
+		map.put("Vel X", drivetrain.odo.getPinpoint().getVelocity().getX(DistanceUnit.INCH));
+		map.put("Vel Y", drivetrain.odo.getPinpoint().getVelocity().getY(DistanceUnit.INCH));
+		map.put("Vel R", drivetrain.odo.getPinpoint().getVelocity().getHeading(AngleUnit.DEGREES));
 		map.putAll(launcher.getPIDTelemetry(inInit));
 		packet.putAll(map);
 		dash.sendTelemetryPacket(packet);
@@ -94,6 +98,7 @@ public class  BlueFar extends ParentAuton {
 			launcher.outtake(0);
 			launcher.intake(0);
 			launcher.fling(false);
+			return;
 		}
 		ElapsedTime timer;
 		drivetrain.resetOdo();
@@ -108,7 +113,7 @@ public class  BlueFar extends ParentAuton {
 		launcher.fling(false);
 
 		timer = new ElapsedTime();
-		while(launcher.flywheelRPMS() < 5150 || timer.seconds() > 2){
+		while(launcher.flywheelRPMS() < 5300 || timer.seconds() > 2){
 			launcher.outtake(1);
 			launcher.transfer(-1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
@@ -164,18 +169,17 @@ public class  BlueFar extends ParentAuton {
 		}
 
 		drivetrain.robotOrientedDrive(0, 0, 0);
+
+		setTarget[1] = 27.5;
+		while(setTarget[1] > drivetrain.getPosition()[1]) {
+			drivetrain.robotOrientedDrive(0, 0.25, 0);
+			drivetrain.updateOdo();
+			sendTelemetry("Strafe to align with artifacts", false);
+		}
 		requestOpModeStop();
 		kill = true;
 
 		/*
-		setTarget[1] = 29.5;
-		while(setTarget[1] > drivetrain.getPosition()[1]) {
-			drivetrain.robotOrientedDrive(0, 0.4, 0);
-			drivetrain.updateOdo();
-			sendTelemetry("Unknown", false);
-			telemetry.addLine((drivetrain.toString() + "second move loop"));
-			telemetry.update();
-		}
 
 		setTarget[0] = 28;
 		while(setTarget[0] > drivetrain.getPosition()[0]){
