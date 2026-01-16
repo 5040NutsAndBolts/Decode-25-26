@@ -14,7 +14,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @Autonomous(name="BlueFar", group="Autonomous")
@@ -26,7 +25,7 @@ public class  BlueFar extends ParentAuton {
 	TelemetryPacket packet;
 	FtcDashboard dash;
 	HashMap<String, Object> map = new HashMap<>();
-	boolean kill = false;
+	boolean suicide = false;
 
 	@Override
 	public void init() {
@@ -47,8 +46,8 @@ public class  BlueFar extends ParentAuton {
 		drivetrain.updateOdo();
 		packet.clearLines();
 		HashMap<String, Object> map = new HashMap<>();
-		map.put("", loopName);
-		map.put("Kill", kill);
+		map.put("Name", loopName);
+		map.put("Suicide", suicide);
 		map.put("Odo X", drivetrain.getPosition()[0]);
 		map.put("Odo Y", drivetrain.getPosition()[1]);
 		map.put("Odo R", drivetrain.getPosition()[2]);
@@ -91,7 +90,7 @@ public class  BlueFar extends ParentAuton {
 
 	@Override
 	public void loop() {
-		if(kill){
+		if(suicide){
 			sendTelemetry("Stopping", true);
 			drivetrain.robotOrientedDrive(0,0,0);
 			launcher.transfer(0);
@@ -113,7 +112,7 @@ public class  BlueFar extends ParentAuton {
 		launcher.fling(false);
 
 		timer = new ElapsedTime();
-		while(launcher.flywheelRPMS() < 5300 || timer.seconds() > 2){
+		while(launcher.flywheelRPMS() < 5300 && timer.seconds() < 2){
 			launcher.outtake(1);
 			launcher.transfer(-1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
@@ -147,7 +146,7 @@ public class  BlueFar extends ParentAuton {
 		}
 
 		timer = new ElapsedTime();
-		while(timer.seconds()<1.25) {
+		while(timer.seconds()<1.75) {
 			launcher.fling(true);
 			launcher.transfer(-1);
 			sendTelemetry("Launching second preload", false);
@@ -170,91 +169,83 @@ public class  BlueFar extends ParentAuton {
 
 		drivetrain.robotOrientedDrive(0, 0, 0);
 
-		setTarget[1] = 27.5;
+		setTarget[1] = 27.25;
 		while(setTarget[1] > drivetrain.getPosition()[1]) {
 			drivetrain.robotOrientedDrive(0, 0.25, 0);
 			drivetrain.updateOdo();
 			sendTelemetry("Strafe to align with artifacts", false);
 		}
-		requestOpModeStop();
-		kill = true;
+		drivetrain.robotOrientedDrive(0,0,0);
 
-		/*
-
-		setTarget[0] = 28;
+		setTarget[0] = 28.5;
 		while(setTarget[0] > drivetrain.getPosition()[0]){
 			drivetrain.robotOrientedDrive(-0.25, 0, 0);
 			launcher.intake(1);
 			launcher.transfer(-1);
-			sendTelemetry("grrr", false);
-			launcher.outtake(0);
-			drivetrain.updateOdo();
-			telemetry.addLine((drivetrain.toString() + "second move loop"));
-			telemetry.update();
+			sendTelemetry("Pick up field artifacts", false);
 		}
-		//need to adjust pick up - jack
-		timer = new ElapsedTime();
-		while(timer.seconds()<0.2)
-			drivetrain.robotOrientedDrive(0,0,0);
+		launcher.intake(0);
 
-		timer = new ElapsedTime();
-		while(timer.seconds()<0.05)
-			launcher.intake(0);
-		//retrieve ball
-
-		setTarget[0] = 19;
+		setTarget[0] = 20;
 		while(setTarget[0] < drivetrain.getPosition()[0]){
-			launcher.fling(false);
 			drivetrain.robotOrientedDrive(0.25, 0, 0);
-			drivetrain.updateOdo();
-			sendTelemetry("grrr", false);
-			telemetry.update();
+			launcher.outtake(1);
+			sendTelemetry("Backing up from spike mark", false);
 		}
 
-		timer = new ElapsedTime();
-		while(timer.seconds() < 0.5)
-			drivetrain.robotOrientedDrive(0,0,0);
+		setTarget[2] = -1.5;
+		while(setTarget[2] > drivetrain.getPosition()[2]){
+			drivetrain.robotOrientedDrive(0, 0, 0.2);
+			launcher.outtake(1);
+			sendTelemetry("Aim to shoot pick ups", false);
+		}
 
 		setTarget[1] = 31;
 		while(setTarget[1] < drivetrain.getPosition()[1]) {
 			drivetrain.robotOrientedDrive(0, -0.4, 0);
-			drivetrain.updateOdo();
-			sendTelemetry("Strafe1", false);
-			telemetry.update();
-
+			launcher.outtake(1);
+			sendTelemetry("Strafe back into far shooting position", false);
 		}
 
-		setTarget[2] = -5;
-		while(setTarget[2] > drivetrain.getPosition()[2]){
-			drivetrain.robotOrientedDrive(0, 0, 0.2);
-			drivetrain.updateOdo();
-			sendTelemetry("ROTATOR", false);
-			telemetry.update();
-		}
-
-		setTarget[0]= -8;
+		setTarget[0]= -4;
 		while(setTarget[0] < drivetrain.getPosition()[0]){
-			launcher.outtake(0.8);
 			drivetrain.robotOrientedDrive(-.2, 0, 0);
-			drivetrain.updateOdo();
-			sendTelemetry("move back, get up to speed", false);
+			launcher.outtake(1);
+			sendTelemetry("Move back", false);
 		}
-		drivetrain.robotOrientedDrive(0, 0, 0);
 
 		timer = new ElapsedTime();
-		while(timer.seconds() < 2) {
-			launcher.intake(1);
-			launcher.transfer(-1);
-			launcher.fling(true);
-			sendTelemetry("Launch second collected ball", false);
+		while(launcher.flywheelRPMS() < 5300 && timer.seconds() < 2){
+			drivetrain.robotOrientedDrive(0, 0, 0);
+			launcher.outtake(1);
+			sendTelemetry("Getting up to speed", false);
 		}
 
-		while(true){
-			sendTelemetry("waity waity waity", false);
-			drivetrain.robotOrientedDrive(0,0,0);
-			drivetrain.neutral();
-			drivetrain.updateOdo();
+		timer = new ElapsedTime();
+		while(timer.seconds() < 1.75) {
+			launcher.fling(true);
+			launcher.outtake(1);
+			sendTelemetry("Shooting first pick up", false);
 		}
-		/*requestOpModeStop();*/
+
+		timer = new ElapsedTime();
+		while(timer.seconds()<2.5){
+			launcher.fling(false);
+			launcher.intake(1);
+			launcher.transfer(-1);
+			launcher.outtake(1);
+			sendTelemetry("Move second preload under fling", false);
+		}
+		launcher.intake(0);
+
+		timer = new ElapsedTime();
+		while(timer.seconds() < 1.75) {
+			launcher.fling(true);
+			sendTelemetry("Shooting second pick up", false);
+		}
+
+		drivetrain.robotOrientedDrive(0,0,0);
+		requestOpModeStop();
+		suicide = true;
 	}
 }
