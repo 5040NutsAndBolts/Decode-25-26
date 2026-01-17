@@ -244,6 +244,16 @@ public class  BlueFar extends ParentAuton {
 			sendTelemetry("Shooting second pick up", false);
 		}
 
+		timer.reset();
+		while(timer.seconds() < 2) {
+			drivetrain.robotOrientedDrive(.3,0,0);
+			launcher.fling(false);
+			launcher.outtake(0);
+			launcher.intake(0);
+			launcher.transfer(0);
+			sendTelemetry("Moving off line", false);
+		}
+
 		drivetrain.robotOrientedDrive(0,0,0);
 		requestOpModeStop();
 		suicide = true;

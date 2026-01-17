@@ -179,8 +179,7 @@ public class RedFar extends ParentAuton {
 		}
 		drivetrain.robotOrientedDrive(0, 0, 0);
 
-		setTarget[1] = 3;
-
+		setTarget[1] = 2.5;
 		while (setTarget[1] < drivetrain.getPosition()[1]) {
 			drivetrain.robotOrientedDrive(0, -0.3, 0);
 			drivetrain.updateOdo();
@@ -213,6 +212,8 @@ public class RedFar extends ParentAuton {
 			sendTelemetry("Move back after intaking artifacts");
 		}
 
+
+		//Everything after here is shite --JDH
 		drivetrain.robotOrientedDrive(0, 0, 0);;
 
 		while (drivetrain.getPosition()[1] > -20) {
@@ -223,14 +224,14 @@ public class RedFar extends ParentAuton {
 			launcher.transfer(0);
 		}
 
-		while (drivetrain.getPosition()[0] < 20) {
+		while (drivetrain.getPosition()[0] < 22) {
 			drivetrain.robotOrientedDrive(.3, 0, 0);
 			drivetrain.updateOdo();
 			sendTelemetry("Return to shooting position");
 		}
 
-		while (drivetrain.getPosition()[2] > -105) {
-			drivetrain.robotOrientedDrive(0, 0, -.2);
+		while (drivetrain.getPosition()[2] > -103) {
+			drivetrain.robotOrientedDrive(0, 0, -.3);
 			launcher.outtake(.9);
 			drivetrain.updateOdo();
 			sendTelemetry("Rotate");
@@ -239,9 +240,15 @@ public class RedFar extends ParentAuton {
 		drivetrain.robotOrientedDrive(0, 0, 0);
 
 		timer = new ElapsedTime();
-		while(timer.seconds() < .8) {
+		while(launcher.flywheelRPMS() < 5300 && timer.seconds() < 2) {
 			drivetrain.robotOrientedDrive(0, 0, 0);
 			launcher.outtake(.9);
+			sendTelemetry("Ensure speed values");
+		}
+
+		timer = new ElapsedTime();
+		while(timer.seconds() < 1.75) {
+			drivetrain.robotOrientedDrive(0, 0, 0);
 			launcher.fling(true);
 			sendTelemetry("Launch collected ball 1");
 		}
@@ -253,76 +260,38 @@ public class RedFar extends ParentAuton {
 			launcher.transfer(-1);
 			launcher.outtake(.9);
 			launcher.fling(false);
-			sendTelemetry("Get up to speed and bring ball to front");
+			sendTelemetry("Bring ball to front");
 		}
 
 		timer = new ElapsedTime();
-		while(timer.seconds() < .8) {
+		while(launcher.flywheelRPMS() < 5300 && timer.seconds() < 2) {
 			drivetrain.robotOrientedDrive(0, 0, 0);
 			launcher.outtake(.9);
-			launcher.fling(true);
-			sendTelemetry("Launch collected ball 2");
+			sendTelemetry("Ensure speed value");
 		}
 
+		timer = new ElapsedTime();
+		while(timer.seconds() < 1.75) {
+			drivetrain.robotOrientedDrive(0, 0, 0);
+			launcher.fling(true);
+			sendTelemetry("Launch ball 2");
+		}
+
+		timer.reset();
+		while(timer.seconds() < 1) {
+			drivetrain.robotOrientedDrive(.3,0,0);
+			launcher.fling(false);
+			launcher.outtake(0);
+			launcher.intake(0);
+			launcher.transfer(0);
+			sendTelemetry("Moving off line");
+		}
+
+		requestOpModeStop();
 		while(true){
-			sendTelemetry("waity waity waity");
+			sendTelemetry("Wait for kill");
 			drivetrain.robotOrientedDrive(0,0,0);
 			drivetrain.neutral();
 			drivetrain.updateOdo();
 		}
-
-
-
-			/*
-
-			setTarget[2] = 0;
-			while (setTarget[2] < drivetrain.getPosition()[2]) {
-				drivetrain.robotOrientedDrive(0, 0, 0.2);
-				drivetrain.updateOdo();
-				telemetry.update();
-				packet.clearLines();
-				packet.putAll(launcher.getPIDTelemetry(false));
-				dash.sendTelemetryPacket(packet);
-			}
-
-			setTarget[0] = 1.5;
-			while (setTarget[0] < drivetrain.getPosition()[0]) {
-				launcher.outtake(0.8);
-				drivetrain.robotOrientedDrive(-.2, 0, 0);
-				drivetrain.updateOdo();
-				telemetry.update();
-				packet.clearLines();
-				packet.putAll(launcher.getPIDTelemetry(false));
-				dash.sendTelemetryPacket(packet);
-			}
-
-
-			timer = new ElapsedTime();
-			while (timer.seconds() < 0.5) {
-				launcher.transfer(-1);
-				packet.clearLines();
-				packet.putAll(launcher.getPIDTelemetry(false));
-				dash.sendTelemetryPacket(packet);
-			}
-
-			launcher.fling(true);
-
-			timer = new ElapsedTime();
-			while (timer.seconds() < 2) {
-				launcher.intake(1);
-				launcher.transfer(-1);
-				packet.clearLines();
-				packet.putAll(launcher.getPIDTelemetry(false));
-				dash.sendTelemetryPacket(packet);
-			}
-			timer = new ElapsedTime();
-			while (timer.seconds() < 3) {
-				launcher.fling(true);
-				packet.clearLines();
-				packet.putAll(launcher.getPIDTelemetry(false));
-				dash.sendTelemetryPacket(packet);
-			}*/
-
-
-			//requestOpModeStop();
 				}}

@@ -63,6 +63,11 @@ public class FullTest extends OpMode {
 				if (detection.ftcPose.yaw >= 27 && detection.ftcPose.yaw <= 34.7 && detection.id == 20) {
 					lH.setPattern(Lights.Color.BLUE);
 					cameraGood = true;
+				}    else {
+					if (detection.ftcPose.yaw >= -31 && detection.ftcPose.yaw <= -26 && detection.id == 24) {
+						lH.setPattern(Lights.Color.BLUE);
+						cameraGood = true;
+					}
 				}
 			}
 		} else {
