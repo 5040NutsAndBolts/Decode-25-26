@@ -7,12 +7,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.helpers.PID;
-import org.firstinspires.ftc.teamcode.helpers.easypathing.Mechanism;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Launcher extends Mechanism {
-	public boolean waitWorthy = true;
+public class Launcher {
 	private final DcMotorEx flywheel;
 	private final DcMotorEx wheelMotor;
 	private final DcMotorEx transfer;
@@ -30,26 +28,6 @@ public class Launcher extends Mechanism {
 		transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		topColor = hardwareMap.get(ColorSensor.class, "Top Color");
 		lowColor = hardwareMap.get(ColorSensor.class, "Low Color");
-	}
-
-	/**
-	 * speed in double
-	 * @param powers [flywheelOutSpeed, transferSpeed]
-	 */
-	@Override
-	public void update(@NonNull double[] powers) {
-		assert powers.length == 2 || powers.length == 3;
-		for(Object o : powers)
-			assert o instanceof Double || o instanceof Float || o instanceof Integer;
-		if (powers.length == 2) {
-			fling(powers[0] == 0);
-			flywheel.setPower(powers[1]);
-			wheelMotor.setPower(powers[1]);
-		}else {
-			fling(powers[0] == 0);
-			flywheel.setPower(powers[1]);
-			wheelMotor.setPower(powers[2]);
-		}
 	}
 
 	public void transfer(double power) {
@@ -70,17 +48,14 @@ public class Launcher extends Mechanism {
 		flywheel.setPower(p);
 	}
 
-	public void fling(boolean in) {
-		flingServo.setPower(in ? 1 : 0);
-	}
-	@Override
-	protected boolean isFinished(@NonNull double[] o) {
-		return Math.abs(flywheelRPMS() - flywheelPID.getTarget()) < o[0];
-	}
-
 	public double flywheelRPMS() {
 		double currentTPS = flywheel.getVelocity();
 		return (currentTPS * (2.67857485));
+	}
+
+
+	public void fling(boolean in) {
+		flingServo.setPower(in ? 1 : 0);
 	}
 
 	public Lights.Color topColor() {

@@ -4,21 +4,21 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.ColorSensor;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.helpers.PID;
 import org.firstinspires.ftc.teamcode.helpers.odo.Odometry;
-import org.firstinspires.ftc.teamcode.helpers.easypathing.Mechanism;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
-public class Drivetrain extends Mechanism {
-    public boolean waitWorthy = true;
+
+import java.util.HashMap;
+
+public class Drivetrain {
     private final DcMotorEx frontLeft,frontRight,backLeft,backRight;
     public final Odometry odo;
     private double speed = 1;
     private final VoltageSensor voltageSensor;
-    //public ColorSensor colorSensor;
     public Drivetrain(@NonNull HardwareMap hardwareMap) {
         voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
         //Drive motor initialization
@@ -34,8 +34,6 @@ public class Drivetrain extends Mechanism {
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        //colorSensor = hardwareMap.get(ColorSensor.class, "Color Sensor");
 
         //TODO: CONFIGURE OFFSETS
         odo = new Odometry(hardwareMap, 121.92f, 147.32f);
@@ -114,7 +112,6 @@ public class Drivetrain extends Mechanism {
 
 
     boolean lastButton = false;
-
     /**
      * toggles slow mode
      * @param input gamepad input
@@ -125,62 +122,69 @@ public class Drivetrain extends Mechanism {
         lastButton = input;
     }
 
+
+    private final PID xpid = new PID(.025,0.000001,0);
+    private final PID ypid = new PID(.025,0.000001,0);
+    private final PID rpid = new PID(0,0,0);
+    public void setTarget (@NonNull double[] target) {
+        xpid.setTarget(target[0]);
+        ypid.setTarget(target[1]);
+        rpid.setTarget(target[2]);
+    }
+
+    public void updateMoveTo () {
+        this.fieldOrientedDrive(
+                xpid.autoControl(odo.getPosition()[0]),
+                ypid.autoControl(odo.getPosition()[1]),
+                rpid.autoControl(odo.getPosition()[2])
+        );
+        this.odo.update();
+    }
+
+    public double[] getTargetPosition() {
+        return new double[] {
+                xpid.getTarget(),
+                ypid.getTarget(),
+                rpid.getTarget()
+        };
+    }
+
+
     /**
      * toggles slow mode
      * @return slow mode is true
      */
     public boolean isSlow() {return speed == .5;}
 
-    //TODO: CONFIGURE PIDS
-    private final PID xpid = new PID(.025,0.000001,0);
-    private final PID ypid = new PID(.025,0.000001,0);
-    private final PID rpid = new PID(0,0,0);
-
-    /**
-     * moves the drivetrain to a desired position
-     * @param pos Doubles, [x,y,r] in inches and degrees
-     */
-    public void update (@NonNull double[] pos) {
-        xpid.setTarget(pos[0]);
-        ypid.setTarget(pos[1]);
-        rpid.setTarget(pos[2]);
-
-        odo.update();
-        fieldOrientedDrive(
-                ypid.autoControl(odo.getPosition()[0]),
-                xpid.autoControl(odo.getPosition()[1]),
-                rpid.autoControl(odo.getPosition()[2])
-        );
-    }
-
-    /**
-     * is the robot within the tolerance of the target (for easypathing)
-     * @return true if the robot is within the tolerance of the target
-     */
-	public boolean isFinished(@NonNull double[] tolerances) {
-		double rotMOE =  tolerances[0];
-		double xyRMOE = tolerances[1];
-		return Math.hypot(xpid.getTarget() - odo.getPosition()[0], ypid.getTarget() - odo.getPosition()[1]) < xyRMOE &&
-                  Math.abs(rpid.getTarget() - odo.getPosition()[2]) < rotMOE;
-    }
-
-    /**
-     * holds the robot at the current position
-     */
-    double[] pos;
-    private boolean lastState;
-    public void hold(boolean in) {
-        if (in) {
-            if(in != lastState)
-                pos = odo.getPosition();
-            this.update(pos);
-        }else pos = null;
-        lastState = in;
-    }
-
     public double[] getPosition() {
         this.updateOdo();
         return odo.getPosition();
+    }
+
+    public Pose2D getPositionAsPose() {
+        return odo.getPinpoint().getPosition();
+    }
+
+    public HashMap <String, Object> getPIDTelemetry () {
+        HashMap <String, Object> map = new HashMap<>();
+        map.put("Odo X", odo.getPinpoint().getPosition().getX(DistanceUnit.INCH));
+        map.put("Odo Y", odo.getPinpoint().getPosition().getY(DistanceUnit.INCH));
+        map.put("Odo R", odo.getPinpoint().getPosition().getHeading(AngleUnit.DEGREES));
+        map.put("Vel X", odo.getPinpoint().getVelocity().getX(DistanceUnit.INCH));
+        map.put("Vel Y", odo.getPinpoint().getVelocity().getY(DistanceUnit.INCH));
+        map.put("Vel R", odo.getPinpoint().getVelocity().getHeading(AngleUnit.DEGREES));
+        map.put("X controller", xpid.toString());
+        map.put("Y controller", ypid.toString());
+        map.put("Rotation controller", rpid.toString());
+        return map;
+    }
+
+    public double[] getVelocity() {
+        return new double[] {
+                odo.getPinpoint().getVelocity().getX(DistanceUnit.INCH),
+                odo.getPinpoint().getVelocity().getY(DistanceUnit.INCH),
+                Math.toDegrees(odo.getPinpoint().getVelocity().getHeading(AngleUnit.DEGREES))
+        };
     }
 
 
@@ -194,9 +198,6 @@ public class Drivetrain extends Mechanism {
                 "Back Left: " + backLeft.getPower() + "\n" +
                 "Back Right: " + backRight.getPower() + "\n" +
                 odo.toString() + "\n" +
-                "X controller: " + xpid + "\n" +
-                "Y controller: " + ypid + "\n" +
-                "Rotation controller: " + rpid + "\n" +
                 "Battery Voltage: " + voltageSensor.getVoltage();
     }
 }

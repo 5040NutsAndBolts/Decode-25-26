@@ -1,19 +1,14 @@
 package org.firstinspires.ftc.teamcode.opmodes.autonomous.comp;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.helpers.camera.aprilTags;
-import org.firstinspires.ftc.teamcode.helpers.odo.Odometry;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
-import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
-import org.firstinspires.ftc.teamcode.opmodes.autonomous.ParentAuton;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-
 import java.util.List;
 
-
-@Autonomous(name="Test", group="Autonomous")
-public class TestAuto extends ParentAuton {
+@Autonomous(name="CameraTest", group="Autonomous")
+public class CameraTest extends OpMode {
     Drivetrain drivetrain;
     aprilTags aprilTag;
     @Override

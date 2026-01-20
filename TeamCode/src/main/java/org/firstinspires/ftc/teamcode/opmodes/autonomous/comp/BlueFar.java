@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.autonomous.comp;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -9,7 +10,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.helpers.camera.aprilTags;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
-import org.firstinspires.ftc.teamcode.opmodes.autonomous.ParentAuton;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.List;
 
 
 @Autonomous(name="BlueFar", group="Autonomous")
-public class  BlueFar extends ParentAuton {
+public class  BlueFar extends OpMode {
 	Drivetrain drivetrain;
 	Launcher launcher;
 	aprilTags aprilTag;
