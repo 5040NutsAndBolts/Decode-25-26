@@ -109,7 +109,7 @@ public class RedFar extends ParentAuton {
 		}
 
 		timer = new ElapsedTime();
-		while(timer.seconds()<0.2){
+		while(timer.seconds()<0.25){
 			sendTelemetry("Rotating");
 			drivetrain.robotOrientedDrive(0,0,-0.12);
 		}
@@ -189,10 +189,10 @@ public class RedFar extends ParentAuton {
 			sendTelemetry("Align with artifacts");
 		}
 		//restart pinpoint
-		Pose2D pose2D = new Pose2D(DistanceUnit.INCH, drivetrain.getPosition()[0], drivetrain.getPosition()[1], AngleUnit.DEGREES,drivetrain.getPosition()[2]);
+/*		Pose2D pose2D = new Pose2D(DistanceUnit.INCH, drivetrain.getPosition()[0], drivetrain.getPosition()[1], AngleUnit.DEGREES,drivetrain.getPosition()[2]);
 		drivetrain.resetOdo();
-		drivetrain.odo.set(pose2D);
-		setTarget[0] = -17.5;
+		drivetrain.odo.set(pose2D); */
+		setTarget[0] = -18.5;
 		while (setTarget[0] < drivetrain.getPosition()[0]) {
 			drivetrain.robotOrientedDrive(-0.25, 0, 0);
 			launcher.fling(false);
@@ -201,10 +201,10 @@ public class RedFar extends ParentAuton {
 			launcher.outtake(0);
 			sendTelemetry("Intake artifacts");
 		}
-		pose2D = new Pose2D(DistanceUnit.INCH, drivetrain.getPosition()[0], drivetrain.getPosition()[1], AngleUnit.DEGREES,drivetrain.getPosition()[2]);
+/*		pose2D = new Pose2D(DistanceUnit.INCH, drivetrain.getPosition()[0], drivetrain.getPosition()[1], AngleUnit.DEGREES,drivetrain.getPosition()[2]);
 		drivetrain.resetOdo();
 		drivetrain.odo.set(pose2D);
-
+*/
 		setTarget[0] = 10;
 		while (setTarget[0] > drivetrain.getPosition()[0]) {
 			launcher.fling(false);
@@ -230,7 +230,7 @@ public class RedFar extends ParentAuton {
 			sendTelemetry("Return to shooting position");
 		}
 
-		while (drivetrain.getPosition()[2] > -103) {
+		while (drivetrain.getPosition()[2] > -104) {
 			drivetrain.robotOrientedDrive(0, 0, -.3);
 			launcher.outtake(.9);
 			drivetrain.updateOdo();

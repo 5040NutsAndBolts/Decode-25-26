@@ -108,8 +108,16 @@ public class  BlueFar extends ParentAuton {
 			drivetrain.robotOrientedDrive(0.2, 0, 0);
 			sendTelemetry("Move forward to shoot first preload", false);
 		}
-		drivetrain.robotOrientedDrive(0, 0, 0);
+		drivetrain.robotOrientedDrive(0,0,0);
 		launcher.fling(false);
+
+		timer = new ElapsedTime();
+		while(timer.seconds() <.13) {
+			launcher.outtake(1);
+			launcher.transfer(-1);
+			drivetrain.robotOrientedDrive(0, 0, .1);
+			sendTelemetry("Fix shot slightly and get up to speed", false);
+		}
 
 		timer = new ElapsedTime();
 		while(launcher.flywheelRPMS() < 5300 && timer.seconds() < 2){
@@ -126,11 +134,12 @@ public class  BlueFar extends ParentAuton {
 			drivetrain.robotOrientedDrive(0, 0, 0);
 			sendTelemetry("Shoot first preload", false);
 		}
-
+		launcher.fling(false);
 		drivetrain.robotOrientedDrive(0, 0, 0);
 
 		timer = new ElapsedTime();
 		while(timer.seconds()<2.5){
+			drivetrain.robotOrientedDrive(0, 0, 0);
 			launcher.fling(false);
 			launcher.intake(1);
 			launcher.transfer(-1);
@@ -139,10 +148,11 @@ public class  BlueFar extends ParentAuton {
 		launcher.intake(0);
 
 		timer = new ElapsedTime();
-		while(launcher.flywheelRPMS() < 5150 || timer.seconds() > 2){
+		while(launcher.flywheelRPMS() < 5250 || timer.seconds() > 2){
 			launcher.outtake(1);
 			drivetrain.robotOrientedDrive(0, 0, 0);
 			sendTelemetry("Get up to speed", false);
+			launcher.fling(false);
 		}
 
 		timer = new ElapsedTime();
@@ -154,22 +164,24 @@ public class  BlueFar extends ParentAuton {
 		launcher.transfer(0);
 		launcher.fling(false);
 
-		setTarget[0]=15;
+		setTarget[0]=16;
 		while(setTarget[0] > drivetrain.getPosition()[0]){
 			launcher.outtake(0);
 			drivetrain.robotOrientedDrive(.2, 0, 0);
 			sendTelemetry("Align with pickups", false);
+			launcher.fling(false);
 		}
 
 		setTarget[2] = -111;
 		while(setTarget[2] < drivetrain.getPosition()[2]){
 			drivetrain.robotOrientedDrive(0, 0, -0.2);
+			launcher.fling(false);
 			sendTelemetry("Face Pochita's intake towards the\nfirst row of pickups", false);
 		}
 
 		drivetrain.robotOrientedDrive(0, 0, 0);
 
-		setTarget[1] = 27.25;
+		setTarget[1] = 28;
 		while(setTarget[1] > drivetrain.getPosition()[1]) {
 			drivetrain.robotOrientedDrive(0, 0.25, 0);
 			drivetrain.updateOdo();
@@ -177,7 +189,7 @@ public class  BlueFar extends ParentAuton {
 		}
 		drivetrain.robotOrientedDrive(0,0,0);
 
-		setTarget[0] = 28.5;
+		setTarget[0] = 31.5;
 		while(setTarget[0] > drivetrain.getPosition()[0]){
 			drivetrain.robotOrientedDrive(-0.25, 0, 0);
 			launcher.intake(1);
@@ -195,7 +207,7 @@ public class  BlueFar extends ParentAuton {
 
 		setTarget[2] = -1.5;
 		while(setTarget[2] > drivetrain.getPosition()[2]){
-			drivetrain.robotOrientedDrive(0, 0, 0.2);
+			drivetrain.robotOrientedDrive(0, 0, 0.22);
 			launcher.outtake(1);
 			sendTelemetry("Aim to shoot pick ups", false);
 		}
@@ -207,13 +219,15 @@ public class  BlueFar extends ParentAuton {
 			sendTelemetry("Strafe back into far shooting position", false);
 		}
 
-		setTarget[0]= -4;
-		while(setTarget[0] < drivetrain.getPosition()[0]){
+		setTarget[0]= -2;
+		timer = new ElapsedTime();
+		while(setTarget[0] < drivetrain.getPosition()[0] && timer.seconds() <1){
 			drivetrain.robotOrientedDrive(-.2, 0, 0);
 			launcher.outtake(1);
 			sendTelemetry("Move back", false);
 		}
 
+		drivetrain.robotOrientedDrive(0, 0, 0);
 		timer = new ElapsedTime();
 		while(launcher.flywheelRPMS() < 5300 && timer.seconds() < 2){
 			drivetrain.robotOrientedDrive(0, 0, 0);
@@ -223,6 +237,7 @@ public class  BlueFar extends ParentAuton {
 
 		timer = new ElapsedTime();
 		while(timer.seconds() < 1.75) {
+			drivetrain.robotOrientedDrive(0, 0, 0);
 			launcher.fling(true);
 			launcher.outtake(1);
 			sendTelemetry("Shooting first pick up", false);
@@ -230,6 +245,7 @@ public class  BlueFar extends ParentAuton {
 
 		timer = new ElapsedTime();
 		while(timer.seconds()<2.5){
+			drivetrain.robotOrientedDrive(0, 0, 0);
 			launcher.fling(false);
 			launcher.intake(1);
 			launcher.transfer(-1);
@@ -240,6 +256,7 @@ public class  BlueFar extends ParentAuton {
 
 		timer = new ElapsedTime();
 		while(timer.seconds() < 1.75) {
+			drivetrain.robotOrientedDrive(0, 0, 0);
 			launcher.fling(true);
 			sendTelemetry("Shooting second pick up", false);
 		}

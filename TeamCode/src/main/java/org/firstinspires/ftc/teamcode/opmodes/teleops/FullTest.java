@@ -43,9 +43,11 @@ public class FullTest extends OpMode {
 
 		la.setOuttakePower(gamepad2.left_trigger > 0.25 ? .95 : .2);
 		if(gamepad2.right_trigger > 0.25){
-			la.setOuttakePower(.75);
-			gamepad2.rumble(100);
-			gamepad1.rumble(100);
+			la.setOuttakePower(.8);
+			if(la.flywheelRPMS() > 4900){
+				gamepad2.rumble(100);
+				gamepad1.rumble(100);
+			}
 		}
 
 		la.fling(gamepad2.a);
@@ -53,26 +55,29 @@ public class FullTest extends OpMode {
 		dt.toggleSlowMode(gamepad1.dpad_down);
 
 		List<AprilTagDetection> currentDetections = aprilTags.getDetections();
+		try {
+			if (!currentDetections.isEmpty()) {
+				telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
 
-		if (!currentDetections.isEmpty()) {
-			telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
-
-			for (AprilTagDetection detection : currentDetections) {
-				telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
-				telemetry.addLine(String.format("  - Yaw: %.2f", detection.ftcPose.yaw));
-				if (detection.ftcPose.yaw >= 27 && detection.ftcPose.yaw <= 34.7 && detection.id == 20) {
-					lH.setPattern(Lights.Color.BLUE);
-					cameraGood = true;
-				}    else {
-					if (detection.ftcPose.yaw >= -31 && detection.ftcPose.yaw <= -26 && detection.id == 24) {
+				for (AprilTagDetection detection : currentDetections) {
+					telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
+					telemetry.addLine(String.format("  - Yaw: %.2f", detection.ftcPose.yaw));
+					if (detection.ftcPose.yaw >= 27 && detection.ftcPose.yaw <= 34.7 && detection.id == 20) {
 						lH.setPattern(Lights.Color.BLUE);
 						cameraGood = true;
+					} else {
+						if (detection.ftcPose.yaw >= -31 && detection.ftcPose.yaw <= -26 && detection.id == 24) {
+							lH.setPattern(Lights.Color.BLUE);
+							cameraGood = true;
+						}
 					}
 				}
+			} else {
+				telemetry.addLine("no tags seen");
+				cameraGood = false;
 			}
-		} else {
-			telemetry.addLine("no tags seen");
-			cameraGood = false;
+		} catch (Exception e){
+			telemetry.addLine("Camera Issue, please consult the thell bell");
 		}
 
 		if(la.flywheelRPMS() > 5100) {
