@@ -91,17 +91,16 @@ public class FullTest extends OpMode {
 					telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
 					telemetry.addLine(String.format("  - Yaw: %.2f", detection.ftcPose.yaw));
 					if (detection.ftcPose.yaw >= 27 && detection.ftcPose.yaw <= 34.7 && detection.id == 20) {
-						lM.setPattern(Lights.Color.BLUE);
+						lH.setPattern(Lights.Color.BLUE);
 						cameraGood = true;
 					} else {
 						if (detection.ftcPose.yaw >= -31 && detection.ftcPose.yaw <= -26 && detection.id == 24) {
-							lM.setPattern(Lights.Color.BLUE);
+							lH.setPattern(Lights.Color.BLUE);
 							cameraGood = true;
 						}
 					}
 				}
 			} else {
-				lM.setPattern(Lights.Color.RED);
 				telemetry.addLine("no tags seen");
 				cameraGood = false;
 			}
@@ -109,8 +108,17 @@ public class FullTest extends OpMode {
 			telemetry.addLine("Camera Issue, please consult the thell bell");
 		}
 
-		telemetry.addLine("TRANSFER : " + la.transfer.getCurrentPosition());
-		telemetry.addLine("TRANSFER : " + la.transfer.getVelocity());
+		if(la.flywheelRPMS() > 5100) {
+			gamepad2.rumble(100);
+			gamepad1.rumble(100);
+			telemetry.addLine("rumbling, far");
+		} else {
+			if(!cameraGood){
+				lH.setPattern(la.topColor());
+				lL.setPattern(la.lowColor());
+			}
+		}
+
 		telemetry.addLine("Launcher: \n" + la.toString());
 		telemetry.addLine("Drivetrain: \n" + dt.toString());
 		telemetry.update();

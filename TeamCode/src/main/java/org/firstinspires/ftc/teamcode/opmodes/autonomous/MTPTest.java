@@ -2,23 +2,22 @@ package org.firstinspires.ftc.teamcode.opmodes.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 
 import java.util.HashMap;
-import java.util.Objects;
 
-@TeleOp(name="MTPTest", group="Autonomous")
 public class MTPTest extends OpMode {
 	private Drivetrain dt;
 	FtcDashboard dash;
 	TelemetryPacket packet;
 
 
-	private boolean isWithin(double[] target, double[] positionTolerances, double[] velocityTolerances) {
+	private boolean notWithin(double[] target, double[] positionTolerances, double[] velocityTolerances) {
 		double[] currentPos = dt.getPosition();
 		double[] currentVel = dt.getVelocity();
 
@@ -38,7 +37,7 @@ public class MTPTest extends OpMode {
 	}
 
 
-	private boolean isWithin(double[] target) {
+	private boolean notWithin(double[] target) {
 		double[] currentPos = dt.getPosition();
 		double[] currentVel = dt.getVelocity();
 
@@ -69,6 +68,9 @@ public class MTPTest extends OpMode {
 
 	@Override
 	public void init() {
+		dt = new Drivetrain(hardwareMap);
+		while(packet == null)
+			packet = new TelemetryPacket();
 		dash = FtcDashboard.getInstance();
 		packet=new TelemetryPacket();
 		packet.clearLines();
@@ -81,11 +83,23 @@ public class MTPTest extends OpMode {
 	public void loop() {
 		dt.resetOdo();
 		sendTelemetry("Loop");
-		dt.setTarget(new double[]{12, 0, 0});
-		while (!isWithin(new double[]{12, 0, 0})) {
+
+		double currX = dt.getPosition()[0];
+		double currY = dt.getPosition()[1];
+
+		dt.setTarget(new double[]{currX, currY, 45});
+		while (!notWithin(new double[]{currX, currY, 45})) {
 			dt.updateMoveTo();
-			sendTelemetry("Move to target");
+			sendTelemetry("Move to target Theta");
 		}
+
+		double currAngle = dt.getPosition()[2];
+		dt.setTarget(new double[]{10, 10, currAngle});
+		while (!notWithin(new double[]{10, 10, currAngle})) {
+			dt.updateMoveTo();
+			sendTelemetry("Move to target X and Y");
+		}
+
 		requestOpModeStop();
 		while (true) {
 			sendTelemetry("Done");
