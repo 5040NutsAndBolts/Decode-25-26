@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode.opmodes.teleops;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.helpers.PID;
 import org.firstinspires.ftc.teamcode.helpers.camera.aprilTags;
+import org.firstinspires.ftc.teamcode.mechanisms.CSensor;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
 import org.firstinspires.ftc.teamcode.mechanisms.Lights;
@@ -16,39 +18,65 @@ public class FullTest extends OpMode {
 	Launcher la;
 	Drivetrain dt;
 	aprilTags at;
-	Lights lH, lL;
+	Lights lM, lT, lF;
 	boolean cameraGood;
+	PID pid;
+	CSensor cS;
 
 	@Override
 	public void init() {
 		dt = new Drivetrain(hardwareMap);
 		la = new Launcher(hardwareMap);
-		lH = new Lights(hardwareMap, "Lights High");
-		lL = new Lights(hardwareMap, "Lights Low");
+		lM = new Lights(hardwareMap, "Mlight");
+		lT = new Lights(hardwareMap, "Tlight");
+		lF = new Lights(hardwareMap, "Flight");
 		at = new aprilTags(hardwareMap);
+		pid = new PID(.006, 1e-8, 0, la::flywheelRPMS, 0);
+		cS = new CSensor("CSensor", hardwareMap);
 	}
 
 	@Override
 	public void loop() {
-		dt.robotOrientedDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x);
+		dt.robotOrientedDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
 		dt.updateOdo();
 
-		la.intake(gamepad1.left_trigger-gamepad1.right_trigger);
+		la.intake(gamepad1.right_trigger-gamepad1.left_trigger);
 
 		la.transfer(-gamepad2.left_stick_y);
 
-		la.fling(gamepad2.b);
+		la.fling(gamepad2.right_stick_y);
 
 		dt.toggleSlowMode(gamepad1.b);
 
-		la.setOuttakePower(gamepad2.left_trigger > 0.25 ? .95 : .2);
 		if(gamepad2.right_trigger > 0.25){
-			la.setOuttakePower(.8);
-			if(la.flywheelRPMS() > 4900){
+			pid.setTarget(5300);
+			if(la.flywheelRPMS() > 5200){
 				gamepad2.rumble(100);
 				gamepad1.rumble(100);
+				telemetry.addLine("rumbling, far");
+				lT.setPattern(Lights.Color.WHITE);
+				lF.setPattern(Lights.Color.WHITE);
 			}
+			la.setOuttakePower(pid.autoControl());
+		}else if(gamepad2.left_trigger > 0.25) {
+			pid.setTarget(4400);
+			if(la.flywheelRPMS() > 4300){
+				gamepad2.rumble(100);
+				gamepad1.rumble(100);
+				telemetry.addLine("rumbling, close");
+				lT.setPattern(Lights.Color.WHITE);
+				lF.setPattern(Lights.Color.WHITE);
+			}
+			la.setOuttakePower(pid.autoControl());
+			lT.setPattern(Lights.Color.ORANGE);
+			lF.setPattern(Lights.Color.ORANGE);
+		}else {
+			la.setOuttakePower(.3);
+			lT.setPattern(cS.getColor());
+			lF.setPattern(cS.getColor());
 		}
+
+
 
 		la.fling(gamepad2.a);
 
@@ -63,16 +91,17 @@ public class FullTest extends OpMode {
 					telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
 					telemetry.addLine(String.format("  - Yaw: %.2f", detection.ftcPose.yaw));
 					if (detection.ftcPose.yaw >= 27 && detection.ftcPose.yaw <= 34.7 && detection.id == 20) {
-						lH.setPattern(Lights.Color.BLUE);
+						lM.setPattern(Lights.Color.BLUE);
 						cameraGood = true;
 					} else {
 						if (detection.ftcPose.yaw >= -31 && detection.ftcPose.yaw <= -26 && detection.id == 24) {
-							lH.setPattern(Lights.Color.BLUE);
+							lM.setPattern(Lights.Color.BLUE);
 							cameraGood = true;
 						}
 					}
 				}
 			} else {
+				lM.setPattern(Lights.Color.RED);
 				telemetry.addLine("no tags seen");
 				cameraGood = false;
 			}
@@ -80,17 +109,8 @@ public class FullTest extends OpMode {
 			telemetry.addLine("Camera Issue, please consult the thell bell");
 		}
 
-		if(la.flywheelRPMS() > 5100) {
-			gamepad2.rumble(100);
-			gamepad1.rumble(100);
-			telemetry.addLine("rumbling, far");
-		} else {
-			if(!cameraGood){
-				lH.setPattern(la.topColor());
-				lL.setPattern(la.lowColor());
-			}
-		}
-
+		telemetry.addLine("TRANSFER : " + la.transfer.getCurrentPosition());
+		telemetry.addLine("TRANSFER : " + la.transfer.getVelocity());
 		telemetry.addLine("Launcher: \n" + la.toString());
 		telemetry.addLine("Drivetrain: \n" + dt.toString());
 		telemetry.update();

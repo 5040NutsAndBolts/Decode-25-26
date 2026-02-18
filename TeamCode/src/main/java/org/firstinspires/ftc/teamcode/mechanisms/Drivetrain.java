@@ -21,7 +21,7 @@ public class Drivetrain {
     private final VoltageSensor voltageSensor;
     public Drivetrain(@NonNull HardwareMap hardwareMap) {
         voltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
-        //Drive motor initialization
+
         frontLeft = hardwareMap.get(DcMotorEx.class, "Front Left");
         frontRight = hardwareMap.get(DcMotorEx.class, "Front Right");
         backLeft = hardwareMap.get(DcMotorEx.class, "Back Left");
@@ -36,7 +36,7 @@ public class Drivetrain {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //TODO: CONFIGURE OFFSETS
-        odo = new Odometry(hardwareMap, 121.92f, 147.32f);
+        odo = new Odometry(hardwareMap, 60.0f, 147.32f);
         this.resetOdo();
     }
 
@@ -123,9 +123,9 @@ public class Drivetrain {
     }
 
 
-    private final PID xpid = new PID(.025,0.000001,0);
-    private final PID ypid = new PID(.025,0.000001,0);
-    private final PID rpid = new PID(0,0,0);
+    private final PID xpid = new PID(.031,1e-4,0);
+    private final PID ypid = new PID(.031,1e-4,0);
+    private final PID rpid = new PID(.008,0,0);
     public void setTarget (@NonNull double[] target) {
         xpid.setTarget(target[0]);
         ypid.setTarget(target[1]);
@@ -135,9 +135,11 @@ public class Drivetrain {
     public void updateMoveTo () {
         this.fieldOrientedDrive(
                 xpid.autoControl(odo.getPosition()[0]),
-                ypid.autoControl(odo.getPosition()[1]),
-                rpid.autoControl(odo.getPosition()[2])
+                0,0
         );
+
+        ypid.autoControl(odo.getPosition()[1]);
+        rpid.autoControl(odo.getPosition()[2]);
         this.odo.update();
     }
 
@@ -173,9 +175,15 @@ public class Drivetrain {
         map.put("Vel X", odo.getPinpoint().getVelocity().getX(DistanceUnit.INCH));
         map.put("Vel Y", odo.getPinpoint().getVelocity().getY(DistanceUnit.INCH));
         map.put("Vel R", odo.getPinpoint().getVelocity().getHeading(AngleUnit.DEGREES));
-        map.put("X controller", xpid.toString());
-        map.put("Y controller", ypid.toString());
-        map.put("Rotation controller", rpid.toString());
+        map.put("Error X", xpid.getTarget() - odo.getPosition()[0]);
+        map.put("Error Y", ypid.getTarget() - odo.getPosition()[1]);
+        map.put("Error R", rpid.getTarget() - odo.getPosition()[2]);
+        map.put("Output X controller", xpid.getCurrentOutput() >= 0 ? Math.min(xpid.getCurrentOutput(), 1) : Math.max(xpid.getCurrentOutput(), -1));
+        map.put("Output Y controller", ypid.getCurrentOutput() >= 0 ? Math.min(ypid.getCurrentOutput(), 1) : Math.max(ypid.getCurrentOutput(), -1));
+        map.put("Output R controller", rpid.getCurrentOutput() >= 0 ? Math.min(rpid.getCurrentOutput(), 1) : Math.max(rpid.getCurrentOutput(), -1));
+        map.put("X controller\n\t", xpid.toString());
+        map.put("Y controller\n\t", ypid.toString());
+        map.put("Rotation controller\n\t", rpid.toString());
         return map;
     }
 

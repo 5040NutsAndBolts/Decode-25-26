@@ -72,6 +72,7 @@ public class PID {
 		currentOutput = output;
 		return output;
 	}
+
 	private double calculate(double currentPosition) {
 		//If deltaTime is too small, return last output to minimize floating point errors
 		if(deltaTime < 5)

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.helpers.PID;
@@ -11,23 +12,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Launcher {
-	private final DcMotorEx flywheel;
+	public final DcMotorEx flywheel;
 	private final DcMotorEx wheelMotor;
-	private final DcMotorEx transfer;
+	public final DcMotorEx transfer;
 	private final CRServo  flingServo;
-	private final ColorSensor topColor, lowColor;
-
 	public Launcher(@NonNull HardwareMap hardwareMap) {
 		//Motor initialization
 		flywheel = hardwareMap.get(DcMotorEx.class, "Flywheel");
 		flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+		flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
 		wheelMotor = hardwareMap.get(DcMotorEx.class, "Intake");
 		wheelMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		flingServo = hardwareMap.get(CRServo.class, "Fling");
 		transfer = hardwareMap.get(DcMotorEx.class, "Transfer");
 		transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-		topColor = hardwareMap.get(ColorSensor.class, "Top Color");
-		lowColor = hardwareMap.get(ColorSensor.class, "Low Color");
 	}
 
 	public void transfer(double power) {
@@ -57,43 +55,20 @@ public class Launcher {
 	public void fling(boolean in) {
 		flingServo.setPower(in ? 1 : 0);
 	}
-
-	public Lights.Color topColor() {
-		int gScore = (int) (topColor.green() - (topColor.blue()*.2));
-		int oScore = topColor.red() + (int)(topColor.green()*.4);
-		int pScore = topColor.blue() + (int) (topColor.red() * .7);
-		int highest = Math.max(gScore, Math.max(oScore, pScore));
-		if(highest < 300 || highest == oScore)
-			return Lights.Color.BLOOD_ORANGE;
-		else if (highest ==  pScore)
-			return Lights.Color.PURPLE;
-		else return Lights.Color.GREEN;
+	public void fling(double in) {
+		flingServo.setPower(in);
 	}
 
-	public Lights.Color lowColor() {
-		int gScore = (int) (lowColor.green()-(lowColor.blue()*.2));
-		int oScore = lowColor.red() + (int)(lowColor.green()*.4);
-		int pScore = lowColor.blue() + (int) (lowColor.red() * .7);
-		int highest = Math.max(gScore, Math.max(oScore, pScore));
-		if(highest < 300 || highest == oScore)
-			return Lights.Color.BLOOD_ORANGE;
-		else if (highest ==  pScore)
-			return Lights.Color.PURPLE;
-		else return Lights.Color.GREEN;
-	}
 
 	@NonNull
 	@Override
 	public String toString() {
 		return
-				"topColor: r" + topColor.red() + " g" + topColor.green() + " b" + topColor.blue() + "\n" +
-				"lowColor: r" + lowColor.red() + " g" + lowColor.green() + " b" + lowColor.blue() + "\n" +
 				"Flywheel RPMs: " + flywheelRPMS()+ "\n" +
 				"Flywheel out power: " + flywheel.getPower() + "\n" +
 				"Transfer servo power: " + transfer.getPower() + "\n" +
 				"Wheel motor power: " + wheelMotor.getPower() + "\n" +
-				"Flick: " + flingServo.getPower() + "\n" +
-				"Flywheel PID: " + flywheelPID + "\n";
+				"Flick: " + flingServo.getPower();
 	}
 
 	public HashMap<String, Object> getPIDTelemetry(boolean inInit) {
