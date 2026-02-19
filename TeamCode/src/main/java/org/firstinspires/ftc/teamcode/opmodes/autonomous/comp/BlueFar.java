@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.helpers.camera.aprilTags;
+import org.firstinspires.ftc.teamcode.helpers.camera.AprilTags;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -20,7 +20,7 @@ import java.util.List;
 public class  BlueFar extends OpMode {
 	Drivetrain drivetrain;
 	Launcher launcher;
-	aprilTags aprilTag;
+	AprilTags aprilTag;
 	double[] setTarget;
 	TelemetryPacket packet;
 	FtcDashboard dash;
@@ -31,7 +31,7 @@ public class  BlueFar extends OpMode {
 	public void init() {
 		drivetrain = new Drivetrain(hardwareMap);
 		launcher = new Launcher(hardwareMap);
-		aprilTag = new aprilTags(hardwareMap);
+		aprilTag = new AprilTags(hardwareMap);
 		telemetry.addLine((drivetrain + "I"));
 		drivetrain.updateOdo();
 		telemetry.update();
@@ -66,7 +66,7 @@ public class  BlueFar extends OpMode {
 		packet.putAll(launcher.getPIDTelemetry(true));
 		dash.sendTelemetryPacket(packet);
 
-		List<AprilTagDetection> currentDetections = aprilTags.getDetections();
+		List<AprilTagDetection> currentDetections = AprilTags.getDetections();
 
 		if (!currentDetections.isEmpty()) {
 			telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());

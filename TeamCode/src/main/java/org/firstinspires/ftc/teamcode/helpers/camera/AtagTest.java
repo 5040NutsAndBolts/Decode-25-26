@@ -10,7 +10,7 @@ import java.util.List;
 public class AtagTest extends LinearOpMode {
     @Override
     public void runOpMode() {
-        aprilTags aprilTags = new aprilTags(hardwareMap);
+        AprilTags aprilTags = new AprilTags(hardwareMap);
 
         telemetry.addData("Status", "Ready to go!");
         telemetry.update();

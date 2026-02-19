@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import org.firstinspires.ftc.teamcode.helpers.camera.aprilTags;
+import org.firstinspires.ftc.teamcode.helpers.camera.AprilTags;
 import org.firstinspires.ftc.teamcode.helpers.odo.Odometry;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
@@ -15,14 +15,14 @@ public class CameraRepos extends OpMode {
     Drivetrain drivetrain;
     Odometry odo;
     Launcher launcher;
-    aprilTags aprilTags;
+    AprilTags aprilTags;
 
 
     double[] setTarget;
     @Override
     public void init() {
         drivetrain = new Drivetrain(hardwareMap);
-        aprilTags = new aprilTags(hardwareMap);
+        aprilTags = new AprilTags(hardwareMap);
         launcher = new Launcher(hardwareMap);
         telemetry.addLine((drivetrain + "I"));
         drivetrain.updateOdo();

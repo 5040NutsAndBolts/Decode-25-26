@@ -1,19 +1,13 @@
 package org.firstinspires.ftc.teamcode.helpers.camera;
 
-import android.graphics.Bitmap;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 
-import org.firstinspires.ftc.robotcore.external.function.Consumer;
-import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -23,12 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class aprilTags {
+public class AprilTags {
     private final VisionPortal vPortal;
     private static AprilTagProcessor aprilTagProcessor;
     private final CameraStreamProcessor cameraStreamProcessor;
 
-    public aprilTags(@NonNull HardwareMap hardwareMap) {
+    public AprilTags(@NonNull HardwareMap hardwareMap) {
 
         cameraStreamProcessor = new CameraStreamProcessor();
 
@@ -65,7 +59,7 @@ public class aprilTags {
 
         HashMap<String, Object> map = new HashMap<>(); //object used to store and name sets of data
 
-        List<AprilTagDetection> currentDetections = aprilTags.getDetections();
+        List<AprilTagDetection> currentDetections = AprilTags.getDetections();
 
         if (!currentDetections.isEmpty()) {
 

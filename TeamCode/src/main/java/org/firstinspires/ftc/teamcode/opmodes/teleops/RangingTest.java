@@ -3,8 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.teleops;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.helpers.camera.aprilTags;
-import org.firstinspires.ftc.teamcode.mechanisms.Lights;
+import org.firstinspires.ftc.teamcode.helpers.camera.AprilTags;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.util.List;
@@ -12,11 +11,11 @@ import java.util.List;
 @TeleOp(name= "RangingTest", group="Teleop")
 public class RangingTest extends OpMode {
 
-    aprilTags at;
+    AprilTags at;
 
     @Override
     public void init() {
-        at = new aprilTags(hardwareMap);
+        at = new AprilTags(hardwareMap);
     }
 
     boolean cameraGood;
@@ -25,7 +24,7 @@ public class RangingTest extends OpMode {
     @Override
     public void loop() {
 
-        List<AprilTagDetection> currentDetections = aprilTags.getDetections();
+        List<AprilTagDetection> currentDetections = AprilTags.getDetections();
         try {
             if (!currentDetections.isEmpty()) {
                 telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
