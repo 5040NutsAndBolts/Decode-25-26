@@ -38,6 +38,6 @@ public class CSensor {
 		int pScore = (int)((rgb[2] - rgb[1]*.15) / 255.0);
 
 		int[] scored = {oScore, gScore, pScore};
-		return Arrays.toString(rgb)+ "\t|\t"+Arrays.toString(scored)+ "\n";
+		return Arrays.toString(rgb)+ "  |  "+Arrays.toString(scored)+ "\n";
 	}
 }

@@ -6,112 +6,102 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.helpers.PID;
-import org.firstinspires.ftc.teamcode.helpers.camera.aprilTags;
 import org.firstinspires.ftc.teamcode.mechanisms.CSensor;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
 import org.firstinspires.ftc.teamcode.mechanisms.Lights;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-import java.util.List;
-
 @TeleOp(name="FullTest", group="Teleop")
 public class FullTest extends OpMode {
-	Launcher la;
-	Drivetrain dt;
-	aprilTags at;
-	Lights lM, lT, lF, lE;
-	boolean cameraGood;
-	PID pid;
-	CSensor cS;
+	Launcher launcher;
+	Drivetrain drivetrain;
+	Lights lightBL, lightFL, lightFR, lightBR;
+	PID flywheelController;
+	CSensor colorSensor;
+	boolean isFar = true, lastOverrideToggleInput = false, overrideToggle = false;
 
 	@Override
 	public void init() {
-		dt = new Drivetrain(hardwareMap);
-		la = new Launcher(hardwareMap);
-		lM = new Lights(hardwareMap, "Mlight");
-		lT = new Lights(hardwareMap, "Tlight");
-		lF = new Lights(hardwareMap, "Flight");
-		lE = new Lights(hardwareMap, "Elight");
-		at = new aprilTags(hardwareMap);
-		pid = new PID(.006, 1e-8, 0, la::flywheelRPMS, 0);
-		cS = new CSensor("CSensor", hardwareMap);
+		drivetrain = new Drivetrain(hardwareMap);
+		launcher = new Launcher(hardwareMap);
+		lightBL = new Lights(hardwareMap, "Mlight");
+		lightFL = new Lights(hardwareMap, "Tlight");
+		lightFR = new Lights(hardwareMap, "Flight");
+		lightBR = new Lights(hardwareMap, "Elight");
+		colorSensor = new CSensor("CSensor", hardwareMap);
+		flywheelController = new PID(.006, 1e-8, 0, launcher::flywheelRPMS, 0);
 	}
 
 	@SuppressLint("DefaultLocale")
 	@Override
 	public void loop() {
-		dt.robotOrientedDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
-		dt.updateOdo();
-
-		la.intake(gamepad1.right_trigger-gamepad1.left_trigger);
-
-		la.transfer(-gamepad2.left_stick_y);
-
-		la.fling(gamepad2.right_stick_y);
-
-		dt.toggleSlowMode(gamepad1.b);
-
-		if(gamepad2.right_trigger > 0.25){
-			pid.setTarget(5300);
-			if(la.flywheelRPMS() > pid.getTarget() * .97){
-				gamepad2.rumble(100);
-				gamepad1.rumble(100);
-				telemetry.addLine("rumbling, far");
-				lT.setPattern(Lights.Color.WHITE);
-				lF.setPattern(Lights.Color.WHITE);
-			}
-			la.setOuttakePower(pid.autoControl());
-		} else if(gamepad2.left_trigger > 0.25) {
-			pid.setTarget(4400);
-			if(la.flywheelRPMS() > pid.getTarget() * .97){
-				gamepad2.rumble(100);
-				gamepad1.rumble(100);
-				telemetry.addLine("rumbling, close");
-				lT.setPattern(Lights.Color.WHITE);
-				lF.setPattern(Lights.Color.WHITE);
-			}
-			la.setOuttakePower(pid.autoControl());
-		} else {
-			la.setOuttakePower(.3);
-			lT.setPattern(cS.getColor());
-			lF.setPattern(cS.getColor());
-		}
-
-		dt.toggleSlowMode(gamepad1.dpad_down);
-
-		List<AprilTagDetection> currentDetections = aprilTags.getDetections();
+		if(gamepad2.b && gamepad2.b != lastOverrideToggleInput)
+			overrideToggle = !overrideToggle;
+		lastOverrideToggleInput = gamepad2.b;
+;
 		try {
-			if (!currentDetections.isEmpty()) {
-				telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
-				for (AprilTagDetection detection : currentDetections) {
-					telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
-					telemetry.addLine(String.format("  - Yaw: %.2f", detection.ftcPose.yaw));
-					if (detection.ftcPose.yaw >= 27 && detection.ftcPose.yaw <= 34.7 && detection.id == 20) {
-						lM.setPattern(Lights.Color.BLUE);
-						lE.setPattern(Lights.Color.BLUE);
-						cameraGood = true;
-					} else {
-						if (detection.ftcPose.yaw >= -31 && detection.ftcPose.yaw <= -26 && detection.id == 24) {
-							lM.setPattern(Lights.Color.BLUE);
-							lE.setPattern(Lights.Color.BLUE);
-							cameraGood = true;
-						}
+			if (!org.firstinspires.ftc.teamcode.helpers.camera.aprilTags.getDetections().isEmpty()) {
+				for (AprilTagDetection detection : org.firstinspires.ftc.teamcode.helpers.camera.aprilTags.getDetections()) {
+					if ((detection.ftcPose.yaw >= 27 && detection.ftcPose.yaw <= 34.7 && detection.id == 20) || (detection.ftcPose.yaw >= -31 && detection.ftcPose.yaw <= -26 && detection.id == 24)) {
+						lightBL.setPattern(Lights.Color.BLUE);
+						lightBR.setPattern(Lights.Color.BLUE);
+					}else {
+						lightBL.setPattern(Lights.Color.ORANGE);
+						lightBR.setPattern(Lights.Color.ORANGE);
 					}
+					isFar = detection.ftcPose.z <= -12;
 				}
-			} else {
-				lM.setPattern(Lights.Color.ORANGE);
-				lE.setPattern(Lights.Color.ORANGE);
-				telemetry.addLine("no tags seen");
-				cameraGood = false;
 			}
 		} catch (Exception e){
-			telemetry.addLine("Camera Issue, please consult the thelly belly");
+			overrideToggle = true;
+			telemetry.addLine("FORCED AUTORANGE OVERRIDE || CAMERA ERROR");
 		}
 
-		telemetry.addLine("CS: \n" + cS.toString());
-		telemetry.addLine("Launcher: \n" + la.toString());
-		telemetry.addLine("Drivetrain: \n" + dt.toString());
+		boolean idle = true;
+		if(overrideToggle){
+			if(gamepad2.right_trigger > 0.25){
+				flywheelController.setTarget(5300);
+				idle=false;
+				isFar = true;
+			} else if(gamepad2.left_trigger > 0.25) {
+				flywheelController.setTarget(4400);
+				idle=false;
+				isFar = false;
+			}
+		}else if(gamepad2.right_trigger > 0.25){
+			flywheelController.setTarget(isFar ? 5300 : 4400);
+			idle=false;
+		}
+
+		if(idle) {
+			launcher.setOuttakePower(.3);
+			lightFL.setPattern(colorSensor.getColor());
+			lightFR.setPattern(colorSensor.getColor());
+		}else {
+			launcher.setOuttakePower(flywheelController.autoControl());
+			if(launcher.flywheelRPMS() > flywheelController.getTarget() * .95){
+				gamepad2.rumble(100);
+				gamepad1.rumble(100);
+				telemetry.addLine("rumbling " + (isFar ? "far" : "close"));
+				lightFL.setPattern(Lights.Color.WHITE);
+				lightFR.setPattern(Lights.Color.WHITE);
+			}else {
+				lightFL.setPattern(Lights.Color.ORANGE);
+				lightFR.setPattern(Lights.Color.ORANGE);
+			}
+		}
+
+		drivetrain.toggleSlowMode(gamepad1.dpad_down);
+		drivetrain.robotOrientedDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+		launcher.intake(gamepad1.right_trigger-gamepad1.left_trigger);
+		launcher.transfer(-gamepad2.left_stick_y);
+		launcher.fling(gamepad2.right_stick_y);
+		drivetrain.toggleSlowMode(gamepad1.b);
+
+		telemetry.addLine("Autoranging Override?: " + overrideToggle);
+		telemetry.addLine("Launcher: \n" + launcher.toString());
+		telemetry.addLine("Drivetrain: \n" + drivetrain.toString());
 		telemetry.update();
 	}
 }
