@@ -89,23 +89,12 @@ public class Drivetrain {
     //field oriented drive
     public void fieldOrientedDrive(double forward, double sideways, double rotation) {
         odo.update();
-        double P = Math.hypot(sideways, forward);
-        double currentAngle = (odo.getPinpoint().getHeading() + 360)%360;
+        double currentAngle = Math.toRadians(odo.getPinpoint().getHeading());
 
-        double robotAngle = Math.atan2(forward, sideways);
+        double rotatedForward  = forward  * Math.cos(currentAngle) + sideways * Math.sin(currentAngle);
+        double rotatedSideways = -forward * Math.sin(currentAngle) + sideways * Math.cos(currentAngle);
 
-
-        double vcos = P * Math.cos(robotAngle - currentAngle);
-        double vsin = P * Math.sin(robotAngle - currentAngle);
-        double v5 = vsin + vcos - rotation;
-        double v6 = vsin - vcos + rotation;
-        double v7 = vsin - vcos - rotation;
-        double v8 = vsin + vcos + rotation;
-
-        frontLeft.setPower(v5);
-        frontRight.setPower(v6);
-        backLeft.setPower(v7);
-        backRight.setPower(v8);
+        robotOrientedDrive(rotatedForward, rotatedSideways, rotation);
     }
 
     public void resetOdo(){odo.reset();}
@@ -167,26 +156,6 @@ public class Drivetrain {
         return odo.getPinpoint().getPosition();
     }
 
-    public HashMap <String, Object> getPIDTelemetry () {
-        HashMap <String, Object> map = new HashMap<>();
-        map.put("Odo X", odo.getPinpoint().getPosition().getX(DistanceUnit.INCH));
-        map.put("Odo Y", odo.getPinpoint().getPosition().getY(DistanceUnit.INCH));
-        map.put("Odo R", odo.getPinpoint().getPosition().getHeading(AngleUnit.DEGREES));
-        map.put("Vel X", odo.getPinpoint().getVelocity().getX(DistanceUnit.INCH));
-        map.put("Vel Y", odo.getPinpoint().getVelocity().getY(DistanceUnit.INCH));
-        map.put("Vel R", odo.getPinpoint().getVelocity().getHeading(AngleUnit.DEGREES));
-        map.put("Error X", xpid.getTarget() - odo.getPosition()[0]);
-        map.put("Error Y", ypid.getTarget() - odo.getPosition()[1]);
-        map.put("Error R", rpid.getTarget() - odo.getPosition()[2]);
-        map.put("Output X controller", xpid.getCurrentOutput() >= 0 ? Math.min(xpid.getCurrentOutput(), 1) : Math.max(xpid.getCurrentOutput(), -1));
-        map.put("Output Y controller", ypid.getCurrentOutput() >= 0 ? Math.min(ypid.getCurrentOutput(), 1) : Math.max(ypid.getCurrentOutput(), -1));
-        map.put("Output R controller", rpid.getCurrentOutput() >= 0 ? Math.min(rpid.getCurrentOutput(), 1) : Math.max(rpid.getCurrentOutput(), -1));
-        map.put("X controller\n\t", xpid.toString());
-        map.put("Y controller\n\t", ypid.toString());
-        map.put("Rotation controller\n\t", rpid.toString());
-        return map;
-    }
-
     public double[] getVelocity() {
         return new double[] {
                 odo.getPinpoint().getVelocity().getX(DistanceUnit.INCH),
@@ -200,6 +169,7 @@ public class Drivetrain {
     @Override
     public String toString() {
         return
+                "Slow: "+isSlow()+"\n"+
                 "Slow: "+isSlow()+"\n"+
                 "Front Left: " + frontLeft.getPower() + "\n" +
                 "Front Right: " + frontRight.getPower() + "\n" +

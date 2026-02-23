@@ -24,7 +24,7 @@ public class FullTest extends OpMode {
 	CSensor colorSensor;
 	AprilTags at;
 	boolean isFar = true, lastOverrideToggleInput = false, overrideToggle = false;
-	final int FAR_RPMS = 5000, CLOSE_RPMS = 4000;
+	final int FAR_RPMS = 5500, CLOSE_RPMS = 4000;
 
 	@Override
 	public void init() {
@@ -120,6 +120,7 @@ public class FullTest extends OpMode {
 		//END TESTING ONLY
 
 		telemetry.addLine("Autoranging Override?: " + overrideToggle);
+		telemetry.addLine("isFar: " + isFar);
 		telemetry.addLine("Launcher: \n" + launcher.toString());
 		telemetry.addLine("Drivetrain: \n" + drivetrain.toString());
 		telemetry.update();
