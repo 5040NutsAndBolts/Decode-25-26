@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.helpers.PID;
@@ -14,7 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@Autonomous(name="MTPTest", group="Autonomous")
+@TeleOp(name="MTPTest", group="Teleop")
 public class MTPTest extends OpMode {
 	private Drivetrain dt;
 	FtcDashboard dash;
@@ -37,7 +38,7 @@ public class MTPTest extends OpMode {
 	}
 
 	void setR (double target, double maxError, double velocityMax) {
-		PID rotationController = new PID(.03, 1e-5, 0);
+		PID rotationController = new PID(.0375, 3e-5, 0);
 		rotationController.setTarget(target);
 		while(notWithinR(target,maxError,velocityMax)) {
 			dt.fieldOrientedDrive(0, 0, rotationController.autoControl(dt.getPosition()[2]));
@@ -54,8 +55,8 @@ public class MTPTest extends OpMode {
 	}
 
 	void setXY (double[] target, double[] maxError, double[] velocityMax) {
-		PID xController = new PID(.04, 5e-6, 0);
-		PID yController = new PID(.04, 5e-6, 0);
+		PID xController = new PID(.032, 7e-6, 0);
+		PID yController = new PID(.032, 7e-6, 0);
 		xController.setTarget(target[0]);
 		yController.setTarget(target[1]);
 		while(notWithinXY(target,maxError,velocityMax)) {
@@ -78,6 +79,7 @@ public class MTPTest extends OpMode {
 		packet.clearLines();
 		HashMap<String, Object> map = new HashMap<>(additional);
 		map.put("Name", loopName);
+		map.put("Pos", Arrays.toString(dt.getPosition()));
 		map.put("RPMS: ",la.flywheelRPMS());
 		map.put("RPM Target: ",fC.getTarget());
 		packet.putAll(map);
@@ -89,6 +91,7 @@ public class MTPTest extends OpMode {
 		packet = new TelemetryPacket();
 		HashMap<String, Object> map = new HashMap<>();
 		map.put("Name", loopName);
+		map.put("Pos", Arrays.toString(dt.getPosition()));
 		map.put("RPMS: ",la.flywheelRPMS());
 		map.put("RPM Target: ",fC.getTarget());
 		packet.putAll(map);
@@ -101,7 +104,7 @@ public class MTPTest extends OpMode {
 			double[] maxErrors,
 			double[] maxVelocities
 	) {
-		while(notWithinR(targets[2],maxErrors[2],maxVelocities[2]) && notWithinXY(new double[] {targets[0], targets[1]}, new double[] {maxErrors[0],maxErrors[1]}, new double[] {maxVelocities[0], maxVelocities[1]})){
+		while(notWithinR(targets[2],maxErrors[2],maxVelocities[2]) || notWithinXY(new double[] {targets[0], targets[1]}, new double[] {maxErrors[0],maxErrors[1]}, new double[] {maxVelocities[0], maxVelocities[1]})){
 			setXY(new double[] {targets[0], targets[1]}, new double[] {maxErrors[0],maxErrors[1]}, new double[] {maxVelocities[0], maxVelocities[1]});
 			setR(targets[2], maxErrors[2], maxErrors[2]);
 		}
@@ -125,12 +128,14 @@ public class MTPTest extends OpMode {
 	PID fC;
 	@Override
 	public void loop() {
-		la.setOuttakePower(.65);
+		//la.setOuttakePower(.65);
 		moveTo(
 				new double[] {6.25,6.25,30},
 				new double[] {1.5,1.5,3},
 				new double[] {3,3,6}
 		);
+
+		/*
 		fC.setTarget(6000);
 		while(la.flywheelRPMS() < fC.getTarget() *.975){
 			la.setOuttakePower(fC.autoControl());
@@ -158,13 +163,90 @@ public class MTPTest extends OpMode {
 				sendTelemetry("Spinning up, launch prepared");
 			}
 		}
+		*/
+
+		setXY(
+			new double[] {24, 6.25},
+			new double[] {2, 4},
+			new double[] {100,100}
+		);
+		setR(-90,2,100);
+
+		while(dt.getPosition()[1] < 40) {
+			la.transfer(1);
+			la.intake(-1);
+			dt.robotOrientedDrive(.35,0,0);
+			sendTelemetry("Picking up artifacts");
+		}
+		dt.robotOrientedDrive(0,0,0);
+
+		setXY(
+				new double[] {6.25,6.25},
+				new double[] {1.5,1.5},
+				new double[] {100,100}
+		);
+		setR(30,3,6);
+
+		/*
+		fC.setTarget(6000);
+		while(la.flywheelRPMS() < fC.getTarget() *.975){
+			la.setOuttakePower(fC.autoControl());
+			la.fling(1);
+			sendTelemetry("Spinning up launcher");
+		}
+
+		byte shotcount = 0;
+		long lastShotTime = 0;
+		while(shotcount < 3) {
+			la.setOuttakePower(fC.autoControl());
+			ElapsedTime e1 = new ElapsedTime();
+			if(la.flywheelRPMS() > fC.getTarget() *.98    && System.currentTimeMillis() - lastShotTime > 1250){
+				while(e1.seconds() < 1 + (shotcount == 2 ? 2 : 0)) {
+					la.intake(-1);
+					la.transfer(1);
+					la.setOuttakePower(1);
+					sendTelemetry("Attempting shot");
+					shotcount++;
+					lastShotTime = System.currentTimeMillis();
+				}
+			}else {
+				la.transfer(0);
+				la.intake(0);
+				sendTelemetry("Spinning up, launch prepared");
+			}
+		}
+		*/
+
+		setXY(
+				new double[] {48, 6.25},
+				new double[] {2, 4},
+				new double[] {100,100}
+		);
+		setR(-90,2,100);
+
+		while(dt.getPosition()[1] < 40) {
+			la.transfer(1);
+			la.intake(-1);
+			dt.robotOrientedDrive(.35,0,0);
+			sendTelemetry("Picking up artifacts 2");
+		}
+		dt.robotOrientedDrive(0,0,0);
+
+		setXY(
+				new double[] {6.25,6.25},
+				new double[] {1.5,1.5},
+				new double[] {100,100}
+		);
+		setR(30,3,6);
 
 		while(true) {
 			sendTelemetry("DONE");
 			la.setOuttakePower(0);
+			dt.robotOrientedDrive(0,0,0);
 			la.transfer(0);
 			la.intake(0);
-			dt.robotOrientedDrive(0,0,0);
+			dt.neutral();
+			dt.updateOdo();
 			requestOpModeStop();
 		}
 	}

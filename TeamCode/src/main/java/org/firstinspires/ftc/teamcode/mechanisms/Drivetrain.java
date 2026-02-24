@@ -90,6 +90,9 @@ public class Drivetrain {
     public void fieldOrientedDrive(double forward, double sideways, double rotation) {
         odo.update();
         double currentAngle = Math.toRadians(odo.getPinpoint().getHeading());
+        while(currentAngle < 0)
+            currentAngle += 360;
+        currentAngle %= 360;
 
         double rotatedForward  = forward  * Math.cos(currentAngle) + sideways * Math.sin(currentAngle);
         double rotatedSideways = -forward * Math.sin(currentAngle) + sideways * Math.cos(currentAngle);
