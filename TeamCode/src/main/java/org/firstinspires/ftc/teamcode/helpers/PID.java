@@ -3,7 +3,11 @@ import androidx.annotation.NonNull;
 import java.util.function.Supplier;
 
 public class PID {
-	private final double kp, ki, kd,  teleopGain;
+	private final double kp;
+	private final double ki;
+	private final double kd;
+	private final double teleopGain;
+	private double integralLimit;
 	private double currentTarget, errorSum, lastOutput, lastError;
 	private long lastTime;
 	private int deltaTime;
@@ -25,6 +29,7 @@ public class PID {
 		this.getCurrent = getCurrent;
 		this.teleopGain = teleopGain;
 		lastTime = System.currentTimeMillis();
+		integralLimit = Double.MAX_VALUE;
 	}
 
 	/**
@@ -40,6 +45,7 @@ public class PID {
 		lastTime = System.currentTimeMillis();
 		getCurrent = null;
 		teleopGain = 0;
+		integralLimit = Double.MAX_VALUE;
 	}
 
 	//Calculates power output
@@ -54,6 +60,8 @@ public class PID {
 		double currentError = currentTarget - currentPosition;
 		// christian - i think one of hte issues with the pid is that youre multiplying the integral by dT twice which happens in both calculate loops
 		errorSum += currentError * deltaTime;
+		if(errorSum > integralLimit)
+			errorSum = integralLimit;
 
 		//Instantaneous error
 		double Proportional = kp * currentError;
@@ -81,6 +89,8 @@ public class PID {
 
 		double currentError = currentTarget - currentPosition;
 		errorSum += currentError * deltaTime;
+		if(errorSum > integralLimit)
+			errorSum = integralLimit;
 
 		//Instantaneous error
 		double Proportional = kp * currentError;
@@ -100,6 +110,9 @@ public class PID {
 		return output;
 	}
 
+	public void setIntegralLimit(double limit) {
+		integralLimit = limit;
+	}
 	public double teleOpControl(double stickPower) {
 		updateDeltaTime();
 		/*Adds stick power adjusted via teleopGain to increase
