@@ -24,7 +24,7 @@ public class FullTest extends OpMode {
 	CSensor colorSensor;
 	AprilTags at;
 	boolean isFar = true, lastOverrideToggleInput = false, overrideToggle = false;
-	final int FAR_RPMS = 5500, CLOSE_RPMS = 4000;
+	final int FAR_RPMS = 5300, CLOSE_RPMS = 4200;
 
 	@Override
 	public void init() {
@@ -55,12 +55,9 @@ public class FullTest extends OpMode {
 					telemetry.addLine(String.format("  - Yaw: %.2f", detection.ftcPose.yaw));
 					telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
 					isFar = detection.ftcPose.z <= 1;
-					if (isFar &&((detection.ftcPose.yaw >= 27 && detection.ftcPose.yaw <= 34.7 && detection.id == 20) || (detection.ftcPose.yaw >= -31 && detection.ftcPose.yaw <= -26 && detection.id == 24))) {
+					if (isFar &&(((detection.ftcPose.yaw >= 27 && detection.ftcPose.yaw <= 34.7 && detection.id == 20) || (detection.ftcPose.yaw >= -31 && detection.ftcPose.yaw <= -26 && detection.id == 24))) || (!isFar && (detection.ftcPose.yaw >= -6 && detection.ftcPose.yaw <= -4 && detection.id == 20) || (detection.ftcPose.yaw >= -15.8 && detection.ftcPose.yaw <= -13.8 && detection.id == 24))) {
 						lightBL.setPattern(Lights.Color.BLUE);
 						lightBR.setPattern(Lights.Color.BLUE);
-					}else if (!isFar && (detection.ftcPose.yaw >= -6 && detection.ftcPose.yaw <= -4 && detection.id == 20) || (detection.ftcPose.yaw >= -15.8 && detection.ftcPose.yaw <= -13.8 && detection.id == 24)){
-						lightBL.setPattern(Lights.Color.YELLOW);
-						lightBR.setPattern(Lights.Color.YELLOW);
 					}else {
 						lightBL.setPattern(Lights.Color.ORANGE);
 						lightBR.setPattern(Lights.Color.ORANGE);
