@@ -102,8 +102,13 @@ public class Drivetrain {
     public void fieldOrientedDrive(double forward, double sideways, double rotation) {
         odo.update();
 
+
         // Use raw heading directly — no normalization needed
         double currentAngle = Math.toRadians(-odo.getPinpoint().getHeading());
+
+        while(currentAngle < (2*Math.PI))
+            currentAngle += (2*Math.PI);
+        currentAngle %= (2*Math.PI);
 
         // Standard 2D rotation matrix: rotates the field-frame vector
         // into the robot's own reference frame

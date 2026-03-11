@@ -23,8 +23,8 @@ public class FullTest extends OpMode {
 	PID flywheelController;
 	CSensor colorSensor;
 	AprilTags at;
-	boolean isFar = true, lastOverrideToggleInput = false, overrideToggle = false;
-	final int FAR_RPMS = 5300, CLOSE_RPMS = 4200;
+	boolean isFar = false, lastOverrideToggleInput = false, overrideToggle = false;
+	final int FAR_RPMS = 5350, CLOSE_RPMS = 4000;
 
 	@Override
 	public void init() {
@@ -54,7 +54,7 @@ public class FullTest extends OpMode {
 					telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
 					telemetry.addLine(String.format("  - Yaw: %.2f", detection.ftcPose.yaw));
 					telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
-					isFar = detection.ftcPose.z <= 1;
+					isFar = detection.ftcPose.z <= -5;
 					if (isFar &&(((detection.ftcPose.yaw >= 27 && detection.ftcPose.yaw <= 34.7 && detection.id == 20) || (detection.ftcPose.yaw >= -31 && detection.ftcPose.yaw <= -26 && detection.id == 24))) || (!isFar && (detection.ftcPose.yaw >= -6 && detection.ftcPose.yaw <= -4 && detection.id == 20) || (detection.ftcPose.yaw >= -15.8 && detection.ftcPose.yaw <= -13.8 && detection.id == 24))) {
 						lightBL.setPattern(Lights.Color.BLUE);
 						lightBR.setPattern(Lights.Color.BLUE);
@@ -68,6 +68,8 @@ public class FullTest extends OpMode {
 			overrideToggle = true;
 			telemetry.addLine("FORCED AUTORANGE OVERRIDE || CAMERA ERROR");
 			telemetry.addLine(e.getMessage());
+			lightBL.setPattern(Lights.Color.RED);
+			lightBR.setPattern(Lights.Color.RED);
 		}
 
 		boolean idle = true;
@@ -91,14 +93,16 @@ public class FullTest extends OpMode {
 			lightFL.setPattern(colorSensor.getColor());
 			lightFR.setPattern(colorSensor.getColor());
 		}else {
-			launcher.setOuttakePower(flywheelController.autoControl());
-			if(launcher.flywheelRPMS() > flywheelController.getTarget() * .95){
-				gamepad2.rumble(100);
-				gamepad1.rumble(100);
+			double power = flywheelController.autoControl();
+			launcher.setOuttakePower(power);
+			if(launcher.flywheelRPMS() > flywheelController.getTarget() * .96){
+				gamepad2.rumble(150);
+				gamepad1.rumble(150);
 				telemetry.addLine("rumbling " + (isFar ? "far" : "close"));
 				lightFL.setPattern(Lights.Color.WHITE);
 				lightFR.setPattern(Lights.Color.WHITE);
 			}else {
+				telemetry.addLine("BAD RPM RANGE");
 				lightFL.setPattern(Lights.Color.ORANGE);
 				lightFR.setPattern(Lights.Color.ORANGE);
 			}
@@ -110,11 +114,6 @@ public class FullTest extends OpMode {
 		launcher.transfer(-gamepad2.left_stick_y);
 		launcher.fling(gamepad2.right_stick_y);
 		drivetrain.toggleSlowMode(gamepad1.b);
-
-		//TESTING ONLY
-		telemetry.addLine(flywheelController.toString());
-		telemetry.addLine(colorSensor.toString());
-		//END TESTING ONLY
 
 		telemetry.addLine("Autoranging Override?: " + overrideToggle);
 		telemetry.addLine("isFar: " + isFar);

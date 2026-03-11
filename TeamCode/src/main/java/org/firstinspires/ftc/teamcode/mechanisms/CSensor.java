@@ -9,7 +9,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class CSensor {
-	private ColorSensor cs;
+	private final ColorSensor cs;
 	public CSensor(String name, HardwareMap hardwareMap) {
 		cs = hardwareMap.get(ColorSensor.class, name);
 	}
@@ -17,9 +17,9 @@ public class CSensor {
 	public Lights.Color getColor() {
 		int[] rgb = {cs.red(), cs.green(), cs.blue()};
 
-		int oScore = (int) (255-((rgb[0] + rgb[1] + rgb[2]) / 255.0));
-		int gScore = (int) (rgb[1] - rgb[0]*.15-rgb[2]*.1);
-		int pScore = (int)((rgb[2] * - rgb[1]*.15));
+		int oScore = (int) (255-((rgb[0] + rgb[1] + rgb[2]) / 3.0));
+		int gScore = rgb[2];
+		int pScore = (int) ((rgb[0] + rgb[1]) / 2.0);
 
 		if(gScore > oScore && gScore > pScore) {
 			return Lights.Color.GREEN;
@@ -33,9 +33,9 @@ public class CSensor {
 	public String toString() {
 		int[] rgb = {cs.red(), cs.green(), cs.blue()};
 
-		int oScore = (int) (255-((rgb[0] + rgb[1] + rgb[2]) / 255.0));
-		int gScore = (int) ((rgb[1] - rgb[0]*.15-rgb[2]*.1)/255.0);
-		int pScore = (int)((rgb[2] - rgb[1]*.15) / 255.0);
+		int oScore = (int) (255-((rgb[0] + rgb[1] + rgb[2]) / 3.0));
+		int gScore = rgb[2];
+		int pScore = (int) ((rgb[0] + rgb[1]) / 2.0);
 
 		int[] scored = {oScore, gScore, pScore};
 		return Arrays.toString(rgb)+ "  |  "+Arrays.toString(scored)+ "\n";
