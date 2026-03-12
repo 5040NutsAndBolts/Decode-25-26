@@ -18,8 +18,8 @@ public class CSensor {
 		int[] rgb = {cs.red(), cs.green(), cs.blue()};
 
 		int oScore = (int) (255-((rgb[0] + rgb[1] + rgb[2]) / 3.0));
-		int gScore = rgb[2];
-		int pScore = (int) ((rgb[0] + rgb[1]) / 2.0);
+		int gScore = (int) (rgb[1] - (rgb[0]* .5));
+		int pScore = (int) ((rgb[0] + rgb[2]) / 2.0);
 
 		if(gScore > oScore && gScore > pScore) {
 			return Lights.Color.GREEN;

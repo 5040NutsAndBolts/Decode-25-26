@@ -1,290 +1,324 @@
 package org.firstinspires.ftc.teamcode.opmodes.autonomous.comp;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.teamcode.helpers.camera.AprilTags;
+
+import org.firstinspires.ftc.teamcode.helpers.PID;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-
-@Autonomous(name="RedFar", group="Autonomous")
+@Autonomous(name = "Red Far", group = "Autonomous")
 public class RedFar extends OpMode {
-	Drivetrain drivetrain;
-	Launcher launcher;
-	AprilTags aprilTag;
-	double[] setTarget;
-	TelemetryPacket packet;
+	private Drivetrain dt;
 	FtcDashboard dash;
-	HashMap<String, Object> map = new HashMap<>();
+	TelemetryPacket packet;
+	Launcher la;
+	PID fC;
+
+	/**
+	 * Returns true if the robot is NOT yet within the position and velocity
+	 * tolerances for X and Y. Both conditions must be satisfied simultaneously:
+	 * position error must be small AND the robot must have slowed down.
+	 */
+	boolean notWithinXY(double[] target, double[] posMaxError, double[] velocityMax) {
+		double[] currentPosition = dt.getPosition();
+		double[] currentVelocity = dt.getVelocity();
+		boolean within = true;
+
+		for (int i = 0; i < 2; i++)
+			if (Math.abs(target[i] - currentPosition[i]) > posMaxError[i]
+					|| Math.abs(currentVelocity[i]) > velocityMax[i])
+				within = false;
+
+		return !within;
+	}
+
+	/**
+	 * Returns true if the robot is NOT yet within the rotational tolerance.
+	 * Uses angleDifference() so the error is always the shortest path,
+	 * preventing the PID from spinning 270° when 90° would suffice.
+	 */
+	boolean notWithinR(double target, double maxError, double velocityMax) {
+		double angularError = Drivetrain.angleDifference(target, dt.getPosition()[2]);
+		return !(Math.abs(angularError) < maxError
+				&& Math.abs(dt.getVelocity()[2]) < velocityMax);
+	}
+
+	/**
+	 * Rotates the robot to a target heading in degrees.
+	 *
+	 * The PID target is set to 0 (zero error), and we feed it the
+	 * shortest-path angular error directly. This means the PID always
+	 * sees a value between -180 and 180 regardless of how many full
+	 * rotations the robot has accumulated — solving the wraparound bug.
+	 */
+	void setR(double target, double maxError, double velocityMax) {
+		PID rotationController = new PID(.0375, 3e-5, 0);
+		rotationController.setTarget(0); // target is always "zero error"
+		rotationController.setIntegralLimit(1e4);
+
+		while (notWithinR(target, maxError, velocityMax)) {
+			// Shortest-path error: always in (-180, 180], never wraps
+			double error = Drivetrain.angleDifference(target, dt.getPosition()[2]);
+
+			// Negate error so a positive error (need to turn CCW) produces
+			// a positive rotation command
+			dt.fieldOrientedDrive(0, 0, rotationController.autoControl(-error));
+
+			HashMap<String, Object> map = new HashMap<>();
+			map.put("R PID Output", rotationController.getCurrentOutput());
+			map.put("Current Error", error);
+			map.put("Current Heading", dt.getPosition()[2]);
+			map.put("Target", target);
+			map.put("R PID TOS", rotationController.toString());
+			sendTelemetry("Setting rotation to: " + target, map);
+		}
+	}
+
+	/**
+	 * Moves the robot to a target XY position.
+	 *
+	 * PID controllers are created once per call, not once per loop tick,
+	 * so the integral term accumulates meaningfully across the whole movement.
+	 * Integral limits prevent windup/NaN.
+	 */
+	void setXY(double[] target, double[] maxError, double[] velocityMax) {
+		// Created once here — not inside the loop — so integral history persists
+		PID xController = new PID(.04, 1.4e-5, 0);
+		PID yController = new PID(.04, 1.4e-5, 0);
+		xController.setTarget(target[0]);
+		yController.setTarget(target[1]);
+		xController.setIntegralLimit(1e4); // prevents integral windup → NaN
+		yController.setIntegralLimit(1e4);
+
+		while (notWithinXY(target, maxError, velocityMax)) {
+			double xOut = xController.autoControl(dt.getPosition()[0]);
+			double yOut = yController.autoControl(dt.getPosition()[1]);
+
+			// Guard: if PID somehow still produces NaN, zero the output
+			// rather than sending NaN to the motors
+			if (Double.isNaN(xOut) || Double.isInfinite(xOut)) xOut = 0;
+			if (Double.isNaN(yOut) || Double.isInfinite(yOut)) yOut = 0;
+
+			dt.fieldOrientedDrive(-xOut, -yOut, 0);
+
+			HashMap<String, Object> map = new HashMap<>();
+			map.put("Velocities", Arrays.toString(dt.getVelocity()));
+			map.put("X Error", target[0] - dt.getPosition()[0]);
+			map.put("Y Error", target[1] - dt.getPosition()[1]);
+			map.put("DT TOS", dt.toString());
+			map.put("XC TOS", xController.toString());
+			map.put("YC TOS", yController.toString());
+			sendTelemetry("Setting position to: " + Arrays.toString(target), map);
+		}
+	}
+
+	/**
+	 * Moves the robot to a full [x, y, heading] pose.
+	 * XY and rotation are run sequentially: XY first, then rotation.
+	 * The outer loop re-checks both in case rotation disturbed XY or vice versa.
+	 *
+	 * Note: PID controllers are intentionally inside setXY/setR so they reset
+	 * cleanly for each segment — the outer loop here is just a convergence check.
+	 */
+	void moveTo(double[] targets, double[] maxErrors, double[] maxVelocities) {
+		while (notWithinR(targets[2], maxErrors[2], maxVelocities[2])
+				|| notWithinXY(
+				new double[]{targets[0], targets[1]},
+				new double[]{maxErrors[0], maxErrors[1]},
+				new double[]{maxVelocities[0], maxVelocities[1]})) {
+
+			setXY(new double[]{targets[0], targets[1]},
+					new double[]{maxErrors[0], maxErrors[1]},
+					new double[]{maxVelocities[0], maxVelocities[1]});
+
+			setR(targets[2], maxErrors[2], maxVelocities[2]); // was passing maxErrors[2] twice before
+		}
+		dt.robotOrientedDrive(0, 0, 0);
+	}
+
+	private void sendTelemetry(String loopName, Map<String, Object> additional) {
+		packet.clearLines();
+		HashMap<String, Object> map = new HashMap<>(additional);
+		map.put("Name", loopName);
+		map.put("Pos", Arrays.toString(dt.getPosition()));
+		map.put("Vel", Arrays.toString(dt.getVelocity()));
+		map.put("RPMS: ", la.flywheelRPMS());
+		map.put("RPM Target: ", fC.getTarget());
+		packet.putAll(map);
+		dash.sendTelemetryPacket(packet);
+		packet.clearLines();
+	}
+
+	private void sendTelemetry(String loopName) {
+		packet = new TelemetryPacket();
+		HashMap<String, Object> map = new HashMap<>();
+		map.put("Name", loopName);
+		map.put("Pos", Arrays.toString(dt.getPosition()));
+		map.put("Vel", Arrays.toString(dt.getVelocity()));
+		map.put("RPMS: ", la.flywheelRPMS());
+		map.put("RPM Target: ", fC.getTarget());
+		packet.putAll(map);
+		dash.sendTelemetryPacket(packet);
+		packet.clearLines();
+	}
 
 	@Override
 	public void init() {
-		drivetrain = new Drivetrain(hardwareMap);
-		launcher = new Launcher(hardwareMap);
-		aprilTag = new AprilTags(hardwareMap);
-		telemetry.addLine((drivetrain + "I"));
-		drivetrain.updateOdo();
-		telemetry.update();
-		setTarget = new double[]{
-				5.5, 0, 0
-		};
+		dt = new Drivetrain(hardwareMap);
+		la = new Launcher(hardwareMap);
+		fC = new PID(.0085, 2e-8, 0, la::flywheelRPMS, 0);
+
+		packet = new TelemetryPacket();
 		dash = FtcDashboard.getInstance();
-		packet=new TelemetryPacket();
-	}
 
-	private void sendTelemetry (String loopName) {
-		telemetry.addLine(loopName);
-		telemetry.addLine("Flywheel speed: " + launcher.flywheelRPMS());
-		telemetry.addLine("Odo: " + drivetrain.getPosition()[0] + " , " + drivetrain.getPosition()[1] + " , " + drivetrain.getPosition()[2]);
-		telemetry.update();
-		packet.clearLines();
-		Map<String, Object> map = launcher.getPIDTelemetry(false);
-		map.put("Odo X", drivetrain.getPosition()[0]);
-		map.put("Odo Y", drivetrain.getPosition()[1]);
-		map.put("Odo R", drivetrain.getPosition()[2]);
-		map.put("", loopName);
-		packet.putAll(map);
-		dash.sendTelemetryPacket(packet);
-	}
-
-
-	@Override
-	public void init_loop() {
-		super.init_loop();
-		packet.clearLines();
-		packet.putAll(launcher.getPIDTelemetry(true));
-		dash.sendTelemetryPacket(packet);
-
-		List<AprilTagDetection> currentDetections = AprilTags.getDetections();
-
-		if (!currentDetections.isEmpty()) {
-			telemetry.addData("Status", "Found %d AprilTags!", currentDetections.size());
-
-			for (AprilTagDetection detection : currentDetections) {
-				telemetry.addLine(String.format("Found Tag ID: %d", detection.id));
-				telemetry.addLine(String.format("  - X: %.2f", detection.ftcPose.x));
-				telemetry.addLine(String.format("  - Y: %.2f", detection.ftcPose.y));
-				telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
-				map.put("Pitch", detection.ftcPose.pitch);
-				map.put("Yaw", detection.ftcPose.yaw);
-				packet.putAll(map);
-			}
-		} else {
-			telemetry.addData("Status", "No AprilTags found.");
-		}
-
-
-		telemetry.addLine((drivetrain.toString() + "IL"));
-		telemetry.addLine("Launcher RPMs: " + launcher.flywheelRPMS());
-		telemetry.addLine(""+drivetrain.getPosition()[0]);
-		telemetry.addLine(""+drivetrain.getPosition()[1]);
-		telemetry.update();
+		sendTelemetry("Initialization");
+		dt.resetOdo();
 	}
 
 	@Override
 	public void loop() {
-		ElapsedTime timer;
-		drivetrain.resetOdo();
-		launcher.transfer(-1);
-		launcher.outtake(0.76);
-
-		while(setTarget[0] > drivetrain.getPosition()[0]){
-			drivetrain.robotOrientedDrive(0.2, 0, 0);
-			drivetrain.updateOdo();
-			sendTelemetry("first move loop");
+		la.outtake(.3);
+		moveTo(
+				new double[]{6.25, -6.25, -23},
+				new double[]{1.5, 1.5, .5},
+				new double[]{30, 30, 60}
+		);
+		fC.setTarget(3500);
+		while(la.flywheelRPMS() < fC.getTarget() *.98){
+			la.setOuttakePower(fC.autoControl());
+			la.fling(1);
+			sendTelemetry("Spinning up launcher");
 		}
 
-		timer = new ElapsedTime();
-		while(timer.seconds()<0.25){
-			sendTelemetry("Rotating");
-			drivetrain.robotOrientedDrive(0,0,-0.12);
+		byte shotcount = 0;
+		long lastShotTime = 0;
+		while(shotcount < 3) {
+			la.setOuttakePower(fC.autoControl());
+			if(la.flywheelRPMS() > fC.getTarget() *.98    && System.currentTimeMillis() - lastShotTime > 1500){
+				ElapsedTime e1 = new ElapsedTime();
+				boolean first = true;
+				while(e1.seconds() < .6) {
+					la.intake(-1);
+					la.transfer(1);
+					la.setOuttakePower(1);
+					sendTelemetry("Attempting shot "+ shotcount);
+					if (first)shotcount++;
+					first = false;
+					lastShotTime = System.currentTimeMillis();
+				}
+				moveTo(
+						new double[]{6.25,- 6.25, -23},
+						new double[]{1.5, 1.5, 1.5},
+						new double[]{30, 30, 60}
+				);
+				dt.robotOrientedDrive(0,0,0);
+			}else {
+				la.transfer(0);
+				la.intake(0);
+				sendTelemetry("Spinning up, launch prepared");
+			}
+		}
+		la.transfer(0);
+		la.intake(0);
+		la.outtake(.5);
+
+		setXY(new double[]{24, -6.25}, new double[]{1.25, 4},   new double[]{100, 100});
+		setR(90, 3, 100);
+
+		while (dt.getPosition()[1] > -47) {
+			la.fling(-1);
+			la.transfer(1);
+			la.intake(-1);
+			dt.robotOrientedDrive(.3, 0, 0);
+			sendTelemetry("Picking up artifacts");
+		}
+		la.fling(0);
+		la.transfer(0);
+		la.intake(0);
+		dt.robotOrientedDrive(0, 0, 0);
+		telemetry.update();
+
+		setR(
+				-23,18,1000
+		);
+		moveTo(
+				new double[]{15, -20,-25},
+				new double[]{6, 6, 15},
+				new double[]{100, 100, 10000}
+		);
+		moveTo(
+				new double[]{6.25, -6.25, -23},
+				new double[]{2, 2, 5},
+				new double[]{100, 100, 1000}
+		);
+		setXY(
+				new double[]{6.25, -6.25},
+				new double[]{1, 1},
+				new double[]{100, 100}
+		);
+		setR(-23,1.5,3000);
+
+
+		fC.setTarget(3500);
+		long starttime = System.currentTimeMillis();
+		while(la.flywheelRPMS() < fC.getTarget() *.975){
+			la.setOuttakePower(fC.autoControl());
+			la.transfer(0);
+			la.intake(0);
+			la.fling(1);
+			sendTelemetry("Spinning up launcher");
+			if(starttime < 500)
+				la.fling(1);
 		}
 
-		drivetrain.robotOrientedDrive(0, 0, 0);
-		launcher.fling(false);
-
-		while(timer.seconds()<2){
-			launcher.transfer(-1);
-			drivetrain.robotOrientedDrive(0, 0, 0);
-			sendTelemetry("Transfering");
+		setR(-23,.5,600);
+		shotcount = 0;
+		lastShotTime = 0;
+		while(shotcount < 3) {
+			la.setOuttakePower(fC.autoControl());
+			if(la.flywheelRPMS() > fC.getTarget() *.98    && System.currentTimeMillis() - lastShotTime > 1500){
+				ElapsedTime e1 = new ElapsedTime();
+				boolean first = true;
+				while(e1.seconds() < .6) {
+					la.intake(-1);
+					la.transfer(1);
+					la.setOuttakePower(1);
+					sendTelemetry("Attempting shot "+ shotcount);
+					if (first)shotcount++;
+					first = false;
+					lastShotTime = System.currentTimeMillis();
+				}
+				moveTo(
+						new double[]{6.25, -6.25, -23},
+						new double[]{1.5, 1.5, .5},
+						new double[]{30, 30, 60}
+				);
+				dt.robotOrientedDrive(0,0,0);
+			}else {
+				la.transfer(0);
+				la.intake(0);
+				sendTelemetry("Spinning up, launch prepared");
+			}
 		}
 
-		timer = new ElapsedTime();
-		while(timer.seconds()<0.06){
-			sendTelemetry("Rotating");
-			drivetrain.robotOrientedDrive(0,0,0.1);
+		while (true) {
+			sendTelemetry("DONE");
+			la.setOuttakePower(0);
+			dt.robotOrientedDrive(0, 0, 0);
+			la.transfer(0);
+			la.intake(0);
+			la.outtake(0);
+			dt.neutral();
+			dt.updateOdo();
+			requestOpModeStop();
 		}
-
-		launcher.fling(true);
-
-		timer = new ElapsedTime();
-		while(timer.seconds()<2.5){
-			launcher.transfer(-1);
-			drivetrain.robotOrientedDrive(0, 0, 0);
-			sendTelemetry("Send ball to fling");
-		}
-
-		launcher.fling(false);
-		drivetrain.robotOrientedDrive(0, 0, 0);
-
-		timer = new ElapsedTime();
-		while (timer.seconds() < 2.5) {
-			launcher.intake(1);
-			sendTelemetry("Intaking");
-		}
-
-		launcher.fling(true);
-
-		timer = new ElapsedTime();
-		while (timer.seconds() < .7) {
-			launcher.fling(true);
-			packet.clearLines();
-			packet.putAll(launcher.getPIDTelemetry(false));
-			dash.sendTelemetryPacket(packet);
-		}
-		setTarget[0] = 17;
-		while (setTarget[0] > drivetrain.getPosition()[0]) {
-			launcher.outtake(0);
-			drivetrain.robotOrientedDrive(.2, 0, 0);
-			drivetrain.updateOdo();
-			telemetry.addLine((drivetrain.toString()));
-			telemetry.update();
-			packet.clearLines();
-			packet.putAll(launcher.getPIDTelemetry(false));
-			dash.sendTelemetryPacket(packet);
-		}
-
-		drivetrain.robotOrientedDrive(0, 0, 0);
-
-		setTarget[2] = 105;
-		while (setTarget[2] > drivetrain.getPosition()[2]) {
-			drivetrain.robotOrientedDrive(0, 0, 0.25);
-			drivetrain.updateOdo();
-			launcher.intake(1);
-			sendTelemetry("rotator");
-		}
-		drivetrain.robotOrientedDrive(0, 0, 0);
-
-		setTarget[1] = 2.5;
-		while (setTarget[1] < drivetrain.getPosition()[1]) {
-			drivetrain.robotOrientedDrive(0, -0.3, 0);
-			drivetrain.updateOdo();
-			launcher.intake(1);
-			launcher.fling(false);
-			launcher.transfer(-1);
-			sendTelemetry("Align with artifacts");
-		}
-		//restart pinpoint
-/*		Pose2D pose2D = new Pose2D(DistanceUnit.INCH, drivetrain.getPosition()[0], drivetrain.getPosition()[1], AngleUnit.DEGREES,drivetrain.getPosition()[2]);
-		drivetrain.resetOdo();
-		drivetrain.odo.set(pose2D); */
-		setTarget[0] = -18.5;
-		while (setTarget[0] < drivetrain.getPosition()[0]) {
-			drivetrain.robotOrientedDrive(-0.25, 0, 0);
-			launcher.fling(false);
-			launcher.intake(1);
-			launcher.transfer(-1);
-			launcher.outtake(0);
-			sendTelemetry("Intake artifacts");
-		}
-/*		pose2D = new Pose2D(DistanceUnit.INCH, drivetrain.getPosition()[0], drivetrain.getPosition()[1], AngleUnit.DEGREES,drivetrain.getPosition()[2]);
-		drivetrain.resetOdo();
-		drivetrain.odo.set(pose2D);
-*/
-		setTarget[0] = 10;
-		while (setTarget[0] > drivetrain.getPosition()[0]) {
-			launcher.fling(false);
-			drivetrain.robotOrientedDrive(0.25, 0, 0);
-			sendTelemetry("Move back after intaking artifacts");
-		}
-
-
-		//Everything after here is shite --JDH
-		drivetrain.robotOrientedDrive(0, 0, 0);;
-
-		while (drivetrain.getPosition()[1] > -20) {
-			drivetrain.robotOrientedDrive(0, 0.3, 0);
-			drivetrain.updateOdo();
-			sendTelemetry("Strafe back to wall ");
-			launcher.intake(0);
-			launcher.transfer(0);
-		}
-
-		while (drivetrain.getPosition()[0] < 22) {
-			drivetrain.robotOrientedDrive(.3, 0, 0);
-			drivetrain.updateOdo();
-			sendTelemetry("Return to shooting position");
-		}
-
-		while (drivetrain.getPosition()[2] > -104) {
-			drivetrain.robotOrientedDrive(0, 0, -.3);
-			launcher.outtake(.9);
-			drivetrain.updateOdo();
-			sendTelemetry("Rotate");
-		}
-
-		drivetrain.robotOrientedDrive(0, 0, 0);
-
-		timer = new ElapsedTime();
-		while(launcher.flywheelRPMS() < 5300 && timer.seconds() < 2) {
-			drivetrain.robotOrientedDrive(0, 0, 0);
-			launcher.outtake(.9);
-			sendTelemetry("Ensure speed values");
-		}
-
-		timer = new ElapsedTime();
-		while(timer.seconds() < 1.75) {
-			drivetrain.robotOrientedDrive(0, 0, 0);
-			launcher.fling(true);
-			sendTelemetry("Launch collected ball 1");
-		}
-
-		timer = new ElapsedTime();
-		while(timer.seconds() < .8) {
-			drivetrain.robotOrientedDrive(0, 0, 0);
-			launcher.intake(1);
-			launcher.transfer(-1);
-			launcher.outtake(.9);
-			launcher.fling(false);
-			sendTelemetry("Bring ball to front");
-		}
-
-		timer = new ElapsedTime();
-		while(launcher.flywheelRPMS() < 5300 && timer.seconds() < 2) {
-			drivetrain.robotOrientedDrive(0, 0, 0);
-			launcher.outtake(.9);
-			sendTelemetry("Ensure speed value");
-		}
-
-		timer = new ElapsedTime();
-		while(timer.seconds() < 1.75) {
-			drivetrain.robotOrientedDrive(0, 0, 0);
-			launcher.fling(true);
-			sendTelemetry("Launch ball 2");
-		}
-
-		timer.reset();
-		while(timer.seconds() < 1) {
-			drivetrain.robotOrientedDrive(.3,0,0);
-			launcher.fling(false);
-			launcher.outtake(0);
-			launcher.intake(0);
-			launcher.transfer(0);
-			sendTelemetry("Moving off line");
-		}
-
-		requestOpModeStop();
-		while(true){
-			sendTelemetry("Wait for kill");
-			drivetrain.robotOrientedDrive(0,0,0);
-			drivetrain.neutral();
-			drivetrain.updateOdo();
-		}
-				}}
+	}
+}
