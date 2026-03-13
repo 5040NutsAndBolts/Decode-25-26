@@ -1,15 +1,13 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.teamcode.helpers.PID;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Launcher {
 	public final DcMotorEx flywheel;
@@ -52,10 +50,10 @@ public class Launcher {
 	}
 
 
-	public void fling(boolean in) {
+	public void gate(boolean in) {
 		flingServo.setPower(in ? 1 : 0);
 	}
-	public void fling(double in) {
+	public void gate(double in) {
 		flingServo.setPower(in);
 	}
 

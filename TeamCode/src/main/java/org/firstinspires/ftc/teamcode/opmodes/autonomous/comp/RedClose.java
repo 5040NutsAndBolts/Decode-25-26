@@ -3,7 +3,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.helpers.odo.Odometry;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.Launcher;
 
@@ -37,7 +36,7 @@ public class RedClose extends OpMode {
 		while(timer.seconds() <1) {
 			drivetrain.robotOrientedDrive(0, 0, 0);
 		}
-		launcher.fling(true);
+		launcher.gate(true);
 		while(timer.seconds() <2) {
 			drivetrain.robotOrientedDrive(0,0,0);
 		}

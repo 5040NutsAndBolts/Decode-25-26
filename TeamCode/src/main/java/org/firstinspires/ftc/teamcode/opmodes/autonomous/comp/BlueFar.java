@@ -187,14 +187,14 @@ public class BlueFar extends OpMode {
 	public void loop() {
 		la.outtake(.8);
 		moveTo(
-				new double[]{6.25, 6.25, 20.5},
-				new double[]{2, 2, 1},
-				new double[]{30, 30, 60}
+				new double[]{6.25, 6.25, 24},
+				new double[]{2, 2, 2},
+				new double[]{30, 30, 999 }
 		);
-		fC.setTarget(3750);
+		fC.setTarget(4300);
 		while(la.flywheelRPMS() < fC.getTarget() *.98){
 			la.setOuttakePower(fC.autoControl());
-			la.fling(1);
+			la.gate(1);
 			sendTelemetry("Spinning up launcher");
 		}
 
@@ -202,10 +202,10 @@ public class BlueFar extends OpMode {
 		long lastShotTime = 0;
 		while(shotcount < 3) {
 			la.setOuttakePower(fC.autoControl());
-			if(la.flywheelRPMS() > fC.getTarget() *.98    && System.currentTimeMillis() - lastShotTime > 1500){
+			if(la.flywheelRPMS() > fC.getTarget() *.98    && System.currentTimeMillis() - lastShotTime > 1750){
 				ElapsedTime e1 = new ElapsedTime();
 				boolean first = true;
-				while(e1.seconds() < .8) {
+				while(e1.seconds() < .75 + (shotcount == 2 ? 1 : 0)) {
 					la.intake(-1);
 					la.transfer(1);
 					la.setOuttakePower(1);
@@ -214,11 +214,7 @@ public class BlueFar extends OpMode {
 					first = false;
 					lastShotTime = System.currentTimeMillis();
 				}
-				moveTo(
-						new double[]{6.25, 6.25, 20.5},
-						new double[]{2, 2, 1.5},
-						new double[]{30, 30, 60}
-				);
+				setR(24,2,999);
 				dt.robotOrientedDrive(0,0,0);
 			}else {
 				la.transfer(0);
@@ -230,17 +226,18 @@ public class BlueFar extends OpMode {
 		la.intake(0);
 		la.outtake(.8);
 
-		setXY(new double[]{24, 6.25}, new double[]{1.25, 5},   new double[]{100, 100});
+		setXY(new double[]{21, 6.25}, new double[]{1.25, 5},   new double[]{100, 100});
 		setR(-90, 3, 100);
 
-		while (dt.getPosition()[1] < 47) {
-			la.fling(-1);
+		ElapsedTime k = new ElapsedTime();
+		while (dt.getPosition()[1] < 47 && k.seconds() < 2) {
+			la.gate(-1);
 			la.transfer(1);
 			la.intake(-1);
-			dt.robotOrientedDrive(.33, 0, 0);
+			dt.robotOrientedDrive(.3, 0, 0);
 			sendTelemetry("Picking up artifacts");
 		}
-		la.fling(0);
+		la.gate(0);
 		la.transfer(0);
 		la.intake(0);
 		dt.robotOrientedDrive(0, 0, 0);
@@ -248,39 +245,39 @@ public class BlueFar extends OpMode {
 
 		setR(30, 29, 9999);
 		moveTo(
-				new double[]{3.25, 3.25, 20.5},
-				new double[]{3, 3, 5},
+				new double[]{20, 20, 24},
+				new double[]{6, 6, 5},
 				new double[]{100, 100, 1000}
 		);
 		setXY(
 				new double[]{1.25, 1.25},
-				new double[]{1.5, 1.5},
+				new double[]{2, 2},
 				new double[]{100, 100}
 		);
-		setR(20.5,1.5,3000);
+		setR(24,2,3000);
 
 
-		fC.setTarget(3750);
+		fC.setTarget(4300);
 		long starttime = System.currentTimeMillis();
 		while(la.flywheelRPMS() < fC.getTarget() *.975){
 			la.setOuttakePower(fC.autoControl());
 			la.transfer(0);
 			la.intake(0);
-			la.fling(1);
+			la.gate(1);
 			sendTelemetry("Spinning up launcher");
 			if(starttime < 500)
-				la.fling(1);
+				la.gate(-1);
 		}
 
-		setR(20.5,.5,600);
+
 		shotcount = 0;
 		lastShotTime = 0;
 		while(shotcount < 3) {
 			la.setOuttakePower(fC.autoControl());
-			if(la.flywheelRPMS() > fC.getTarget() *.98    && System.currentTimeMillis() - lastShotTime > 1500){
+			if(la.flywheelRPMS() > fC.getTarget() *.98 && System.currentTimeMillis() - lastShotTime > 1750){
 				ElapsedTime e1 = new ElapsedTime();
 				boolean first = true;
-				while(e1.seconds() < .8) {
+				while(e1.seconds() < .75 + (shotcount == 2 ? 1 : 0)) {
 					la.intake(-1);
 					la.transfer(1);
 					la.setOuttakePower(1);
@@ -289,11 +286,7 @@ public class BlueFar extends OpMode {
 					first = false;
 					lastShotTime = System.currentTimeMillis();
 				}
-				moveTo(
-						new double[]{1.25, 1.25, 20.5},
-						new double[]{1.5, 1.5, .5},
-						new double[]{30, 30, 60}
-				);
+				setR(24,2,3000);
 				dt.robotOrientedDrive(0,0,0);
 			}else {
 				la.transfer(0);
@@ -301,6 +294,10 @@ public class BlueFar extends OpMode {
 				sendTelemetry("Spinning up, launch prepared");
 			}
 		}
+
+		ElapsedTime e = new ElapsedTime();
+		while(e.seconds() < 1)
+			dt.robotOrientedDrive(-1,0,0);
 
 		while (true) {
 			sendTelemetry("DONE");

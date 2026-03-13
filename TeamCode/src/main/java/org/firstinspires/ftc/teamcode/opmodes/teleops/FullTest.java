@@ -30,7 +30,7 @@ public class FullTest extends OpMode {
 	AprilTags at;
 	byte isFar = 0;
 	boolean lastOverrideToggleInput = false, overrideToggle = false;
-	final int FAR_RPMS = 4100, CLOSE_LINE_RPMS = 3450, CLOSE_POINT_RPMS = 3250;
+	final int FAR_RPMS = 4650, CLOSE_LINE_RPMS = 4450, CLOSE_POINT_RPMS = 4250;
 	int currentBestRPMS = 0;
 	@Override
 	public void init() {
@@ -42,16 +42,10 @@ public class FullTest extends OpMode {
 		lightBR = new Lights(hardwareMap, "Elight");
 		colorSensor = new CSensor("CSensor", hardwareMap);
 		at = new AprilTags(hardwareMap);
-		flywheelController = new PID(.0075, 3e-8, 0, launcher::flywheelRPMS, 0);
+		flywheelController = new PID(.0045, 3e-8, 0, launcher::flywheelRPMS, 0);
+		flywheelController.setIntegralLimit(1e9);
 		packet = new TelemetryPacket();
 		dash = FtcDashboard.getInstance();
-	}
-
-	private double dist (double x1, double y1, double x2, double y2) {
-		return Math.sqrt(
-				(x2 - x1) * (x2 - x1) +
-				(y2-y1) * (y2-y1)
-		);
 	}
 
 	@SuppressLint("DefaultLocale")
@@ -71,38 +65,17 @@ public class FullTest extends OpMode {
 					telemetry.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
 					packet.addLine(String.format("  - Yaw: %.2f", detection.ftcPose.yaw));
 					packet.addLine(String.format("  - Z: %.2f", detection.ftcPose.z));
-					//yawL, yawH, Z
-					double[] RL = {-5.5, -7.5, -7.3};
-					double[] RP = {4,5.5,-2.8};
-					double[] BP = {1.8, 3, -2.7};
-					double[] BL = {-2.5,-4,-7.2};
-
 					//0: far 1: point 2: line
-					//blue id is 20
+					//blue id is 20, red is 24
 					if(detection.ftcPose.z <= -9)
 						isFar = 0;
 					else {
-						if(detection.id == 20){
-							double pDist = dist((BP[0] + BP[1] / 2), BP[2], detection.ftcPose.yaw, detection.ftcPose.z);
-							double lDist = dist((BL[0] + BL[1] / 2), BL[2], detection.ftcPose.yaw, detection.ftcPose.z);
-							isFar = (byte) (pDist < lDist ? 1 : 2);
-						} else if(detection.id == 24){
-							double pDist = dist((RP[0] + RP[1] / 2), RP[2], detection.ftcPose.yaw, detection.ftcPose.z);
-							double lDist = dist((RL[0] + RL[1] / 2), RL[2], detection.ftcPose.yaw, detection.ftcPose.z);
-							isFar = (byte) (pDist < lDist ? 1 : 2);
+						if(detection.id == 20 && detection.ftcPose.yaw < 0){
+							isFar = 2;
+						} else if(detection.id == 24 && detection.ftcPose.yaw > -5){
+							isFar = 2;
 						}
-						else isFar = 2;
-					}
-
-					switch (isFar) {
-						case 0:
-							currentBestRPMS = FAR_RPMS;
-						case 1:
-							currentBestRPMS = CLOSE_POINT_RPMS;
-						case 2:
-							currentBestRPMS = CLOSE_LINE_RPMS;
-						default:
-							currentBestRPMS = FAR_RPMS;
+						else isFar = 1;
 					}
 
 					if ((((detection.ftcPose.yaw >= 27 && detection.ftcPose.yaw <= 34.7 && detection.id == 20) || (detection.ftcPose.yaw >= -31 && detection.ftcPose.yaw <= -26 && detection.id == 24))) || ((detection.ftcPose.yaw >= -6 && detection.ftcPose.yaw <= -4 && detection.id == 20) || (detection.ftcPose.yaw >= -15.8 && detection.ftcPose.yaw <= -13.8 && detection.id == 24))) {
@@ -132,16 +105,25 @@ public class FullTest extends OpMode {
 				idle=false;
 			}
 		}else if(gamepad2.right_trigger > 0.25){
-			flywheelController.setTarget(currentBestRPMS);
+			flywheelController.setTarget(
+					isFar == 0 ? FAR_RPMS : isFar ==1 ? CLOSE_POINT_RPMS : CLOSE_LINE_RPMS
+			);
+			currentBestRPMS = (int) flywheelController.getTarget();
 			idle=false;
 		}
 
 		if(idle) {
-			launcher.setOuttakePower(.3);
+			launcher.setOuttakePower(.65);
 			lightFL.setPattern(colorSensor.getColor());
 			lightFR.setPattern(colorSensor.getColor());
 		}else {
 			double power = flywheelController.autoControl();
+			if(power < 0) {
+				power = 0;
+				flywheelController.setIntegralLimit(1);
+			}else {
+				flywheelController.setIntegralLimit(1e9);
+			}
 			launcher.setOuttakePower(power);
 			if(launcher.flywheelRPMS() > flywheelController.getTarget() * .96){
 				gamepad2.rumble(150);
@@ -160,16 +142,16 @@ public class FullTest extends OpMode {
 		drivetrain.robotOrientedDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
 		launcher.intake(gamepad1.right_trigger-gamepad1.left_trigger);
 		launcher.transfer(-gamepad2.left_stick_y);
-		launcher.fling(gamepad2.right_stick_y);
+		launcher.gate(gamepad2.right_stick_y);
 		drivetrain.toggleSlowMode(gamepad1.b);
 
 
 
-		//telemetry.addLine("Autoranging Override?: " + overrideToggle);
+		telemetry.addLine("Autoranging Override?: " + overrideToggle);
 		telemetry.addLine("isFar: " + isFar);
 		telemetry.addLine("CBRPMS: " + currentBestRPMS);
-		//telemetry.addLine("Launcher: \n" + launcher.toString());
-		//telemetry.addLine("Drivetrain: \n" + drivetrain.toString());
+		telemetry.addLine("Launcher: \n" + launcher.toString());
+		telemetry.addLine("Drivetrain: \n" + drivetrain.toString());
 		telemetry.update();
 		dash.sendTelemetryPacket(packet);
 		packet.clearLines();

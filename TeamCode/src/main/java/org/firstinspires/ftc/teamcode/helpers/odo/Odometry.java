@@ -25,6 +25,7 @@ public class Odometry {
 
         //Recalibrate IMU
         pinpoint.resetPosAndIMU();
+        pinpoint.recalibrateIMU();
     }
 
     public GoBildaPinpointDriver getPinpoint() {

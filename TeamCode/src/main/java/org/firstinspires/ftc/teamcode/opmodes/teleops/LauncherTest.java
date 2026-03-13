@@ -42,7 +42,7 @@ public class LauncherTest extends OpMode {
 	public void loop() {
 		la.intake(gamepad1.left_trigger-gamepad1.right_trigger);
 		la.transfer(-gamepad2.left_stick_y);
-		la.fling(gamepad2.b);
+		la.gate(gamepad2.b);
 		pid.setTarget(5300);
 		la.setOuttakePower(pid.autoControl(la.flywheelRPMS()));
 		if(Math.abs(la.flywheelRPMS() - 5300 ) < 100) {
