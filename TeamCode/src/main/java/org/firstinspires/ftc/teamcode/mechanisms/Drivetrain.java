@@ -86,6 +86,13 @@ public class Drivetrain {
         backRight.setPower(forward  + rotation - sideways);
     }
 
+    public void directDrive(double fl, double fr, double bl, double br){
+        frontLeft.setPower(fl);
+        frontRight.setPower(fr);
+        backLeft.setPower(bl);
+        backRight.setPower(br);
+    }
+
     /**
      * Drives the robot relative to the field, compensating for the robot's
      * current heading so that "forward" always means the same field direction

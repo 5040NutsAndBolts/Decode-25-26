@@ -120,7 +120,7 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
         }
 
 
-        // For fun, use OpenCV to draw 6DOF markers on the image.
+        // draw 6DOF markers on the image.
         for(AprilTagDetection detection : detections)
         {
             Pose pose = aprilTagPoseToOpenCvPose(detection.pose);
@@ -133,7 +133,7 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
         return input;
     }
 
-
+    // for adjusting based on specs
     public void setDecimation(float decimation)
     {
         synchronized (decimationSync)
@@ -337,10 +337,7 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
     }
 
 
-    /*
-     * A simple container to hold both rotation and translation
-     * vectors, which together form a 6DOF pose.
-     */
+
     class Pose
     {
         Mat rvec;

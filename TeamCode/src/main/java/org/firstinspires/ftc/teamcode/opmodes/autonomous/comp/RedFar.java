@@ -187,22 +187,28 @@ public class RedFar extends OpMode {
 	public void loop() {
 		la.outtake(.8);
 		moveTo(
-				new double[]{6.25, -6.25, -11},
-				new double[]{1.5, 1.5, 5},
+				new double[]{6.25, -5.25, -11},
+				new double[]{5, 5, 5},
 				new double[]{30, 30, 600}
 		);
-		fC.setTarget(4100);
-		while(la.flywheelRPMS() < fC.getTarget() *.98){
+		fC.setTarget(3800);
+		while(la.flywheelRPMS() < fC.getTarget() *.95){
 			la.setOuttakePower(fC.autoControl());
+			telemetry.addLine("RPMs:" + la.flywheelRPMS());
+			telemetry.update();
 			la.gate(1);
 			sendTelemetry("Spinning up launcher");
 		}
-		setR(-11,1.5,600);
+		telemetry.addLine("rotating a lil");
+		telemetry.update();
+		setR(-11,3,600);
 		byte shotcount = 0;
 		long lastShotTime = 0;
 		while(shotcount < 3) {
+			telemetry.addLine("LET ME OUT LET ME OUT LET ME OUT");
+			telemetry.update();
 			la.setOuttakePower(fC.autoControl());
-			if(la.flywheelRPMS() > fC.getTarget() *.98    && System.currentTimeMillis() - lastShotTime > 1550){
+			if(la.flywheelRPMS() > fC.getTarget() *0.95    && System.currentTimeMillis() - lastShotTime > 1550){
 				ElapsedTime e1 = new ElapsedTime();
 				boolean first = true;
 				while(e1.seconds() < .75 + (shotcount == 2 ? 1 : 0)) {
@@ -214,7 +220,7 @@ public class RedFar extends OpMode {
 					first = false;
 					lastShotTime = System.currentTimeMillis();
 				}
-				setR(-11,1.5,600);
+				setR(-11,3,600);
 				dt.robotOrientedDrive(0,0,0);
 			}else {
 				la.transfer(0);
@@ -226,11 +232,12 @@ public class RedFar extends OpMode {
 		la.intake(0);
 		la.outtake(.8);
 
-		setXY(new double[]{22, -6.25}, new double[]{1, 6},   new double[]{100, 100});
+		setXY(new double[]{21.5, -8}, new double[]{1.5, 6},   new double[]{100, 100});
 		setR(90, 2, 999);
-
+		long starttime = System.currentTimeMillis();
 		while (dt.getPosition()[1] > -47) {
-			la.gate(-1);
+			if (System.currentTimeMillis() - starttime < 500)
+				la.gate(-1);
 			la.transfer(1);
 			la.intake(-1);
 			dt.robotOrientedDrive(.3, 0, 0);
@@ -250,17 +257,20 @@ public class RedFar extends OpMode {
 			sendTelemetry("Returning");
 		}
 		dt.robotOrientedDrive(0,0,0);
-		setR(-11,1.5,600);
-		fC.setTarget(4000);
-		long starttime = System.currentTimeMillis();
-		while(la.flywheelRPMS() < fC.getTarget() *.975 || starttime < 500){
+		setR(-13,1.5,600);
+		fC.setTarget(3950);
+		starttime = System.currentTimeMillis();
+		if (System.currentTimeMillis()-starttime < 500) {
+			la.gate(1);
+			telemetry.addLine("GATE MOVING!!!");
+			telemetry.update();
+		}
+		while(la.flywheelRPMS() < fC.getTarget() *.975 ){
 			la.setOuttakePower(fC.autoControl());
 			la.transfer(0);
 			la.intake(0);
-			la.gate(1);
 			sendTelemetry("Spinning up launcher");
-			if(starttime < 500)
-				la.gate(-1);
+
 		}
 
 		shotcount = 0;
@@ -279,8 +289,10 @@ public class RedFar extends OpMode {
 					first = false;
 					lastShotTime = System.currentTimeMillis();
 				}
-				setR(-11,1.5,600);
+				setR(-13,1.5,600);
 				dt.robotOrientedDrive(0,0,0);
+				if (time >= 29.4)
+					dt.robotOrientedDrive(-0.3,0,0);
 			}else {
 				la.transfer(0);
 				la.intake(0);
@@ -290,7 +302,7 @@ public class RedFar extends OpMode {
 
 		ElapsedTime e = new ElapsedTime();
 		while(e.seconds() < 1)
-			dt.robotOrientedDrive(-1,0,0);
+			dt.robotOrientedDrive(-0.3,0,0);
 
 		while (true) {
 			sendTelemetry("DONE");

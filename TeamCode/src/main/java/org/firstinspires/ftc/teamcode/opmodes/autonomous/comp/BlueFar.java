@@ -187,12 +187,12 @@ public class BlueFar extends OpMode {
 	public void loop() {
 		la.outtake(.8);
 		moveTo(
-				new double[]{6.25, 6.25, 24},
+				new double[]{6.25, 6.25, 31.5},
 				new double[]{2, 2, 2},
 				new double[]{30, 30, 999 }
 		);
-		fC.setTarget(4300);
-		while(la.flywheelRPMS() < fC.getTarget() *.98){
+		fC.setTarget(3850);
+		while(la.flywheelRPMS() < fC.getTarget() *.96){
 			la.setOuttakePower(fC.autoControl());
 			la.gate(1);
 			sendTelemetry("Spinning up launcher");
@@ -202,10 +202,10 @@ public class BlueFar extends OpMode {
 		long lastShotTime = 0;
 		while(shotcount < 3) {
 			la.setOuttakePower(fC.autoControl());
-			if(la.flywheelRPMS() > fC.getTarget() *.98    && System.currentTimeMillis() - lastShotTime > 1750){
+			if(la.flywheelRPMS() > fC.getTarget() *.96    && System.currentTimeMillis() - lastShotTime > 1750){
 				ElapsedTime e1 = new ElapsedTime();
 				boolean first = true;
-				while(e1.seconds() < .75 + (shotcount == 2 ? 1 : 0)) {
+				while(e1.seconds() < .50 + (shotcount == 2 ? 1 : 0)) {
 					la.intake(-1);
 					la.transfer(1);
 					la.setOuttakePower(1);
@@ -214,8 +214,11 @@ public class BlueFar extends OpMode {
 					first = false;
 					lastShotTime = System.currentTimeMillis();
 				}
-				setR(24,2,999);
+				setR(31.5     	,3
+						,999);
 				dt.robotOrientedDrive(0,0,0);
+				if(time >= 29)
+					dt.robotOrientedDrive(-1,0,0);
 			}else {
 				la.transfer(0);
 				la.intake(0);
@@ -226,15 +229,16 @@ public class BlueFar extends OpMode {
 		la.intake(0);
 		la.outtake(.8);
 
-		setXY(new double[]{21, 6.25}, new double[]{1.25, 5},   new double[]{100, 100});
-		setR(-90, 3, 100);
+		setXY(new double[]{21, 10}, new double[]{2.5, 5},   new double[]{100, 100});
+		setR(-87, 3, 100);
 
-		ElapsedTime k = new ElapsedTime();
-		while (dt.getPosition()[1] < 47 && k.seconds() < 2) {
+		while (dt.getPosition()[1] < 40) {
 			la.gate(-1);
 			la.transfer(1);
 			la.intake(-1);
 			dt.robotOrientedDrive(.3, 0, 0);
+			telemetry.addLine(Arrays.toString(dt.getPosition()));
+			telemetry.update();
 			sendTelemetry("Picking up artifacts");
 		}
 		la.gate(0);
@@ -243,22 +247,28 @@ public class BlueFar extends OpMode {
 		dt.robotOrientedDrive(0, 0, 0);
 		telemetry.update();
 
-		setR(30, 29, 9999);
-		moveTo(
-				new double[]{20, 20, 24},
-				new double[]{6, 6, 5},
+		setR(30, 28, 9999);
+		setXY(
+				new double[]{16, 16, 24},
+				new double[]{8, 8, 5},
 				new double[]{100, 100, 1000}
 		);
+
 		setXY(
-				new double[]{1.25, 1.25},
+				new double[]{5.5, 5.5},
 				new double[]{2, 2},
 				new double[]{100, 100}
 		);
 		setR(24,2,3000);
 
 
-		fC.setTarget(4300);
+		fC.setTarget(3950);
 		long starttime = System.currentTimeMillis();
+		if (System.currentTimeMillis()-starttime < 500) {
+			la.gate(1);
+			telemetry.addLine("GATE MOVING!!!");
+			telemetry.update();
+		}
 		while(la.flywheelRPMS() < fC.getTarget() *.975){
 			la.setOuttakePower(fC.autoControl());
 			la.transfer(0);
@@ -266,13 +276,16 @@ public class BlueFar extends OpMode {
 			la.gate(1);
 			sendTelemetry("Spinning up launcher");
 			if(starttime < 500)
-				la.gate(-1);
+				la.gate(1);
 		}
 
 
 		shotcount = 0;
 		lastShotTime = 0;
 		while(shotcount < 3) {
+			while (time >= 29.4) {
+				dt.robotOrientedDrive(-0.45, 0, 0);
+			}
 			la.setOuttakePower(fC.autoControl());
 			if(la.flywheelRPMS() > fC.getTarget() *.98 && System.currentTimeMillis() - lastShotTime > 1750){
 				ElapsedTime e1 = new ElapsedTime();
@@ -288,16 +301,24 @@ public class BlueFar extends OpMode {
 				}
 				setR(24,2,3000);
 				dt.robotOrientedDrive(0,0,0);
+				while (time >= 29.4) {
+					dt.robotOrientedDrive(-0.45, 0, 0);
+				}
 			}else {
 				la.transfer(0);
 				la.intake(0);
 				sendTelemetry("Spinning up, launch prepared");
+				while (time >= 29.4) {
+					dt.robotOrientedDrive(-0.45, 0, 0);
+				}
 			}
+			while (time >= 29.4)
+				dt.robotOrientedDrive(-0.45,0,0);
 		}
 
 		ElapsedTime e = new ElapsedTime();
 		while(e.seconds() < 1)
-			dt.robotOrientedDrive(-1,0,0);
+			dt.robotOrientedDrive(-0.3,0,0);
 
 		while (true) {
 			sendTelemetry("DONE");

@@ -30,7 +30,7 @@ public class FullTest extends OpMode {
 	AprilTags at;
 	byte isFar = 0;
 	boolean lastOverrideToggleInput = false, overrideToggle = false;
-	final int FAR_RPMS = 4650, CLOSE_LINE_RPMS = 4450, CLOSE_POINT_RPMS = 4250;
+	final int FAR_RPMS = 4950, CLOSE_LINE_RPMS = 4450, CLOSE_POINT_RPMS = 4250;
 	int currentBestRPMS = 0;
 	@Override
 	public void init() {
