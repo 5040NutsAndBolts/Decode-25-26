@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@Autonomous(name = "LQRTest", group = "Teleop")
+@TeleOp(name = "LQRTest", group = "Teleop")
 public class LQRTest extends OpMode {
     private Drivetrain dt;
     FtcDashboard dash;
@@ -24,7 +24,6 @@ public class LQRTest extends OpMode {
     Launcher la;
     PID fC;
     LQR lqr;
-    SimpleMatrix target = new SimpleMatrix(6, 1);
 
 
     private void sendTelemetry(String loopName, Map<String, Object> additional) {
@@ -63,34 +62,27 @@ public class LQRTest extends OpMode {
 
         sendTelemetry("Initialization");
         dt.resetOdo();
-        target.set(0, 0, 24.0);
-        target.set(1, 0, 0.0);
-        target.set(2, 0, 0.0);
-        target.set(3, 0, 0.0);
-        target.set(4, 0, 0.0);
-        target.set(5, 0, 0.0);
+
     }
 
     @Override
     public void loop() {
 
+
         lqr.updateLQR(dt.getPosition()[0], dt.getPosition()[1], dt.getPosition()[2], dt.getVelocity()[0], dt.getVelocity()[1], dt.getVelocity()[2]);
 
-        SimpleMatrix u = lqr.calculate(lqr.state, target);
+        SimpleMatrix powers = lqr.calculate(lqr.state);
 
-        dt.directDrive(u.get(0,0), u.get(5,0), u.get(2,0), u.get(3,0));
+        dt.directDrive(powers.get(0,0), powers.get(1,0), powers.get(2,0), powers.get(3,0));
 
-        while (true) {
-            sendTelemetry("DONE");
-            la.setOuttakePower(0);
-            dt.robotOrientedDrive(0, 0, 0);
-            la.transfer(0);
-            la.intake(0);
-            dt.neutral();
-            dt.updateOdo();
-            requestOpModeStop();
+        if(gamepad1.a)
+            lqr.setTarget(24,0,0);
+
+
+        la.setOuttakePower(0);
+        dt.neutral();
+        dt.updateOdo();
         }
     }
 
 
-}
