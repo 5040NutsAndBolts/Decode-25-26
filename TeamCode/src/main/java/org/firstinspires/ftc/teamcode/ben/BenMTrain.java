@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.ben;
 import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class BenMTrain {
@@ -15,6 +16,9 @@ public class BenMTrain {
         frontRight = hardwareMap.get(DcMotorEx.class, "Front Right");
         backLeft = hardwareMap.get(DcMotorEx.class, "Back Left");
         backRight = hardwareMap.get(DcMotorEx.class, "Back Right");
+
+        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
     }
 
