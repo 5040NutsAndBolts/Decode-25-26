@@ -52,35 +52,7 @@ public class PID {
 
 	//Calculates power output
 	private double calculate() {
-		double currentPosition = getCurrent.get();
-
-		//If deltaTime is too small, return last output to minimize floating point errors
-		if(deltaTime < 3)
-			return lastOutput;
-
-
-		double currentError = currentTarget - currentPosition;
-		// christian - i think one of hte issues with the pid is that youre multiplying the integral by dT twice which happens in both calculate loops
-		errorSum += currentError * deltaTime;
-		if(errorSum > integralLimit)
-			errorSum = integralLimit;
-
-		//Instantaneous error
-		double Proportional = kp * currentError;
-		//Error over time                       // christian - i think one of hte issues with the pid is that youre multiplying the integral by dT twice
-		double Integral = ki * errorSum;
-		//Rate of change of error
-		double Derivative = kd * (currentError - lastError) / deltaTime;
-
-		double output = Proportional + Integral + Derivative;
-
-		//Update persistent values
-		lastError = currentError;
-		lastOutput = output;
-		lastTime = System.currentTimeMillis();
-
-		currentOutput = output;
-		return output;
+		return calculate(getCurrent.get());
 	}
 
 	private double calculate(double currentPosition) {
@@ -91,8 +63,11 @@ public class PID {
 
 		double currentError = currentTarget - currentPosition;
 		errorSum += currentError * deltaTime;
+
 		if(errorSum > integralLimit)
 			errorSum = integralLimit;
+		if (errorSum < integralLimit)
+			errorSum = -integralLimit;
 
 		//Instantaneous error
 		double Proportional = kp * currentError;
@@ -106,9 +81,8 @@ public class PID {
 		//Update persistent values
 		lastError = currentError;
 		lastOutput = output;
-		lastTime = System.currentTimeMillis();
-
 		currentOutput = output;
+
 		return output;
 	}
 
@@ -124,8 +98,16 @@ public class PID {
 		return calculate();
 	}
 
+	public void reset() {
+		errorSum = 0;
+		lastError = 0;
+		lastOutput = 0;
+		lastTime = System.currentTimeMillis();
+	}
 
 	public double autoControl () {
+		if (getCurrent == null)
+			throw new IllegalStateException("No getCurrent supplier set - use autoControl(double) instead.");
 		updateDeltaTime();
 		return calculate();
 	}

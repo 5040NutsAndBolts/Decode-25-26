@@ -80,10 +80,10 @@ public class Drivetrain {
             sideways /= scale;
         }
 
-        frontLeft.setPower(forward  - rotation - sideways);
-        backLeft.setPower(forward   - rotation + sideways);
-        frontRight.setPower(forward + rotation + sideways);
-        backRight.setPower(forward  + rotation - sideways);
+        frontLeft.setPower((forward  + rotation + sideways)/1.6);
+        backLeft.setPower((forward   + rotation - sideways)/1.6);
+        frontRight.setPower((forward - rotation - sideways)/1.6);
+        backRight.setPower((forward  - rotation + sideways)/1.6);
     }
 
     public void directDrive(double fl, double fr, double bl, double br){

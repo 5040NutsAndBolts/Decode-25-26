@@ -2,26 +2,26 @@ package org.firstinspires.ftc.teamcode.helpers.thelly;
 
 public class KalmanLocal {
 
-    // State: [x, y, theta, vx, vy, omega]
+    //State: [x, y, theta, vx, vy, omega]
     private double[] state = new double[6];
 
-    // Covariance matrix P (6x6)
+    //Covariance matrix P (6x6)
     private double[][] P = new double[6][6];
 
-    // State transition A (6x6)
+    //State transition A (6x6)
     private double[][] A = new double[6][6];
 
-    // Measurement matrix H (3x6)
+    //Measurement matrix H (3x6)
     private double[][] H = {
             {1, 0, 0, 0, 0, 0},
             {0, 1, 0, 0, 0, 0},
             {0, 0, 1, 0, 0, 0}
     };
 
-    // Process noise Q (6x6, diagonal)
+    //Process noise Q (6x6, diagonal)
     private final double[] Q_diag = {0.01, 0.01, 0.001, 0.1, 0.1, 0.05};
 
-    // Measurement noise R (3x3, diagonal)
+    //Measurement noise R (3x3, diagonal)
     private final double[] R_diag = {0.001, 0.001, 0.0005};
 
 
@@ -68,9 +68,9 @@ public class KalmanLocal {
         double[][] K = matrixMul(matrixMul(ppred, transpose(H)), invert3x3(S));
 
         //X estimate (updates the state) = xpred + (K * residual)
-        double[] Kres = matrixVecMul(K, residual);
+        double[] kres = matrixVecMul(K, residual);
         for (int i = 0; i < 6; i++) {
-            state[i] = xpred[i] + Kres[i];
+            state[i] = xpred[i] + kres[i];
         }
 
         //P estimate (update P) = (I - K * H) * ppred
@@ -129,7 +129,7 @@ public class KalmanLocal {
             for (int j = 0; j < A[0].length; j++)
                 T[j][i] = A[i][j];
 
-        
+
         return T;
     }
 
@@ -150,6 +150,8 @@ public class KalmanLocal {
         }
         return result;
     }
+
+
 
     private double[][] invert3x3(double[][] m) {
         double det = m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])

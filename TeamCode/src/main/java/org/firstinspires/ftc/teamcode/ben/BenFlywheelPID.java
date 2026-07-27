@@ -24,6 +24,7 @@ public class BenFlywheelPID extends OpMode {
         speedControl = new PID(0.1,0,0, this::flywheelRPMS, 0);
         flywheel = hardwareMap.get(DcMotorEx.class, "Flywheel");
         dash = FtcDashboard.getInstance();
+        packet = new TelemetryPacket();
     }
 
     public void loop()
